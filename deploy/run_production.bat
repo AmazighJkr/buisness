@@ -5,7 +5,7 @@ if not exist ".env" (
   pause
   exit /b 1
 )
-if not exist "..\frontend_dist\index.html" (
+if not exist "frontend_dist\index.html" (
   echo Run deploy\build.bat first.
   pause
   exit /b 1

@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { PanelLeft } from 'lucide-react'
 import CategorySidebar from '../components/CategorySidebar.jsx'
+import MobileSiteNav from '../components/MobileSiteNav.jsx'
 import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
+import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
 import { fetchCategories, fetchFeaturedProjects, fetchProject, fetchProjects } from '../api/client.js'
 
 export default function ProjectsPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const [sidebarOpen, setSidebarOpen] = useProjectsSidebar()
 
   const [categories, setCategories] = useState([])
   const [expanded, setExpanded] = useState({})
@@ -41,55 +45,98 @@ export default function ProjectsPage() {
       .catch(() => setProject(null))
   }, [projectId])
 
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)')
+    const lock = () => {
+      if (mq.matches && sidebarOpen) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = ''
+      }
+    }
+    lock()
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [sidebarOpen])
+
   const toggleExpand = (catId) => {
     setExpanded((e) => ({ ...e, [catId]: !e[catId] }))
   }
 
+  const closeSidebar = () => setSidebarOpen(false)
+  const openSidebar = () => setSidebarOpen(true)
+
   const selectSub = (subId) => {
     setSelectedSubId(subId)
     navigate('/projects')
+    if (window.innerWidth < 1024) closeSidebar()
   }
 
   const openProject = (id) => {
     navigate(`/projects/${id}`)
+    if (window.innerWidth < 1024) closeSidebar()
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-dark-bg text-dark-text">
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-dark-border bg-dark-bg px-4 py-3">
-        <Link to="/" className="text-sm font-semibold tracking-wide">
-          EmbeddedGrid
-        </Link>
-        <nav className="flex gap-4 text-sm text-dark-muted">
-          <Link to="/" className="hover:text-dark-text">Home</Link>
-          <span className="text-dark-text">Projects</span>
-          <Link to="/command" className="hover:text-dark-text">Submit command</Link>
-          <Link to="/track" className="hover:text-dark-text">Track</Link>
-        </nav>
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-dark-bg text-dark-text">
+      <header className="sticky top-0 z-[60] border-b border-dark-border bg-dark-bg/95 backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((o) => !o)}
+              className="flex shrink-0 items-center gap-1.5 rounded border border-dark-border px-2.5 py-2 text-sm text-dark-muted hover:text-dark-text"
+              aria-expanded={sidebarOpen}
+              aria-controls="projects-category-sidebar"
+              aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
+            >
+              <PanelLeft className="h-5 w-5 shrink-0" />
+              <span className="text-xs sm:text-sm">{sidebarOpen ? 'Hide' : 'Categories'}</span>
+            </button>
+            <Link to="/" className="truncate text-sm font-semibold tracking-wide">
+              EmbeddedGrid
+            </Link>
+          </div>
+          <MobileSiteNav highlight="/projects" />
+        </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      {!sidebarOpen && (
+        <button
+          type="button"
+          onClick={openSidebar}
+          className="flex w-full items-center justify-center gap-2 border-b border-dark-border bg-dark-panel px-3 py-2.5 text-sm text-dark-text lg:hidden"
+        >
+          <PanelLeft className="h-4 w-4 text-dark-muted" />
+          Browse categories
+        </button>
+      )}
+
+      <div className="flex min-h-0 flex-1">
         <CategorySidebar
+          id="projects-category-sidebar"
           categories={categories}
           expanded={expanded}
           onToggleExpand={toggleExpand}
           selectedSubId={selectedSubId}
           onSelectSub={selectSub}
+          open={sidebarOpen}
+          onClose={closeSidebar}
         />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
           {projectId && project ? (
-            <div className="px-4 py-6 sm:px-8">
+            <div className="px-3 py-4 sm:px-6 lg:px-8">
               <ProjectDetailContent
                 project={project}
                 onBack={() => navigate('/projects')}
               />
             </div>
           ) : (
-            <div className="p-4 sm:p-6">
-            <>
-              <div className="mb-6">
-                <h1 className="text-lg font-semibold">
+            <div className="p-3 sm:p-6">
+              <div className="mb-4 sm:mb-6">
+                <h1 className="text-base font-semibold sm:text-lg">
                   {selectedSubId ? 'Projects' : 'Trending projects'}
                 </h1>
                 <p className="text-xs text-dark-muted">
@@ -104,7 +151,7 @@ export default function ProjectsPage() {
               ) : projects.length === 0 ? (
                 <p className="text-sm text-dark-muted">No projects here yet.</p>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                   {projects.map((p) => (
                     <div key={p.id} onClick={() => openProject(p.id)} className="cursor-pointer">
                       <ProjectCard project={p} />
@@ -112,7 +159,6 @@ export default function ProjectsPage() {
                   ))}
                 </div>
               )}
-            </>
             </div>
           )}
         </main>

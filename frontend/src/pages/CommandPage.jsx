@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Send } from 'lucide-react'
+import PageHeader from '../components/PageHeader.jsx'
 import { fetchFeaturedProjects, submitCommand } from '../api/client.js'
 
 export default function CommandPage() {
@@ -65,20 +66,9 @@ export default function CommandPage() {
 
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
-      <header className="border-b border-dark-border px-4 py-3">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link to="/" className="text-sm font-semibold">
-            EmbeddedGrid
-          </Link>
-          <nav className="flex gap-4 text-sm text-dark-muted">
-            <Link to="/" className="hover:text-dark-text">Home</Link>
-            <Link to="/projects" className="hover:text-dark-text">Projects</Link>
-            <Link to="/track" className="hover:text-dark-text">Track</Link>
-          </nav>
-        </div>
-      </header>
+      <PageHeader highlight="/command" />
 
-      <main className="mx-auto max-w-3xl px-4 py-8">
+      <main className="mx-auto max-w-3xl px-3 py-6 sm:px-4 sm:py-8">
         <h1 className="text-2xl font-semibold">Submit a command</h1>
         <p className="mt-2 text-sm text-dark-muted">
           Describe your embedded or IoT project. No account required.

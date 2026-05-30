@@ -25,6 +25,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: clip;
   background-color: var(--color-dark-bg);
   color: var(--color-dark-text);
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;

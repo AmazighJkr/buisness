@@ -41,13 +41,24 @@ _render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME', '').strip()
 if _render_host and _render_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_render_host)
 
+_cloudinary_url = os.getenv('CLOUDINARY_URL', '').strip()
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+]
+if _cloudinary_url:
+    INSTALLED_APPS += [
+        'cloudinary_storage',
+        'django.contrib.staticfiles',
+        'cloudinary',
+    ]
+else:
+    INSTALLED_APPS += ['django.contrib.staticfiles']
+INSTALLED_APPS += [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -124,10 +135,44 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
+_media_env = os.getenv('MEDIA_ROOT', '').strip()
+_on_production = _on_render or bool(_render_host)
+if _cloudinary_url:
+    MEDIA_ROOT = Path(_media_env or BASE_DIR / 'media')
+elif _on_production:
+    if _media_env:
+        _candidate = Path(_media_env)
+        # /var/data/media only works with a Render persistent disk attached.
+        if _candidate.is_dir() or not str(_candidate).startswith('/var/data'):
+            MEDIA_ROOT = _candidate
+        else:
+            MEDIA_ROOT = Path('/tmp/embeddedgrid-media')
+    else:
+        MEDIA_ROOT = Path('/tmp/embeddedgrid-media')
+else:
+    MEDIA_ROOT = Path(_media_env or BASE_DIR / 'media')
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'OPTIONS': {
+            'location': MEDIA_ROOT,
+            'base_url': MEDIA_URL,
+        },
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
+
+if _cloudinary_url:
+  # Persistent uploads on Render (free Cloudinary account). Set CLOUDINARY_URL in Render Environment.
+    STORAGES['default'] = {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+    }
+    MEDIA_URL = '/media/'  # cloudinary_storage still exposes .url on fields
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

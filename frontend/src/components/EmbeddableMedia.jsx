@@ -22,7 +22,7 @@ export default function EmbeddableMedia({ config }) {
   if (showIframe) {
     return (
       <div className="w-full overflow-hidden bg-dark-bg">
-        <div className="relative aspect-video w-full min-h-[320px]">
+        <div className="relative aspect-video w-full min-h-[200px] sm:min-h-[280px]">
           <iframe
             src={src}
             title={label || 'Embedded content'}

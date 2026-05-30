@@ -1,9 +1,9 @@
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from portfolio.media_views import serve_media
 from portfolio.spa_views import serve_frontend
 
 urlpatterns = [
@@ -14,7 +14,9 @@ urlpatterns = [
 ]
 
 # Uploaded files (schematics, command attachments, chat images)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve_media, name='serve-media'),
+]
 
 # React app (same IP as API) — must be after /api/ and /media/
 if getattr(settings, 'SERVE_FRONTEND', False):

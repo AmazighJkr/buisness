@@ -66,9 +66,9 @@ export default function LandingPage() {
           style={{ backgroundImage: "url('/hero-bg.png')" }}
         />
         <div className="absolute inset-0 bg-dark-bg/75" />
-        <div className="relative z-10 mx-auto max-w-4xl px-4 py-24 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">EmbeddedGrid</h1>
-          <p className="mt-4 text-lg text-dark-muted sm:text-xl">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 py-20 text-center sm:py-24">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl">EmbeddedGrid</h1>
+          <p className="mt-4 text-base text-dark-muted sm:text-lg md:text-xl">
             IT, Electronics, Maintenance &amp; Consulting
           </p>
           <p className="mx-auto mt-6 max-w-2xl text-sm text-dark-muted">

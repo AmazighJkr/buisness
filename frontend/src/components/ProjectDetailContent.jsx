@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import CodePanel from './CodePanel.jsx'
 import MaterialsTable from './MaterialsTable.jsx'
 import ProjectComments from './ProjectComments.jsx'
@@ -5,12 +6,15 @@ import SectionBox from './SectionBox.jsx'
 import EmbeddableMedia from './EmbeddableMedia.jsx'
 import WiringTable from './WiringTable.jsx'
 import { resolveSimulationEmbed, resolveVideoEmbed } from '../utils/embedUtils.js'
+import { resolveMediaUrl, SCHEMATIC_PLACEHOLDER } from '../utils/mediaUrl.js'
 
 function hasMaterials(materials) {
   return Array.isArray(materials) && materials.some((r) => r?.component?.trim() || r?.part)
 }
 
 export default function ProjectDetailContent({ project, onBack }) {
+  const [schematicFailed, setSchematicFailed] = useState(false)
+  const schematicSrc = resolveMediaUrl(project.schematic_url)
   const libs = project.libraries_list || []
   const simulationConfig = project.simulation_url
     ? resolveSimulationEmbed(project.simulation_url)
@@ -20,7 +24,7 @@ export default function ProjectDetailContent({ project, onBack }) {
   const hasDescription = Boolean(project.description?.trim())
 
   return (
-    <div className="mx-auto w-[75%] min-w-[280px] max-w-5xl space-y-4 pb-10">
+    <div className="mx-auto w-full max-w-5xl space-y-4 pb-10 lg:w-[75%]">
       <button
         type="button"
         onClick={onBack}
@@ -30,7 +34,7 @@ export default function ProjectDetailContent({ project, onBack }) {
       </button>
 
       <SectionBox>
-        <h1 className="text-2xl font-semibold leading-snug tracking-tight">{project.title}</h1>
+        <h1 className="text-xl font-semibold leading-snug tracking-tight sm:text-2xl">{project.title}</h1>
         <p className="mt-1 text-xs text-dark-muted">
           {project.category_name} / {project.subcategory_name}
         </p>
@@ -68,13 +72,24 @@ export default function ProjectDetailContent({ project, onBack }) {
         </SectionBox>
       )}
 
-      {project.schematic_url && (
+      {(schematicSrc || project.schematic_file_missing) && (
         <SectionBox title="Schematic">
           <img
-            src={project.schematic_url}
-            alt=""
+            src={
+              schematicFailed || !schematicSrc || project.schematic_file_missing
+                ? SCHEMATIC_PLACEHOLDER
+                : schematicSrc
+            }
+            alt="Project schematic"
             className="mx-auto max-h-96 w-full max-w-full object-contain bg-dark-bg"
+            onError={() => setSchematicFailed(true)}
           />
+          {(schematicFailed || project.schematic_file_missing) && (
+            <p className="mt-2 text-center text-xs text-dark-muted">
+              Image missing on server (common on Render after redeploy). Edit the project and
+              upload again, or set CLOUDINARY_URL — see RENDER.md.
+            </p>
+          )}
         </SectionBox>
       )}
 

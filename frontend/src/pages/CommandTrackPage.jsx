@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import PageHeader from '../components/PageHeader.jsx'
 import CommandChat from '../components/CommandChat.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import SectionBox from '../components/SectionBox.jsx'
@@ -101,16 +102,9 @@ export default function CommandTrackPage() {
 
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
-      <header className="border-b border-dark-border px-4 py-3">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link to="/" className="text-sm font-semibold">
-            EmbeddedGrid
-          </Link>
-          <span className="text-xs text-dark-muted">Command tracking</span>
-        </div>
-      </header>
+      <PageHeader highlight="/track" />
 
-      <main className="mx-auto max-w-3xl space-y-4 px-4 py-8">
+      <main className="mx-auto max-w-3xl space-y-4 px-3 py-6 sm:px-4 sm:py-8">
         {!command && (
           <SectionBox title="Track your command">
             <div className="mb-4 flex gap-2">

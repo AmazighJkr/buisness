@@ -22,6 +22,7 @@ import {
   validateUploadFile,
 } from '../api/client.js'
 import AdminCategories from '../components/AdminCategories.jsx'
+import PageHeader from '../components/PageHeader.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
 import CommandComposer from '../components/CommandComposer.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
@@ -519,7 +520,8 @@ export default function AdminPanelPage() {
 
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
-    <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-8">
+      <PageHeader highlight="/admin-panel" />
+    <div className="mx-auto max-w-4xl space-y-6 overflow-x-hidden p-3 sm:p-6 lg:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-lab-border pb-4">
         <div className="flex items-center gap-2">
           <Cpu className="h-5 w-5 text-lab-copper" />

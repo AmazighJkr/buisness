@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count
@@ -32,8 +33,31 @@ def normalize_simulation_url(value):
 
 
 def media_url(file_field):
-    """Relative /media/... path — works on Render (same host) and avoids http/https mix-ups."""
-    return file_field.url if file_field else None
+    """Public URL for an uploaded file, or None if the file is not on disk."""
+    if not file_field:
+        return None
+    name = getattr(file_field, 'name', None) or ''
+    if not name:
+        return None
+    try:
+        if not file_field.storage.exists(name):
+            return None
+        # Local storage: double-check real file (Render can have DB path but no bytes).
+        path = getattr(file_field, 'path', None)
+        if path and not os.path.isfile(path):
+            return None
+    except Exception:
+        return None
+    url = file_field.url
+    if not url:
+        return None
+    if url.startswith('http://') or url.startswith('https://'):
+        return url
+    if not url.startswith('/'):
+        url = f'/{url.lstrip("/")}'
+    if not url.startswith('/media/') and not url.startswith('http'):
+        url = f'/media/{url.lstrip("/")}'
+    return url
 
 
 def parse_json_list(raw, field_name):
@@ -107,8 +131,15 @@ class ProjectListSerializer(serializers.ModelSerializer):
         return obj.libraries_list
 
 
+def schematic_file_missing(obj) -> bool:
+    if not obj.schematic_image or not getattr(obj.schematic_image, 'name', None):
+        return False
+    return media_url(obj.schematic_image) is None
+
+
 class ProjectDetailSerializer(serializers.ModelSerializer):
     schematic_url = serializers.SerializerMethodField()
+    schematic_file_missing = serializers.SerializerMethodField()
     simulation_embed_url = serializers.SerializerMethodField()
     libraries_list = serializers.SerializerMethodField()
     code_files = serializers.SerializerMethodField()
@@ -127,6 +158,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'materials',
             'wiring',
             'schematic_url',
+            'schematic_file_missing',
             'simulation_url',
             'simulation_embed_url',
             'video_url',
@@ -138,6 +170,9 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
 
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
+
+    def get_schematic_file_missing(self, obj):
+        return schematic_file_missing(obj)
 
     def get_simulation_embed_url(self, obj):
         return resolve_simulation_embed_url(obj.simulation_url)
@@ -251,6 +286,36 @@ class AdminProjectSerializer(serializers.ModelSerializer):
 
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
+
+    def _merge_request_files(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'FILES') and 'schematic_image' in request.FILES:
+            validated_data['schematic_image'] = request.FILES['schematic_image']
+        return validated_data
+
+    def _verify_schematic_saved(self, instance):
+        if not instance.schematic_image or not getattr(instance.schematic_image, 'name', None):
+            return
+        name = instance.schematic_image.name
+        if not instance.schematic_image.storage.exists(name):
+            raise serializers.ValidationError({
+                'schematic_image': (
+                    'Image was not saved on the server. On Render, set CLOUDINARY_URL '
+                    'in Environment (see RENDER.md) or try a smaller file (max 5 MB).'
+                ),
+            })
+
+    def create(self, validated_data):
+        validated_data = self._merge_request_files(validated_data)
+        instance = super().create(validated_data)
+        self._verify_schematic_saved(instance)
+        return instance
+
+    def update(self, instance, validated_data):
+        validated_data = self._merge_request_files(validated_data)
+        instance = super().update(instance, validated_data)
+        self._verify_schematic_saved(instance)
+        return instance
 
     def validate(self, attrs):
         if 'materials_json' in self.initial_data:

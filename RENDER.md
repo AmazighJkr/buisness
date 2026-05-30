@@ -107,6 +107,7 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 
 - Service **spins down** after ~15 min idle; first visit may take 30–60 s to wake up.
 - Free PostgreSQL expires after **90 days** (renew or upgrade).
+- **No persistent disk** on the free web plan — uploaded schematics need **Cloudinary** (`CLOUDINARY_URL` above). Do not set `MEDIA_ROOT=/var/data/media`.
 - Custom domain: Web Service → **Settings** → **Custom Domains**.
 
 ---

@@ -1,21 +1,19 @@
+import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
-
-const PLACEHOLDER =
-  'data:image/svg+xml,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">
-      <rect fill="#141414" width="400" height="120"/>
-      <line x1="40" y1="60" x2="360" y2="60" stroke="#2a2a2a" stroke-width="2"/>
-    </svg>`,
-  )
+import { resolveMediaUrl, SCHEMATIC_PLACEHOLDER } from '../utils/mediaUrl.js'
 
 export default function ProjectCard({ project }) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const src = resolveMediaUrl(project.schematic_url)
+  const showPlaceholder = !src || imgFailed
+
   return (
     <article className="panel panel-hover overflow-hidden">
       <img
-        src={project.schematic_url || PLACEHOLDER}
+        src={showPlaceholder ? SCHEMATIC_PLACEHOLDER : src}
         alt=""
         className="h-32 w-full border-b border-dark-border object-cover bg-dark-bg"
+        onError={() => setImgFailed(true)}
       />
       <div className="flex items-start justify-between gap-2 p-3">
         <div className="min-w-0">
