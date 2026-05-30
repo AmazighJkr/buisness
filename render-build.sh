@@ -26,6 +26,7 @@ pip install -r requirements.txt
 
 echo "[4/5] collectstatic + migrate..."
 python manage.py collectstatic --noinput
+python manage.py repair_migration_0009 || true
 python manage.py migrate --noinput
 
 echo "[5/5] admin + optional demo data..."

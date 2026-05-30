@@ -28,12 +28,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='projectcommand',
             name='tracking_code',
-            field=models.CharField(blank=True, db_index=True, editable=False, max_length=12, null=True),
+            field=models.CharField(blank=True, editable=False, max_length=12, null=True),
         ),
         migrations.RunPython(fill_tracking_codes, migrations.RunPython.noop),
         migrations.AlterField(
             model_name='projectcommand',
             name='tracking_code',
-            field=models.CharField(db_index=True, editable=False, max_length=12, unique=True),
+            field=models.CharField(editable=False, max_length=12, unique=True),
         ),
     ]

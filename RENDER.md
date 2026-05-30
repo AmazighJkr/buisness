@@ -93,6 +93,7 @@ Or: Dashboard → your service → **Manual Deploy** → **Deploy latest commit*
 | Problem | Fix |
 |---------|-----|
 | Build fails on `pipefail` / `invalid option` | Windows CRLF in `render-build.sh` — pull latest (includes `.gitattributes`) or build uses `sed` to strip `\r` |
+| `tracking_code_*_like already exists` | Pull latest (fixes migration 0009 + repair command), redeploy |
 | Build fails on `npm` | Ensure `NODE_VERSION=20.18.0` is set |
 | 400 Bad Request / DisallowedHost | `RENDER_EXTERNAL_HOSTNAME` is set automatically; add custom domain to `ALLOWED_HOSTS` env |
 | Admin login fails | Check `ADMIN_PASSWORD` in Environment; redeploy after changing it |
