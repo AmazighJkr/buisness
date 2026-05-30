@@ -27,6 +27,7 @@ cd backend
 pip install -r requirements.txt
 
 echo "[4/5] collectstatic + migrate..."
+mkdir -p "${MEDIA_ROOT:-./media}"
 python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 python manage.py repair_migration_0009 || true

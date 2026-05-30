@@ -68,7 +68,22 @@ Change `ADMIN_PASSWORD` in Environment and redeploy (or run **Shell** → `pytho
 | Projects, comments, commands, messages (text/links) | **PostgreSQL** (via `DATABASE_URL`) |
 | Uploaded images/files | **Disk on the web service** |
 
-**Important:** On the free plan, **uploaded media** (`backend/media/`) can be **lost when the service redeploys** or restarts. Database rows remain, but image files may break. For production uploads, add [Render Disk](https://render.com/docs/disks) or cloud storage (S3, Cloudinary) later.
+**Important — schematic images & uploads:**
+
+| Symptom | Cause |
+|---------|--------|
+| **Failed to fetch** when posting | Server waking up, session expired, or image **over 5 MB** |
+| **Uploaded but image missing** later | Render **free** disk is wiped on **redeploy/restart** (DB still has the path, file is gone) |
+
+**Keep uploads permanently (recommended):**
+
+1. Render → **embeddedgrid** → **Disk** (under MANAGE) → **Add disk**  
+   - Mount path: `/var/data`  
+   - Size: 1 GB (requires paid instance on some plans)  
+2. **Environment** → add `MEDIA_ROOT` = `/var/data/media`  
+3. **Save** and redeploy  
+
+Until you add a disk, re-upload schematics after each deploy. Use images **under 5 MB** (PNG/JPG/WebP).
 
 ---
 

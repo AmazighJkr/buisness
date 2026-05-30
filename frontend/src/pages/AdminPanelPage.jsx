@@ -19,6 +19,7 @@ import {
   adminSendCommandMessage,
   adminUpdateProject,
   fetchAdminMe,
+  validateUploadFile,
 } from '../api/client.js'
 import AdminCategories from '../components/AdminCategories.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
@@ -187,6 +188,12 @@ export default function AdminPanelPage() {
     e.preventDefault()
     setSubmitting(true)
     setMsg({ type: '', text: '' })
+    const fileErr = validateUploadFile(schematic, 'Schematic image')
+    if (fileErr) {
+      setMsg({ type: 'error', text: fileErr })
+      setSubmitting(false)
+      return
+    }
     try {
       const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic)
       if (editId) {
@@ -448,9 +455,28 @@ export default function AdminPanelPage() {
       </div>
 
       <label className="block text-xs text-gray-400">
-        Schematic image
-        <input type="file" accept="image/*" className="mt-1 block w-full text-xs"
-          onChange={(e) => setSchematic(e.target.files?.[0] || null)} />
+        Schematic image (PNG/JPG/WebP, max 5 MB)
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+          className="mt-1 block w-full text-xs"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null
+            const err = validateUploadFile(file, 'Schematic image')
+            if (err) {
+              setMsg({ type: 'error', text: err })
+              e.target.value = ''
+              setSchematic(null)
+              return
+            }
+            setSchematic(file)
+          }}
+        />
+        {schematic && (
+          <span className="mt-1 block text-[10px] text-lab-cyan">
+            Selected: {schematic.name} ({(schematic.size / 1024).toFixed(0)} KB)
+          </span>
+        )}
       </label>
 
       <input type="text" placeholder="Simulation: Wokwi, Tinkercad embed iframe, or Cirkit Designer link" value={form.simulation_url}

@@ -31,6 +31,11 @@ def normalize_simulation_url(value):
     return url
 
 
+def media_url(file_field):
+    """Relative /media/... path — works on Render (same host) and avoids http/https mix-ups."""
+    return file_field.url if file_field else None
+
+
 def parse_json_list(raw, field_name):
     if not raw:
         return []
@@ -96,12 +101,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
         ]
 
     def get_schematic_url(self, obj):
-        request = self.context.get('request')
-        if obj.schematic_image and request:
-            return request.build_absolute_uri(obj.schematic_image.url)
-        if obj.schematic_image:
-            return obj.schematic_image.url
-        return None
+        return media_url(obj.schematic_image)
 
     def get_libraries_list(self, obj):
         return obj.libraries_list
@@ -137,12 +137,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_schematic_url(self, obj):
-        request = self.context.get('request')
-        if obj.schematic_image and request:
-            return request.build_absolute_uri(obj.schematic_image.url)
-        if obj.schematic_image:
-            return obj.schematic_image.url
-        return None
+        return media_url(obj.schematic_image)
 
     def get_simulation_embed_url(self, obj):
         return resolve_simulation_embed_url(obj.simulation_url)
@@ -204,6 +199,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     code_files_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
+    schematic_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Project
@@ -217,6 +213,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'materials_json',
             'wiring_json',
             'schematic_image',
+            'schematic_url',
             'simulation_url',
             'video_url',
             'libraries',
@@ -242,6 +239,18 @@ class AdminProjectSerializer(serializers.ModelSerializer):
 
     def validate_video_url(self, value):
         return normalize_simulation_url(value)
+
+    def validate_schematic_image(self, value):
+        if not value:
+            return value
+        validate_upload_extension(value)
+        max_bytes = 5 * 1024 * 1024
+        if value.size > max_bytes:
+            raise serializers.ValidationError('Schematic image must be 5 MB or smaller.')
+        return value
+
+    def get_schematic_url(self, obj):
+        return media_url(obj.schematic_image)
 
     def validate(self, attrs):
         if 'materials_json' in self.initial_data:
@@ -316,12 +325,7 @@ class CommandMessagePublicSerializer(serializers.ModelSerializer):
         fields = ['id', 'role', 'author_name', 'text', 'link_url', 'image_url', 'created_at']
 
     def get_image_url(self, obj):
-        if not obj.image:
-            return None
-        request = self.context.get('request')
-        if request:
-            return request.build_absolute_uri(obj.image.url)
-        return obj.image.url
+        return media_url(obj.image)
 
 
 class CommandMessageAdminSerializer(CommandMessagePublicSerializer):

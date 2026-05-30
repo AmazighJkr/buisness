@@ -1,5 +1,18 @@
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const ADMIN_TOKEN_KEY = 'admin_access_token'
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
+async function apiFetch(url, options = {}) {
+  let res
+  try {
+    res = await fetch(url, options)
+  } catch {
+    throw new Error(
+      'Network error — the server may be waking up, your session may have expired, or the file is too large (max 5 MB). Wait 30s, log in again, and retry.',
+    )
+  }
+  return handleResponse(res)
+}
 
 function getAdminHeaders(includeJson = true) {
   const headers = {}
@@ -127,12 +140,11 @@ export async function postCommandMessage(code, payload) {
 }
 
 export async function adminLogin(username, password) {
-  const res = await fetch(`${API_BASE}/api/token/`, {
+  const data = await apiFetch(`${API_BASE}/api/token/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   })
-  const data = await handleResponse(res)
   localStorage.setItem(ADMIN_TOKEN_KEY, data.access)
   return data
 }
@@ -156,21 +168,27 @@ function adminHeadersMultipart() {
 }
 
 export async function adminCreateProject(formData) {
-  const res = await fetch(`${API_BASE}/api/admin/projects/`, {
+  return apiFetch(`${API_BASE}/api/admin/projects/`, {
     method: 'POST',
     headers: adminHeadersMultipart(),
     body: formData,
   })
-  return handleResponse(res)
 }
 
 export async function adminUpdateProject(id, formData) {
-  const res = await fetch(`${API_BASE}/api/admin/projects/${id}/`, {
+  return apiFetch(`${API_BASE}/api/admin/projects/${id}/`, {
     method: 'PATCH',
     headers: adminHeadersMultipart(),
     body: formData,
   })
-  return handleResponse(res)
+}
+
+export function validateUploadFile(file, label = 'File') {
+  if (!file) return null
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return `${label} must be 5 MB or smaller (this file is ${(file.size / (1024 * 1024)).toFixed(1)} MB).`
+  }
+  return null
 }
 
 export async function adminDeleteProject(id) {

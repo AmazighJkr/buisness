@@ -21,6 +21,7 @@ SERVE_FRONTEND = os.getenv(
 ).lower() in ('true', '1', 'yes')
 if _on_render:
     SERVE_FRONTEND = True
+    USE_X_FORWARDED_HOST = True
 
 SECRET_KEY = os.getenv(
     'DJANGO_SECRET_KEY',
@@ -126,7 +127,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -140,6 +141,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+if _render_host:
+    _cors_origin = f'https://{_render_host}'
+    if _cors_origin not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(_cors_origin)
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
