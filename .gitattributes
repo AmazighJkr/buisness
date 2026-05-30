@@ -1,0 +1,7 @@
+* text=auto
+
+# Shell scripts must use LF or Linux deploys (Render) fail
+*.sh text eol=lf
+render-build.sh text eol=lf
+deploy/build.sh text eol=lf
+deploy/run_production.sh text eol=lf
