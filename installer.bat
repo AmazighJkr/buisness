@@ -100,11 +100,12 @@ echo ============================================================
 if "%ERR%"=="0" (
   echo   SUCCESS - All dependencies installed.
   echo.
-  echo   Start the app ^(one terminal^):
+  echo   LOCAL DEV ^(every day, one terminal^):
   echo     run.bat
+  echo     http://localhost:5173
   echo.
-  echo   Open http://localhost:5173
-  echo   Production ^(one port 8000^): run.bat production
+  echo   ONLINE ^(Render^): git push - see RENDER.md
+  echo   LOCAL prod test: run.bat production
   echo   Admin: http://localhost:5173/admin-panel
   echo   Command: http://localhost:5173/command
 ) else (

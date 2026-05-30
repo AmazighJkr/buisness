@@ -22,6 +22,8 @@ if not exist ".venv\Scripts\python.exe" (
   python -m venv .venv
   .venv\Scripts\python.exe -m pip install -r requirements.txt -q
 )
+if not exist ".env" if exist ".env.example" copy /Y ".env.example" ".env" >nul
+.venv\Scripts\python.exe manage.py migrate --noinput
 start /B "" .venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
 cd ..\frontend
 
@@ -61,6 +63,9 @@ cd backend
 if not exist ".venv\Scripts\gunicorn.exe" (
   .venv\Scripts\python.exe -m pip install -r requirements.txt -q
 )
+set DEBUG=false
+set SERVE_FRONTEND=true
+.venv\Scripts\python.exe manage.py migrate --noinput
 .venv\Scripts\gunicorn.exe config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120
 goto :eof
 

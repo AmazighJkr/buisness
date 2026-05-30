@@ -80,8 +80,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# Local dev: keep USE_SQLITE=true in backend/.env (installer does this).
+# Render: DATABASE_URL is set automatically — do not set USE_SQLITE there.
+_force_sqlite = os.getenv('USE_SQLITE', '').lower() in ('true', '1', 'yes')
 _database_url = os.getenv('DATABASE_URL', '').strip()
-if _database_url:
+if _database_url and not _force_sqlite:
     import dj_database_url
 
     DATABASES = {

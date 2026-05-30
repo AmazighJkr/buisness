@@ -1,128 +1,119 @@
-# Embedded Systems & IoT Portfolio (Full Stack)
+# Embedded Systems & IoT Portfolio
 
-Cyber-industrial React frontend + Django REST API for an embedded engineering portfolio and client order platform.
+React + Django portfolio with admin panel, project lab pages, and client command tracking.
 
-## Stack
+Works in **two places** with the same codebase:
 
-| Layer    | Tech |
-|----------|------|
-| Frontend | React 19, Vite, Tailwind CSS 4, Lucide React, React Router |
-| Backend  | Django 5, DRF, SimpleJWT, django-cors-headers, SQLite (local) |
+| | **Local (develop)** | **Render (online)** |
+|---|---------------------|---------------------|
+| **Start** | `run.bat` | Push to GitHub → auto deploy |
+| **Website** | http://localhost:5173 | `https://your-app.onrender.com` |
+| **API** | http://127.0.0.1:8000/api/ | same host `/api/` |
+| **Database** | SQLite `backend/db.sqlite3` | PostgreSQL (Render) |
+| **Uploads** | `backend/media/` | `backend/media/` (ephemeral on free tier) |
+| **Hot reload** | Yes (Vite) | No — push to update |
 
-## Local setup
+---
 
-### Install everything (one command)
+## Local development
 
-From the project root:
+### First time
 
 ```cmd
 installer.bat
 ```
 
-Installs backend Python packages (venv), runs migrations, seeds demo data, and runs `npm install` for the frontend.
-
-### 1. Backend (Terminal 1)
-
-```powershell
-cd backend
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-copy .env.example .env
-.\.venv\Scripts\python.exe manage.py migrate
-.\.venv\Scripts\python.exe manage.py seed_demo
-.\.venv\Scripts\python.exe manage.py createsuperuser
-.\.venv\Scripts\python.exe manage.py runserver
-```
-
-**Windows CMD shortcut:** from `backend`, run `run.bat` (always uses the venv Python).
-
-> If you see `ModuleNotFoundError: No module named 'dotenv'`, your shell is using **global** Python instead of `.venv`. Use `.\.venv\Scripts\python.exe` (not plain `python`), or run `run.bat`.
-
-API: http://127.0.0.1:8000/api/projects/  
-Admin: http://127.0.0.1:8000/admin/
-
-**Demo client:** `demo_client` / `demo_client_pass`
-
-### 2. Frontend (Terminal 2)
-
-Requires [Node.js](https://nodejs.org/) 18+ (includes `npm`). Install it, **restart CMD**, then:
-
-**Windows CMD shortcut:**
+### Every day — one terminal
 
 ```cmd
-cd frontend
 run.bat
 ```
 
-**Or manually:**
+- **Site:** http://localhost:5173  
+- **Admin:** http://localhost:5173/admin-panel  
+- **API:** http://127.0.0.1:8000/api/projects/  
+
+Login: `admin` / `admin_lab_2026` (from `ensure_admin`)
+
+`run.bat` runs migrations automatically, uses **SQLite** (`USE_SQLITE=true` in `backend/.env`), and does **not** use Render env vars.
+
+### Test production mode locally (optional)
 
 ```cmd
-cd frontend
-npm install
-npm run dev
+run.bat production
 ```
 
-App: http://localhost:5173  
-Command form (no login): http://localhost:5173/command  
-Admin panel: http://localhost:5173/admin-panel  
+→ http://localhost:8000 (built React + API, like Render)
 
-Vite proxies `/api` and `/media` to Django — no `VITE_API_URL` needed locally. Keep **both** terminals open: `backend\run.bat` + `frontend\run.bat`.
+---
 
-### Admin — post projects
+## Render (live site)
 
-1. Default admin (created by `installer.bat` or run manually):
-   ```cmd
-   cd backend
-   .\.venv\Scripts\python.exe manage.py ensure_admin
-   ```
-   **Username:** `admin`  
-   **Password:** `admin_lab_2026`
-2. Open http://localhost:5173/admin-panel and log in, **or** use Django admin at http://127.0.0.1:8000/admin/
-3. Use **POST** tab to publish projects to the gallery; **COMMANDS** tab lists client requests.
+1. Push code to GitHub (`git push`).
+2. Render builds with `render-build.sh` and runs on PostgreSQL.
+3. Open your service URL from the [Render dashboard](https://dashboard.render.com).
 
-## API endpoints
+**Admin password:** Render → Web Service → **Environment** → `ADMIN_PASSWORD`
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/projects/` | Public | List projects |
-| GET | `/api/projects/<uuid>/` | Public | Project detail |
-| POST | `/api/commands/` | Public | Submit project command (no login) |
-| POST/GET/PATCH/DELETE | `/api/admin/projects/` | Staff JWT | Manage projects |
-| GET | `/api/admin/commands/` | Staff JWT | List client commands |
-| POST | `/api/token/` | Public | Admin/staff JWT login |
+Details: [RENDER.md](./RENDER.md)
+
+### Deploy updates
+
+```cmd
+git add .
+git commit -m "Your changes"
+git push
+```
+
+Render redeploys; local `run.bat` is unchanged.
+
+---
+
+## Important: keep local and Render separate
+
+| Variable | Local `backend/.env` | Render dashboard |
+|----------|----------------------|------------------|
+| `USE_SQLITE` | `true` | *(do not set)* |
+| `DATABASE_URL` | *(do not set)* | Set by Postgres |
+| `DEBUG` | `true` | `false` |
+| `SERVE_FRONTEND` | *(omit)* | `true` |
+
+Never copy Render’s `DATABASE_URL` into local `.env` — you would point your PC at the cloud database.
+
+---
+
+## Data storage
+
+| What | Local | Render |
+|------|-------|--------|
+| Projects, comments, commands, chat text | SQLite file | PostgreSQL |
+| Images / attachments | `backend/media/` | `backend/media/` (back up for production) |
+
+**Backup local:** copy `backend/db.sqlite3` + `backend/media/`
+
+---
 
 ## Project structure
 
 ```
 buisness/
-├── backend/
-│   ├── config/          # Django settings & URLs
-│   └── portfolio/       # models, serializers, views, urls
-└── frontend/
-    └── src/
-        ├── api/         # API client
-        ├── components/  # UI building blocks
-        └── pages/       # Home, Project detail, Client portal, Contact
+├── run.bat              ← local dev (one terminal)
+├── render-build.sh      ← Render build only
+├── render.yaml          ← Render Blueprint
+├── backend/             ← Django API
+├── frontend/            ← React (Vite)
+└── frontend_dist/       ← built site (Render / run.bat production)
 ```
 
-## Render deployment (later)
+---
 
-1. **Backend:** Web service, `gunicorn config.wsgi`, PostgreSQL add-on, set env vars from `.env.example`, `python manage.py migrate` in build.
-2. **Frontend:** Static site or web service; set `VITE_API_URL` to your Django URL.
-3. Update `CORS_ALLOWED_ORIGINS` and `ALLOWED_HOSTS` for production domains.
+## API (same paths everywhere)
 
-## Adding projects
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/projects/` | List projects |
+| GET | `/api/projects/<uuid>/` | Project detail |
+| POST | `/api/commands/` | Submit command |
+| POST | `/api/token/` | Admin JWT login |
 
-Use Django admin or shell:
-
-```python
-from portfolio.models import Project
-Project.objects.create(
-    title="My Module",
-    chip_model="MOD-ESP32-V2",
-    description="...",
-    hardware_specs={"tech_stack": ["ESP32"], "bom": [{"part": "ESP32", "qty": 1, "notes": ""}]},
-    source_code="# firmware here",
-    circuit_simulation_url="https://wokwi.com/...",
-)
-```
+More: [DEPLOY.md](./DEPLOY.md) · [RENDER.md](./RENDER.md)
