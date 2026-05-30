@@ -45,7 +45,7 @@ goto :eof
 
 :production
 REM ========== PRODUCTION: one process, one port ==========
-if not exist "frontend_dist\index.html" (
+if not exist "backend\frontend_dist\index.html" (
   echo Building for production...
   call "%~dp0deploy\build.bat"
   if errorlevel 1 exit /b 1

@@ -13,6 +13,7 @@ backend/staticfiles/
 node_modules/
 frontend/dist/
 frontend_dist/
+backend/frontend_dist/
 frontend/.env
 
 # IDE

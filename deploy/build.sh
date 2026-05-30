@@ -11,9 +11,9 @@ npm ci
 npm run build
 cd ..
 
-echo "[2/4] Copy frontend_dist..."
-rm -rf frontend_dist
-cp -r frontend/dist frontend_dist
+echo "[2/4] Copy to backend/frontend_dist..."
+rm -rf backend/frontend_dist
+cp -r frontend/dist backend/frontend_dist
 
 echo "[3/4] Backend migrate + collectstatic..."
 cd backend

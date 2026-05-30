@@ -19,5 +19,6 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # React app (same IP as API) — must be after /api/ and /media/
 if getattr(settings, 'SERVE_FRONTEND', False):
     urlpatterns += [
-        re_path(r'^(?!api/|media/|static/|admin/).*$', serve_frontend),
+        path('', serve_frontend, name='spa-index'),
+        re_path(r'^(?!api/|media/|static/|admin/).+', serve_frontend, name='spa-catchall'),
     ]

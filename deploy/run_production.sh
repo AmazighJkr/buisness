@@ -6,7 +6,7 @@ if [[ ! -f .env ]]; then
   echo "Copy .env.example to backend/.env first."
   exit 1
 fi
-if [[ ! -f ../frontend_dist/index.html ]]; then
+if [[ ! -f frontend_dist/index.html ]]; then
   echo "Run ./deploy/build.sh first."
   exit 1
 fi

@@ -9,14 +9,18 @@ try:
     load_dotenv(BASE_DIR / '.env')
 except ImportError:
     pass  # optional; use venv: .\.venv\Scripts\python.exe manage.py runserver
-FRONTEND_DIST = Path(os.getenv('FRONTEND_DIST', BASE_DIR.parent / 'frontend_dist'))
+# Built React app (render-build.sh copies to backend/frontend_dist)
+FRONTEND_DIST = Path(os.getenv('FRONTEND_DIST', BASE_DIR / 'frontend_dist'))
 
 # Single-server deploy: same host serves site + API (leave empty in frontend .env)
+_on_render = os.getenv('RENDER', '').strip().lower() in ('true', '1', 'yes')
 _debug = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 SERVE_FRONTEND = os.getenv(
     'SERVE_FRONTEND',
     'false' if _debug else 'true',
 ).lower() in ('true', '1', 'yes')
+if _on_render:
+    SERVE_FRONTEND = True
 
 SECRET_KEY = os.getenv(
     'DJANGO_SECRET_KEY',

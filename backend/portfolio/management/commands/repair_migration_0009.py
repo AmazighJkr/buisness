@@ -9,8 +9,20 @@ from django.db.migrations.recorder import MigrationRecorder
 class Command(BaseCommand):
     help = 'Repair stuck portfolio.0009 migration after a failed Render deploy'
 
+    def _migrations_table_exists(self) -> bool:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'public' AND table_name = 'django_migrations'
+                """
+            )
+            return cursor.fetchone() is not None
+
     def handle(self, *args, **options):
         if connection.vendor != 'postgresql':
+            return
+        if not self._migrations_table_exists():
             return
 
         recorder = MigrationRecorder(connection)

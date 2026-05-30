@@ -16,9 +16,9 @@ call npm run build
 if errorlevel 1 exit /b 1
 cd ..
 
-echo [2/4] Copy frontend to frontend_dist...
-if exist frontend_dist rmdir /s /q frontend_dist
-xcopy /E /I /Y frontend\dist frontend_dist >nul
+echo [2/4] Copy frontend to backend\frontend_dist...
+if exist backend\frontend_dist rmdir /s /q backend\frontend_dist
+xcopy /E /I /Y frontend\dist backend\frontend_dist >nul
 
 echo [3/4] Python packages + migrate...
 cd backend
