@@ -8,6 +8,11 @@ def _dist() -> Path:
     return Path(settings.FRONTEND_DIST)
 
 
+def _file_response(path: Path) -> FileResponse:
+    # PathLike: Django opens the file and closes it when the response finishes.
+    return FileResponse(path, as_attachment=False)
+
+
 def serve_frontend(request):
     dist = _dist()
     if not dist.is_dir():
@@ -21,9 +26,9 @@ def serve_frontend(request):
         except ValueError as exc:
             raise Http404() from exc
         if candidate.is_file():
-            return FileResponse(open(candidate, 'rb'))
+            return _file_response(candidate)
 
     index = dist / 'index.html'
     if index.is_file():
-        return FileResponse(open(index, 'rb'))
+        return _file_response(index)
     raise Http404('index.html missing — rebuild the frontend.')

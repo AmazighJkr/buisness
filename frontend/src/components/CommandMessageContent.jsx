@@ -1,14 +1,16 @@
+const URL_SPLIT = /(https?:\/\/[^\s]+)/g
+const URL_TEST = /^https?:\/\//
+
 function linkify(text) {
-  const urlPattern = /(https?:\/\/[^\s]+)/g
-  const parts = text.split(urlPattern)
+  const parts = text.split(URL_SPLIT)
   return parts.map((part, i) =>
-    urlPattern.test(part) ? (
+    URL_TEST.test(part) ? (
       <a
         key={i}
         href={part}
         target="_blank"
         rel="noopener noreferrer"
-          className="text-dark-text underline break-all"
+        className="text-dark-text underline break-all"
       >
         {part}
       </a>

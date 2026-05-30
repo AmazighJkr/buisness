@@ -172,6 +172,7 @@ export default function AdminPanelPage() {
       description: '',
       libraries: '',
       simulation_url: '',
+      video_url: '',
       is_featured: false,
       featured_order: 0,
     })
