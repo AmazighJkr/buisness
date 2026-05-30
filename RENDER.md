@@ -83,7 +83,23 @@ Change `ADMIN_PASSWORD` in Environment and redeploy (or run **Shell** → `pytho
 2. **Environment** → add `MEDIA_ROOT` = `/var/data/media`  
 3. **Save** and redeploy  
 
-Until you add a disk, re-upload schematics after each deploy. Use images **under 5 MB** (PNG/JPG/WebP).
+**Do not** set `MEDIA_ROOT=/var/data/media` unless the disk is attached. Without a disk, uploads can look successful in admin but files return **404** (DB has a path, file was never stored). Remove that env var or use Cloudinary below.
+
+### Fix schematics permanently (recommended): Cloudinary (free)
+
+Render’s disk is **wiped on every deploy**, so uploaded schematics disappear even though the database still lists them (browser shows **404** for files like `1000127111.png`).
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com)
+2. Dashboard → copy **CLOUDINARY_URL** (looks like `cloudinary://key:secret@cloudname`)
+3. Render → **embeddedgrid** → **Environment** → add:
+   - Key: `CLOUDINARY_URL`
+   - Value: your URL
+4. **Save** and redeploy
+5. **Re-upload** each project schematic once in admin (old files were on lost disk)
+
+Local dev works without Cloudinary (files in `backend/media/`).
+
+Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 MB** (PNG/JPG/WebP).
 
 ---
 
