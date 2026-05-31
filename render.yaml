@@ -40,15 +40,19 @@ services:
         fromDatabase:
           name: embeddedgrid-db
           property: connectionString
-      # --- Payments (optional) — fill in Render Dashboard → Environment ---
+      # --- Payments — paste Stripe values in Render Dashboard → Environment ---
       - key: PUBLIC_SITE_URL
         value: https://embeddedgrid.onrender.com
-      # When Stripe keys are empty, payments auto-activate unless set to "false"
-      - key: PAYMENTS_AUTO_CONFIRM
-        sync: false
       - key: PAYMENT_CURRENCY
         value: usd
+      # Leave empty until Stripe is set up; sync:false keeps your values on redeploy
       - key: STRIPE_SECRET_KEY
+        value: ""
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
+        value: ""
+        sync: false
+      # false = real Stripe checkout when keys above are set; true = instant “paid” without Stripe
+      - key: PAYMENTS_AUTO_CONFIRM
+        value: "true"
         sync: false

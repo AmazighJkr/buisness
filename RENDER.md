@@ -120,18 +120,23 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 
 ### Stripe (optional, recommended for real payments)
 
-These variables are **not created automatically** — add them in Render:
+These variables are listed in `render.yaml` with **empty defaults**. After you push, they appear in Render → **Environment** — paste your values there, **Save**, then redeploy.
 
-1. **embeddedgrid** → **Environment** → **Add Environment Variable**
-2. Add each key below, **Save**, then redeploy.
+If they are still missing (older deploy before blueprint update): **Add Environment Variable** manually.
 
 | Key | Value | Required? |
 |-----|--------|-----------|
 | `STRIPE_SECRET_KEY` | From Stripe → Developers → API keys (`sk_test_…` for testing) | For real card payments |
-| `STRIPE_WEBHOOK_SECRET` | From Stripe → Webhooks → signing secret (`whsec_…`) | For real card payments |
+| `STRIPE_WEBHOOK_SECRET` | From Stripe → Webhooks → your endpoint → Signing secret (`whsec_…`) | For real card payments |
 | `PUBLIC_SITE_URL` | `https://embeddedgrid.onrender.com` | Recommended |
-| `PAYMENTS_AUTO_CONFIRM` | Leave unset or `true` without Stripe (auto-activates). Set `false` only if you want manual “contact us” instructions without Stripe. | Optional |
+| `PAYMENTS_AUTO_CONFIRM` | `false` when Stripe keys are set; `true` for testing without Stripe | Optional |
 | `PAYMENT_CURRENCY` | `usd` | Optional |
+
+**Stripe onboarding screen (“How do you want to accept recurring payments?”)**  
+Choose **Prebuilt checkout form** — your app redirects users to Stripe’s hosted Checkout page (`stripe.checkout.Session.create`).  
+Do **not** pick Shareable payment links (manual URLs, not wired to your site) or Embedded components (needs frontend Stripe.js; your app doesn’t use that yet).
+
+**Publishable key (`pk_test_…`)** — not needed for this setup; only the secret key + webhook secret go on Render.
 
 Webhook URL in Stripe: `https://embeddedgrid.onrender.com/api/webhooks/stripe/`  
 Events: `checkout.session.completed`
