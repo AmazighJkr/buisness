@@ -8,11 +8,12 @@ from rest_framework.views import APIView
 
 from .models import ProjectCommand, UserSubscription
 from .payments import (
-    PAYMENTS_AUTO_CONFIRM,
-    PAYMENT_INSTRUCTIONS,
     create_command_checkout_session,
+    payment_instructions,
+    payments_auto_confirm,
     site_base_url,
     stripe_enabled,
+    stripe_secret_key,
 )
 from .serializers import ProjectCommandTrackSerializer
 from .tracking import get_command_for_code
@@ -63,7 +64,19 @@ class CommandPayView(APIView):
             'amount': str(command.quoted_price),
             'payment_status': command.payment_status,
             'mode': 'manual',
-            'instructions': PAYMENT_INSTRUCTIONS,
+            'instructions': payment_instructions(subscription=False),
+        })
+
+
+class PaymentConfigView(APIView):
+    """Public payment mode (for verifying Render env without Stripe keys)."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({
+            'stripe': stripe_enabled(),
+            'auto_confirm': payments_auto_confirm(),
         })
 
 
@@ -73,10 +86,10 @@ class StripeWebhookView(APIView):
     def post(self, request):
         import os
 
-        from .payments import STRIPE_SECRET_KEY, _stripe
+        from .payments import _stripe
 
         webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET', '').strip()
-        if not STRIPE_SECRET_KEY or not webhook_secret:
+        if not stripe_secret_key() or not webhook_secret:
             return Response(status=404)
 
         payload = request.body

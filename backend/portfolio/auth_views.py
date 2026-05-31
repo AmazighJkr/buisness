@@ -11,9 +11,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .access import active_subscriptions_for
 from .models import SubscriptionPack, UserSubscription
 from .payments import (
-    PAYMENTS_AUTO_CONFIRM,
-    PAYMENT_INSTRUCTIONS,
     create_pack_checkout_session,
+    payment_instructions,
+    payments_auto_confirm,
     site_base_url,
     stripe_enabled,
 )
@@ -128,7 +128,7 @@ class SubscribePackView(APIView):
                 'mode': 'stripe',
             })
 
-        if PAYMENTS_AUTO_CONFIRM or pack.price <= 0:
+        if payments_auto_confirm() or pack.price <= 0:
             subscription.status = UserSubscription.Status.ACTIVE
             subscription.started_at = now
             subscription.expires_at = now + timedelta(days=pack.duration_days)
@@ -145,5 +145,5 @@ class SubscribePackView(APIView):
             'status': subscription.status,
             'amount': str(pack.price),
             'mode': 'manual',
-            'instructions': PAYMENT_INSTRUCTIONS,
+            'instructions': payment_instructions(subscription=True),
         }, status=201)

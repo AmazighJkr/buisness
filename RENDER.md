@@ -130,13 +130,13 @@ These variables are **not created automatically** — add them in Render:
 | `STRIPE_SECRET_KEY` | From Stripe → Developers → API keys (`sk_test_…` for testing) | For real card payments |
 | `STRIPE_WEBHOOK_SECRET` | From Stripe → Webhooks → signing secret (`whsec_…`) | For real card payments |
 | `PUBLIC_SITE_URL` | `https://embeddedgrid.onrender.com` | Recommended |
-| `PAYMENTS_AUTO_CONFIRM` | `false` (live) or `true` (testing only — fake “paid” without Stripe) | Optional |
+| `PAYMENTS_AUTO_CONFIRM` | Leave unset or `true` without Stripe (auto-activates). Set `false` only if you want manual “contact us” instructions without Stripe. | Optional |
 | `PAYMENT_CURRENCY` | `usd` | Optional |
 
 Webhook URL in Stripe: `https://embeddedgrid.onrender.com/api/webhooks/stripe/`  
 Events: `checkout.session.completed`
 
-**Without Stripe:** leave `STRIPE_*` empty. Use `PAYMENTS_AUTO_CONFIRM=true` to test flows, or admin sets payment status to **Paid** manually.
+**Without Stripe:** leave `STRIPE_*` empty. Subscriptions and command bills **auto-activate** by default. Check: `GET /api/payments/config/` → `{"stripe": false, "auto_confirm": true}`. Set `PAYMENTS_AUTO_CONFIRM=false` only if you want manual bank-transfer instructions instead.
 
 ---
 

@@ -8,7 +8,7 @@ from .auth_views import (
     SubscribePackView,
     SubscriptionPackListView,
 )
-from .payment_views import CommandPayView, StripeWebhookView
+from .payment_views import CommandPayView, PaymentConfigView, StripeWebhookView
 from .views import (
     AdminCategoryViewSet,
     AdminCommentDestroyView,
@@ -41,6 +41,7 @@ urlpatterns = [
     path('commands/track/', CommandTrackView.as_view(), name='command-track'),
     path('commands/messages/', CommandTrackMessageView.as_view(), name='command-messages'),
     path('commands/pay/', CommandPayView.as_view(), name='command-pay'),
+    path('payments/config/', PaymentConfigView.as_view(), name='payment-config'),
     path('auth/register/', CustomerRegisterView.as_view(), name='auth-register'),
     path('auth/login/', CustomerLoginView.as_view(), name='auth-login'),
     path('auth/me/', CustomerMeView.as_view(), name='auth-me'),

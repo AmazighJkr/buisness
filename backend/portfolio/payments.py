@@ -1,26 +1,48 @@
-"""Optional Stripe Checkout; manual payment when Stripe is not configured."""
+"""Optional Stripe Checkout; auto-confirm or manual payment when Stripe is off."""
 
 import os
 from decimal import Decimal
 
 from django.conf import settings
 
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '').strip()
-PAYMENTS_AUTO_CONFIRM = os.getenv('PAYMENTS_AUTO_CONFIRM', '').lower() in ('true', '1', 'yes')
-PAYMENT_INSTRUCTIONS = os.getenv(
-    'PAYMENT_INSTRUCTIONS',
-    'Contact lab@embeddedgrid.dev to complete payment. Include your tracking code.',
-).strip()
+PAYMENT_INSTRUCTIONS_COMMAND = (
+    'Contact lab@embeddedgrid.dev to complete payment. Include your tracking code.'
+)
+PAYMENT_INSTRUCTIONS_SUBSCRIPTION = (
+    'Contact lab@embeddedgrid.dev to activate your subscription.'
+)
 
 
-def stripe_enabled():
-    return bool(STRIPE_SECRET_KEY)
+def stripe_secret_key() -> str:
+    return os.getenv('STRIPE_SECRET_KEY', '').strip()
+
+
+def stripe_enabled() -> bool:
+    return bool(stripe_secret_key())
+
+
+def payments_auto_confirm() -> bool:
+    """Instantly mark paid/active when Stripe Checkout is not used."""
+    raw = os.getenv('PAYMENTS_AUTO_CONFIRM', '').strip().lower()
+    if raw in ('false', '0', 'no'):
+        return False
+    if raw in ('true', '1', 'yes'):
+        return True
+    # No Stripe keys: activate without checkout (testing / pre-Stripe launch).
+    return not stripe_enabled()
+
+
+def payment_instructions(*, subscription: bool = False) -> str:
+    default = (
+        PAYMENT_INSTRUCTIONS_SUBSCRIPTION if subscription else PAYMENT_INSTRUCTIONS_COMMAND
+    )
+    return os.getenv('PAYMENT_INSTRUCTIONS', default).strip()
 
 
 def _stripe():
     import stripe
 
-    stripe.api_key = STRIPE_SECRET_KEY
+    stripe.api_key = stripe_secret_key()
     return stripe
 
 
