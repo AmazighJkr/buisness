@@ -89,8 +89,8 @@ export default function LandingPage() {
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {PILLARS.map((p) => (
-              <div key={p.title} className="panel p-6">
-                <h3 className="font-medium">{p.title}</h3>
+              <div key={p.title} className="feature-card">
+                <h3>{p.title}</h3>
                 <p className="mt-2 text-sm text-dark-muted">{p.text}</p>
               </div>
             ))}
@@ -99,13 +99,13 @@ export default function LandingPage() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="border-t border-dark-border bg-dark-panel/40 py-20">
+      <section id="services" className="landing-section-alt py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="font-display text-2xl font-semibold">Services</h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
             {SERVICES.map((s) => (
-              <div key={s.title} className="panel p-6">
-                <h3 className="font-medium">{s.title}</h3>
+              <div key={s.title} className="feature-card">
+                <h3>{s.title}</h3>
                 <p className="mt-2 text-sm text-dark-muted">{s.text}</p>
               </div>
             ))}
@@ -168,8 +168,8 @@ export default function LandingPage() {
             </form>
           </div>
 
-          <div className="panel p-6">
-            <h3 className="font-medium">Reach us</h3>
+          <div className="feature-card">
+            <h3 className="font-display text-lg font-semibold">Reach us</h3>
             <ul className="mt-4 space-y-3 text-sm text-dark-muted">
               <li>
                 <span className="text-dark-text">Email</span>

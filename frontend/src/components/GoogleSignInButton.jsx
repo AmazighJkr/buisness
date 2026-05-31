@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 const GSI_SCRIPT = 'https://accounts.google.com/gsi/client'
 
@@ -31,6 +32,7 @@ export default function GoogleSignInButton({ clientId, onSuccess, onError }) {
   const containerRef = useRef(null)
   const onSuccessRef = useRef(onSuccess)
   const onErrorRef = useRef(onError)
+  const { isDark } = useTheme()
   const [ready, setReady] = useState(false)
 
   onSuccessRef.current = onSuccess
@@ -40,10 +42,12 @@ export default function GoogleSignInButton({ clientId, onSuccess, onError }) {
     if (!clientId) return undefined
 
     let cancelled = false
+    setReady(false)
 
     loadGoogleScript()
       .then(() => {
         if (cancelled || !containerRef.current) return
+        const width = Math.min(containerRef.current.offsetWidth || 360, 400)
         window.google.accounts.id.initialize({
           client_id: clientId,
           callback: (response) => {
@@ -57,11 +61,11 @@ export default function GoogleSignInButton({ clientId, onSuccess, onError }) {
         containerRef.current.innerHTML = ''
         window.google.accounts.id.renderButton(containerRef.current, {
           type: 'standard',
-          theme: 'outline',
+          theme: isDark ? 'filled_black' : 'outline',
           size: 'large',
           text: 'continue_with',
           shape: 'rectangular',
-          width: Math.min(containerRef.current.offsetWidth || 320, 400),
+          width,
         })
         setReady(true)
       })
@@ -72,17 +76,22 @@ export default function GoogleSignInButton({ clientId, onSuccess, onError }) {
     return () => {
       cancelled = true
     }
-  }, [clientId])
+  }, [clientId, isDark])
 
-  if (!clientId) return null
+  if (!clientId) {
+    return (
+      <p className="text-center text-xs text-dark-muted">
+        Google sign-in is not configured. Add <code className="text-[10px]">GOOGLE_OAUTH_CLIENT_ID</code>{' '}
+        on the server.
+      </p>
+    )
+  }
 
   return (
     <div className="w-full">
-      <div ref={containerRef} className="flex min-h-[44px] justify-center" />
+      <div ref={containerRef} className="flex min-h-[44px] w-full justify-center" />
       {!ready && (
-        <p className="mt-2 text-center text-xs text-dark-muted animate-pulse">
-          Loading Google…
-        </p>
+        <p className="mt-2 text-center text-xs text-dark-muted animate-pulse">Loading Google…</p>
       )}
     </div>
   )

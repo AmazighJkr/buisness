@@ -1,17 +1,24 @@
 import { Link } from 'react-router-dom'
-import MobileSiteNav from './MobileSiteNav.jsx'
+import NavAccount from './NavAccount.jsx'
+import SiteNav from './SiteNav.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 
-export default function PageHeader({ highlight = '' }) {
+export default function PageHeader({ highlight = '', beforeLogo = null }) {
   return (
     <header className="site-header">
       <div className="site-header-inner">
-        <Link to="/" className="site-logo">
-          Embedded<span>Grid</span>
-        </Link>
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 shrink-0 items-center gap-2">
+          {beforeLogo}
+          <Link to="/" className="site-logo">
+            Embedded<span>Grid</span>
+          </Link>
+        </div>
+
+        <SiteNav highlight={highlight} />
+
+        <div className="site-header-actions">
           <ThemeToggle compact />
-          <MobileSiteNav highlight={highlight} />
+          <NavAccount />
         </div>
       </div>
     </header>

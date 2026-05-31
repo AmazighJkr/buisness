@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PanelLeft } from 'lucide-react'
 import CategorySidebar from '../components/CategorySidebar.jsx'
-import MobileSiteNav from '../components/MobileSiteNav.jsx'
-import ThemeToggle from '../components/ThemeToggle.jsx'
+import PageHeader from '../components/PageHeader.jsx'
 import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
@@ -84,30 +83,22 @@ export default function ProjectsPage() {
 
   return (
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
-      <header className="site-header sticky top-0 z-[60]">
-        <div className="site-header-inner max-w-none px-3 sm:px-4">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen((o) => !o)}
-              className="theme-toggle-btn flex shrink-0 items-center gap-1.5 !px-2.5"
-              aria-expanded={sidebarOpen}
-              aria-controls="projects-category-sidebar"
-              aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
-            >
-              <PanelLeft className="h-5 w-5 shrink-0" />
-              <span className="text-xs sm:text-sm">{sidebarOpen ? 'Hide' : 'Categories'}</span>
-            </button>
-            <Link to="/" className="site-logo truncate !text-sm">
-              Embedded<span>Grid</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle compact />
-            <MobileSiteNav highlight="/projects" />
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        highlight="/projects"
+        beforeLogo={
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((o) => !o)}
+            className="theme-toggle-btn flex shrink-0 items-center gap-1.5 !px-2.5"
+            aria-expanded={sidebarOpen}
+            aria-controls="projects-category-sidebar"
+            aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
+          >
+            <PanelLeft className="h-5 w-5 shrink-0" />
+            <span className="hidden text-xs sm:inline">{sidebarOpen ? 'Hide' : 'Categories'}</span>
+          </button>
+        }
+      />
 
       {!sidebarOpen && (
         <button

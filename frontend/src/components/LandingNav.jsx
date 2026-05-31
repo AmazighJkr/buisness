@@ -52,45 +52,43 @@ export default function LandingNav() {
   return (
     <header className="site-header fixed top-0 left-0 right-0 z-50">
       <div className="site-header-inner max-w-6xl">
-        <button type="button" onClick={() => scrollTo('home')} className="site-logo">
+        <button type="button" onClick={() => scrollTo('home')} className="site-logo shrink-0">
           Embedded<span>Grid</span>
         </button>
 
-        <nav className="hidden items-center gap-4 lg:flex">
+        <nav className="site-nav-desktop" aria-label="Landing sections">
           {SECTIONS.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => scrollTo(s.id)}
-              className={`text-sm transition-colors ${
-                active === s.id
-                  ? 'font-medium text-lab-cyan'
-                  : 'text-dark-muted hover:text-dark-text'
-              }`}
+              className={`site-nav-link ${active === s.id ? 'site-nav-link-active' : ''}`}
             >
               {s.label}
             </button>
           ))}
           <span className="mx-1 h-4 w-px bg-dark-border" aria-hidden />
           {PAGE_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className="text-sm text-dark-muted hover:text-dark-text">
+            <Link key={to} to={to} className="site-nav-link">
               {label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="site-header-actions">
           <ThemeToggle compact />
           <NavAccount />
-          <button
-            type="button"
-            className="theme-toggle-btn lg:hidden"
-            aria-expanded={menuOpen}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="site-nav-mobile">
+            <button
+              type="button"
+              className="theme-toggle-btn site-nav-mobile-toggle"
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -98,11 +96,11 @@ export default function LandingNav() {
         <>
           <button
             type="button"
-            className="nav-scrim fixed inset-0 top-[53px] z-40 lg:hidden"
+            className="nav-scrim fixed inset-0 top-[3.25rem] z-40 lg:hidden"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
           />
-          <nav className="relative z-50 max-h-[calc(100vh-53px)] overflow-y-auto border-b border-dark-border bg-dark-panel px-4 py-3 shadow-[var(--eg-shadow)] lg:hidden">
+          <nav className="relative z-50 max-h-[calc(100vh-3.25rem)] overflow-y-auto border-b border-dark-border bg-dark-panel px-4 py-3 shadow-[var(--eg-shadow)] lg:hidden">
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">Sections</p>
             {SECTIONS.map((s) => (
               <button
@@ -110,9 +108,7 @@ export default function LandingNav() {
                 type="button"
                 onClick={() => scrollTo(s.id)}
                 className={`mb-1 block w-full rounded-md px-3 py-2.5 text-left text-sm ${
-                  active === s.id
-                    ? 'bg-[color-mix(in_srgb,var(--eg-accent)_14%,var(--eg-panel))] text-lab-cyan'
-                    : 'text-dark-muted hover:bg-dark-border/40'
+                  active === s.id ? 'site-nav-drawer-link-active' : 'site-nav-drawer-link'
                 }`}
               >
                 {s.label}
@@ -124,7 +120,7 @@ export default function LandingNav() {
                 key={to}
                 to={to}
                 onClick={() => setMenuOpen(false)}
-                className="mb-1 block rounded-md px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
+                className="site-nav-drawer-link mb-1 block rounded-md px-3 py-2.5 text-sm"
               >
                 {label}
               </Link>
@@ -132,7 +128,7 @@ export default function LandingNav() {
             <Link
               to="/account"
               onClick={() => setMenuOpen(false)}
-              className="mb-1 block rounded-md px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
+              className="site-nav-drawer-link mb-1 block rounded-md px-3 py-2.5 text-sm"
             >
               Account
             </Link>
