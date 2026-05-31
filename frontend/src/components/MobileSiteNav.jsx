@@ -23,6 +23,11 @@ export default function MobileSiteNav({ highlight = '' }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
+  const linkClass = (active) =>
+    active
+      ? 'bg-[color-mix(in_srgb,var(--eg-accent)_14%,var(--eg-panel))] text-[var(--eg-accent)]'
+      : 'text-dark-muted hover:bg-[color-mix(in_srgb,var(--eg-border)_50%,transparent)] hover:text-dark-text'
+
   return (
     <div className="flex shrink-0 items-center gap-2">
       <NavAccount />
@@ -30,7 +35,7 @@ export default function MobileSiteNav({ highlight = '' }) {
       <div className="relative">
         <button
           type="button"
-          className="rounded border border-dark-border p-2 text-dark-muted hover:text-dark-text lg:hidden"
+          className="theme-toggle-btn lg:hidden"
           aria-expanded={open}
           aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen((v) => !v)}
@@ -42,21 +47,17 @@ export default function MobileSiteNav({ highlight = '' }) {
           <>
             <button
               type="button"
-              className="fixed inset-0 top-12 z-[55] bg-neutral-900/25 lg:hidden"
+              className="nav-scrim fixed inset-0 top-12 z-[55] lg:hidden"
               aria-label="Close menu"
               onClick={() => setOpen(false)}
             />
-            <nav className="absolute right-0 top-full z-[70] mt-2 w-[min(92vw,14rem)] rounded border border-dark-border bg-dark-panel py-2 shadow-xl lg:hidden">
+            <nav className="absolute right-0 top-full z-[70] mt-2 w-[min(92vw,15rem)] overflow-hidden rounded-lg border border-dark-border bg-dark-panel py-2 shadow-[var(--eg-shadow)] lg:hidden">
               {LINKS.map(({ to, label }) => (
                 <Link
                   key={to}
                   to={to}
                   onClick={() => setOpen(false)}
-                  className={`block px-4 py-2.5 text-sm ${
-                    highlight === to
-                      ? 'bg-dark-border/60 text-dark-text'
-                      : 'text-dark-muted hover:bg-dark-border/40 hover:text-dark-text'
-                  }`}
+                  className={`mx-2 block rounded-md px-3 py-2.5 text-sm ${linkClass(highlight === to)}`}
                 >
                   {label}
                 </Link>
@@ -64,7 +65,7 @@ export default function MobileSiteNav({ highlight = '' }) {
               <Link
                 to="/account"
                 onClick={() => setOpen(false)}
-                className="block border-t border-dark-border px-4 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
+                className={`mx-2 mt-1 block rounded-md border-t border-dark-border px-3 py-2.5 text-sm ${linkClass(false)}`}
               >
                 Account settings
               </Link>
@@ -72,16 +73,16 @@ export default function MobileSiteNav({ highlight = '' }) {
           </>
         )}
 
-        <nav className="hidden items-center gap-2 text-sm lg:flex xl:gap-3">
+        <nav className="hidden items-center gap-1 text-sm lg:flex xl:gap-2">
           {LINKS.map(({ to, label }) => (
             <Link
               key={to}
               to={to}
-              className={
+              className={`rounded-md px-2.5 py-1.5 transition-colors ${
                 highlight === to
-                  ? 'text-dark-text'
+                  ? 'font-medium text-lab-cyan'
                   : 'text-dark-muted hover:text-dark-text'
-              }
+              }`}
             >
               {label}
             </Link>

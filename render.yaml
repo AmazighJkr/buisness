@@ -56,3 +56,6 @@ services:
       - key: PAYMENTS_AUTO_CONFIRM
         value: "false"
         sync: false
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        value: ""
+        sync: false

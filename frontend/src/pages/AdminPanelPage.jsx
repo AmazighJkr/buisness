@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Cpu, LogOut, Plus, Users } from 'lucide-react'
+import ThemeToggle from '../components/ThemeToggle.jsx'
 import {
   PERM_LABELS,
   adminCreateProject,
@@ -348,17 +349,18 @@ export default function AdminPanelPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md space-y-6 bg-dark-bg p-8 min-h-screen text-dark-text">
-        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-dark-text">
-          ADMIN_PANEL
-        </h1>
-        <form onSubmit={handleLogin} className="border border-lab-border bg-lab-surface chamfer p-6 space-y-4">
+      <div className="page-shell mx-auto max-w-md space-y-6 p-8 min-h-screen">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="font-display text-2xl font-bold">Admin panel</h1>
+          <ThemeToggle compact />
+        </div>
+        <form onSubmit={handleLogin} className="panel space-y-4 p-6">
           <input
             required
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan"
+            className="input-field"
           />
           <input
             required
@@ -366,11 +368,11 @@ export default function AdminPanelPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan"
+            className="input-field"
           />
           {loginError && <p className="text-xs text-red-400">{loginError}</p>}
-          <button type="submit" className="w-full border border-lab-copper py-2 text-sm text-lab-copper">
-            LOGIN
+          <button type="submit" className="btn-primary w-full border-lab-copper text-lab-copper">
+            Sign in
           </button>
         </form>
       </div>
@@ -574,25 +576,42 @@ export default function AdminPanelPage() {
   )
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text">
+    <div className="page-shell">
       <PageHeader highlight="/admin-panel" />
     <div className="mx-auto max-w-4xl space-y-6 overflow-x-hidden p-3 sm:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-lab-border pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-dark-border pb-4">
         <div className="flex items-center gap-2">
           <Cpu className="h-5 w-5 text-lab-copper" />
-          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-dark-text">ADMIN_PANEL</h1>
+          <h1 className="font-display text-2xl font-bold">Admin panel</h1>
           <span className="text-xs text-lab-green">[{user.username}]</span>
         </div>
-        <button type="button" onClick={() => { adminLogout(); setUser(null) }}
-          className="flex items-center gap-1 border border-lab-border px-3 py-1 text-xs hover:text-red-400">
-          <LogOut className="h-3 w-3" /> Logout
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle compact />
+          <button
+            type="button"
+            onClick={() => {
+              adminLogout()
+              setUser(null)
+            }}
+            className="btn-secondary flex items-center gap-1 !px-3 !py-1 text-xs hover:!text-red-400"
+          >
+            <LogOut className="h-3 w-3" /> Logout
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         {tabs.map(([id, label]) => (
-          <button key={id} type="button" onClick={() => setTab(id)}
-            className={`px-3 py-1 text-xs border ${tab === id ? 'border-lab-cyan text-lab-cyan' : 'border-lab-border text-gray-500'}`}>
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={`rounded-md border px-3 py-1.5 text-xs transition-colors ${
+              tab === id
+                ? 'border-lab-cyan bg-[color-mix(in_srgb,var(--eg-accent)_12%,var(--eg-panel))] text-lab-cyan'
+                : 'border-dark-border text-dark-muted hover:text-dark-text'
+            }`}
+          >
             {label}
           </button>
         ))}

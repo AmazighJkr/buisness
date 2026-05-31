@@ -174,6 +174,24 @@ export async function userRegister(body) {
   return data
 }
 
+export async function fetchAuthConfig() {
+  const res = await fetch(`${API_BASE}/api/auth/config/`)
+  return handleResponse(res)
+}
+
+export async function userGoogleLogin(credential) {
+  const data = await apiFetch(`${API_BASE}/api/auth/google/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential }),
+  })
+  localStorage.setItem(USER_TOKEN_KEY, data.access)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('user-session-changed'))
+  }
+  return data
+}
+
 export async function userLogin(username, password) {
   const data = await apiFetch(`${API_BASE}/api/auth/login/`, {
     method: 'POST',

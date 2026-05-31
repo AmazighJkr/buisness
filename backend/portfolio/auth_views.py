@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .google_auth import get_or_create_user_from_google, google_client_id, verify_google_credential
 from .models import SubscriptionPack, UserSubscription
 from .payments import (
     create_pack_checkout_session,
@@ -63,8 +64,44 @@ class CustomerLoginView(APIView):
             return Response({'detail': 'Invalid credentials.'}, status=401)
         if user.is_staff:
             return Response({'detail': 'Use the admin panel to sign in as staff.'}, status=403)
+        if not user.has_usable_password():
+            return Response(
+                {'detail': 'This account uses Google sign-in. Continue with Google below.'},
+                status=400,
+            )
         if not user.check_password(password):
             return Response({'detail': 'Invalid credentials.'}, status=401)
+        return Response({
+            **issue_tokens(user),
+            'user': CustomerMeSerializer(user).data,
+        })
+
+
+class AuthConfigView(APIView):
+    """Public auth options (e.g. Google client id for the sign-in button)."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        cid = google_client_id()
+        return Response({
+            'google_sign_in': bool(cid),
+            'google_client_id': cid,
+        })
+
+
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        credential = (request.data.get('credential') or '').strip()
+        if not credential:
+            return Response({'detail': 'Missing Google credential.'}, status=400)
+        try:
+            claims = verify_google_credential(credential)
+            user = get_or_create_user_from_google(claims)
+        except ValueError as exc:
+            return Response({'detail': str(exc)}, status=400)
         return Response({
             **issue_tokens(user),
             'user': CustomerMeSerializer(user).data,

@@ -2,9 +2,11 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .auth_views import (
+    AuthConfigView,
     CustomerLoginView,
     CustomerMeView,
     CustomerRegisterView,
+    GoogleLoginView,
     SubscribePackView,
     SubscriptionPackListView,
 )
@@ -46,6 +48,8 @@ urlpatterns = [
     path('payments/config/', PaymentConfigView.as_view(), name='payment-config'),
     path('auth/register/', CustomerRegisterView.as_view(), name='auth-register'),
     path('auth/login/', CustomerLoginView.as_view(), name='auth-login'),
+    path('auth/google/', GoogleLoginView.as_view(), name='auth-google'),
+    path('auth/config/', AuthConfigView.as_view(), name='auth-config'),
     path('auth/me/', CustomerMeView.as_view(), name='auth-me'),
     path('packs/', SubscriptionPackListView.as_view(), name='pack-list'),
     path('packs/<uuid:pack_id>/subscribe/', SubscribePackView.as_view(), name='pack-subscribe'),

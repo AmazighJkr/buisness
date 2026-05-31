@@ -53,7 +53,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="bg-dark-bg text-dark-text">
+    <div className="page-shell">
       <LandingNav />
 
       {/* HOME */}
@@ -65,9 +65,11 @@ export default function LandingPage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('/hero-bg.png')" }}
         />
-        <div className="absolute inset-0 bg-white/75" />
+        <div className="absolute inset-0 hero-overlay" />
         <div className="relative z-10 mx-auto max-w-4xl px-4 py-20 text-center sm:py-24">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl">EmbeddedGrid</h1>
+          <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+            EmbeddedGrid
+          </h1>
           <p className="mt-4 text-base text-dark-muted sm:text-lg md:text-xl">
             IT, Electronics, Maintenance &amp; Consulting
           </p>
@@ -81,7 +83,7 @@ export default function LandingPage() {
       {/* ENTERPRISE */}
       <section id="enterprise" className="border-t border-dark-border py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-2xl font-semibold">Enterprise</h2>
+          <h2 className="font-display text-2xl font-semibold">Enterprise</h2>
           <p className="mt-2 max-w-2xl text-sm text-dark-muted">
             Who we are — a lab focused on dependable embedded products and honest engineering.
           </p>
@@ -97,9 +99,9 @@ export default function LandingPage() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="border-t border-dark-border bg-dark-panel/50 py-20">
+      <section id="services" className="border-t border-dark-border bg-dark-panel/40 py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-2xl font-semibold">Services</h2>
+          <h2 className="font-display text-2xl font-semibold">Services</h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
             {SERVICES.map((s) => (
               <div key={s.title} className="panel p-6">
@@ -115,7 +117,7 @@ export default function LandingPage() {
       <section id="contact" className="border-t border-dark-border py-20">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-2 sm:px-6">
           <div>
-            <h2 className="text-2xl font-semibold">Contact</h2>
+            <h2 className="font-display text-2xl font-semibold">Contact</h2>
             <p className="mt-2 text-sm text-dark-muted">
               Quick message below, or{' '}
               <Link to="/command" className="text-dark-text underline">
@@ -129,7 +131,7 @@ export default function LandingPage() {
                 placeholder="Name"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                className="input-field"
               />
               <input
                 required
@@ -137,7 +139,7 @@ export default function LandingPage() {
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                className="w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                className="input-field"
               />
               <textarea
                 required
@@ -145,13 +147,10 @@ export default function LandingPage() {
                 placeholder="Message"
                 value={form.message}
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                className="w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                className="input-field resize-y min-h-[8rem]"
               />
-              <button
-                type="submit"
-                className="border border-dark-border bg-dark-panel px-6 py-2 text-sm panel-hover"
-              >
-                Send
+              <button type="submit" className="btn-primary w-full sm:w-auto">
+                Send message
               </button>
               {status && <p className="text-xs text-dark-muted">{status}</p>}
               {tracking?.tracking_code && (

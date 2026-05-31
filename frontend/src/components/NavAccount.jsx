@@ -8,7 +8,7 @@ export default function NavAccount({ compact = false }) {
 
   if (loading) {
     return (
-      <span className="inline-block h-9 w-16 animate-pulse rounded border border-dark-border bg-dark-panel" />
+      <span className="inline-block h-9 w-16 animate-pulse rounded-md border border-dark-border bg-dark-panel" />
     )
   }
 
@@ -16,10 +16,10 @@ export default function NavAccount({ compact = false }) {
     return (
       <Link
         to="/account"
-        className="inline-flex shrink-0 items-center gap-1.5 rounded border border-lab-cyan px-2.5 py-1.5 text-xs font-medium text-lab-cyan sm:px-3 sm:text-sm"
+        className="btn-primary shrink-0 !px-2.5 !py-1.5 text-xs sm:!px-3 sm:text-sm"
       >
         <User className="h-4 w-4 shrink-0" />
-        {compact ? 'Sign in' : 'Sign in'}
+        Sign in
       </Link>
     )
   }
@@ -27,14 +27,14 @@ export default function NavAccount({ compact = false }) {
   return (
     <Link
       to="/account"
-      className="inline-flex max-w-[9rem] shrink-0 items-center gap-1.5 rounded border border-dark-border bg-dark-panel px-2.5 py-1.5 text-xs sm:max-w-[11rem] sm:text-sm"
+      className="inline-flex max-w-[9rem] shrink-0 items-center gap-1.5 rounded-md border border-dark-border bg-dark-panel px-2.5 py-1.5 text-xs transition-colors hover:border-[var(--eg-border-strong)] sm:max-w-[11rem] sm:text-sm"
       title="Your account"
     >
       <User className="h-4 w-4 shrink-0 text-lab-cyan" />
-      <span className="truncate font-medium text-dark-text">{user.username}</span>
-      {hasActivePack && (
-        <span className="hidden shrink-0 rounded bg-lab-cyan/15 px-1.5 py-0.5 text-[10px] text-lab-cyan sm:inline">
-          Active
+      <span className="truncate font-medium">{user.username}</span>
+      {hasActivePack && !compact && (
+        <span className="hidden shrink-0 rounded bg-[color-mix(in_srgb,var(--eg-accent)_18%,transparent)] px-1.5 py-0.5 text-[10px] font-medium text-lab-cyan sm:inline">
+          Pro
         </span>
       )}
     </Link>

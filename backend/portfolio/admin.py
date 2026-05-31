@@ -6,6 +6,7 @@ from .models import (
     ProjectCategory,
     ProjectCommand,
     SubscriptionPack,
+    UserSocialAuth,
     UserSubscription,
 )
 
@@ -50,3 +51,11 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
     list_filter = ('status', 'pack')
     search_fields = ('user__username', 'user__email', 'pack__name')
     raw_id_fields = ('user', 'pack')
+
+
+@admin.register(UserSocialAuth)
+class UserSocialAuthAdmin(admin.ModelAdmin):
+    list_display = ('user', 'provider', 'provider_uid', 'created_at')
+    list_filter = ('provider',)
+    search_fields = ('user__username', 'user__email', 'provider_uid')
+    raw_id_fields = ('user',)

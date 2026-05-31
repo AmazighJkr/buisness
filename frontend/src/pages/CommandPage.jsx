@@ -65,7 +65,7 @@ export default function CommandPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text">
+    <div className="page-shell">
       <PageHeader highlight="/command" />
 
       <main className="mx-auto max-w-3xl px-3 py-6 sm:px-4 sm:py-8">

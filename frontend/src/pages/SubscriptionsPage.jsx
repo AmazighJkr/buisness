@@ -64,10 +64,10 @@ export default function SubscriptionsPage() {
         <button
           type="button"
           onClick={() => handleSubscribe(pack.id)}
-          className="mt-4 border border-lab-cyan py-2 text-sm text-lab-cyan panel-hover w-full"
+          className="btn-primary mt-4 w-full"
         >
           Upgrade — ${due.toFixed(2)}
-          <span className="block text-[10px] font-normal text-dark-muted">
+          <span className="block text-[10px] font-normal opacity-80">
             Pay difference only · same expiry date
           </span>
         </button>
@@ -77,7 +77,7 @@ export default function SubscriptionsPage() {
       <button
         type="button"
         onClick={() => handleSubscribe(pack.id)}
-        className="mt-4 border border-lab-cyan py-2 text-sm text-lab-cyan panel-hover w-full"
+        className="btn-primary mt-4 w-full"
       >
         Subscribe
       </button>
@@ -105,12 +105,12 @@ export default function SubscriptionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text">
+    <div className="page-shell">
       <PageHeader highlight="/subscriptions" />
 
-      <main className="mx-auto max-w-3xl space-y-6 px-3 py-8 sm:px-4">
+      <main className="page-main mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-xl font-semibold">Subscription packs</h1>
+          <h1 className="font-display text-xl font-semibold">Subscription packs</h1>
           <p className="mt-2 text-sm text-dark-muted">
             Higher packs include all projects from lower tiers. Upgrade anytime and pay only
             the price difference — your expiry date stays the same.

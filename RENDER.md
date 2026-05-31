@@ -118,6 +118,19 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 - On projects: mark **Free** OR assign to pack(s) in **Post / Edit**.
 - Users subscribe at `/subscriptions` (requires account).
 
+### Google Sign-In (optional)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → create or select a project.
+2. **APIs & Services** → **OAuth consent screen** → External → add app name and your email.
+3. **Credentials** → **Create credentials** → **OAuth client ID** → type **Web application**.
+4. **Authorized JavaScript origins:**
+   - `http://localhost:5173` (local Vite)
+   - `https://embeddedgrid.onrender.com` (production)
+5. Copy the **Client ID** (`….apps.googleusercontent.com`).
+6. Render → **Environment** → `GOOGLE_OAUTH_CLIENT_ID` = that Client ID → Save → redeploy.
+
+The **Continue with Google** button appears on `/account` when this variable is set. No client secret is required for this flow.
+
 ### Stripe — add keys in Render (do this manually)
 
 **Important:** Pushing `render.yaml` to GitHub does **not** automatically add new variables to an existing Render service. You must add them in the dashboard:

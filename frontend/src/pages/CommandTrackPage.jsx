@@ -102,7 +102,7 @@ export default function CommandTrackPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text">
+    <div className="page-shell">
       <PageHeader highlight="/track" />
 
       <main className="mx-auto max-w-3xl space-y-4 px-3 py-6 sm:px-4 sm:py-8">

@@ -287,3 +287,31 @@ class UserSubscription(models.Model):
 
     def __str__(self):
         return f'{self.user.username} → {self.pack.name} ({self.status})'
+
+
+class UserSocialAuth(models.Model):
+    """Links a customer account to Google (or other providers later)."""
+
+    class Provider(models.TextChoices):
+        GOOGLE = 'google', 'Google'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='social_auth',
+    )
+    provider = models.CharField(max_length=32, choices=Provider.choices)
+    provider_uid = models.CharField(max_length=255, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['provider', 'provider_uid'],
+                name='unique_social_provider_uid',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.provider}:{self.provider_uid} → {self.user.username}'

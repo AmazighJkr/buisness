@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import NavAccount from './NavAccount.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 const SECTIONS = [
   { id: 'home', label: 'Home' },
@@ -49,29 +50,28 @@ export default function LandingNav() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-dark-border bg-dark-bg/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <button
-          type="button"
-          onClick={() => scrollTo('home')}
-          className="truncate text-sm font-semibold tracking-wide text-dark-text"
-        >
-          EmbeddedGrid
+    <header className="site-header fixed top-0 left-0 right-0 z-50">
+      <div className="site-header-inner max-w-6xl">
+        <button type="button" onClick={() => scrollTo('home')} className="site-logo">
+          Embedded<span>Grid</span>
         </button>
 
-        <nav className="hidden items-center gap-5 lg:flex">
+        <nav className="hidden items-center gap-4 lg:flex">
           {SECTIONS.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => scrollTo(s.id)}
-              className={`text-sm ${
-                active === s.id ? 'text-dark-text underline underline-offset-4' : 'text-dark-muted hover:text-dark-text'
+              className={`text-sm transition-colors ${
+                active === s.id
+                  ? 'font-medium text-lab-cyan'
+                  : 'text-dark-muted hover:text-dark-text'
               }`}
             >
               {s.label}
             </button>
           ))}
+          <span className="mx-1 h-4 w-px bg-dark-border" aria-hidden />
           {PAGE_LINKS.map(({ to, label }) => (
             <Link key={to} to={to} className="text-sm text-dark-muted hover:text-dark-text">
               {label}
@@ -80,10 +80,11 @@ export default function LandingNav() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle compact />
           <NavAccount />
           <button
             type="button"
-            className="rounded border border-dark-border p-2 text-dark-muted hover:text-dark-text lg:hidden"
+            className="theme-toggle-btn lg:hidden"
             aria-expanded={menuOpen}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMenuOpen((v) => !v)}
@@ -97,31 +98,33 @@ export default function LandingNav() {
         <>
           <button
             type="button"
-            className="fixed inset-0 top-[53px] z-40 bg-neutral-900/25 lg:hidden"
+            className="nav-scrim fixed inset-0 top-[53px] z-40 lg:hidden"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
           />
-          <nav className="relative z-50 max-h-[calc(100vh-53px)] overflow-y-auto border-b border-dark-border bg-dark-panel px-4 py-3 lg:hidden">
-            <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-dark-muted">Page</p>
+          <nav className="relative z-50 max-h-[calc(100vh-53px)] overflow-y-auto border-b border-dark-border bg-dark-panel px-4 py-3 shadow-[var(--eg-shadow)] lg:hidden">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">Sections</p>
             {SECTIONS.map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => scrollTo(s.id)}
-                className={`mb-1 block w-full rounded px-3 py-2.5 text-left text-sm ${
-                  active === s.id ? 'bg-dark-border text-dark-text' : 'text-dark-muted'
+                className={`mb-1 block w-full rounded-md px-3 py-2.5 text-left text-sm ${
+                  active === s.id
+                    ? 'bg-[color-mix(in_srgb,var(--eg-accent)_14%,var(--eg-panel))] text-lab-cyan'
+                    : 'text-dark-muted hover:bg-dark-border/40'
                 }`}
               >
                 {s.label}
               </button>
             ))}
-            <p className="mb-2 mt-4 text-[10px] font-medium uppercase tracking-wider text-dark-muted">Lab</p>
+            <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">Lab</p>
             {PAGE_LINKS.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
                 onClick={() => setMenuOpen(false)}
-                className="mb-1 block rounded px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
+                className="mb-1 block rounded-md px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
               >
                 {label}
               </Link>
@@ -129,10 +132,14 @@ export default function LandingNav() {
             <Link
               to="/account"
               onClick={() => setMenuOpen(false)}
-              className="mb-1 block rounded px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
+              className="mb-1 block rounded-md px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
             >
               Account
             </Link>
+            <div className="mt-4 border-t border-dark-border pt-4">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">Theme</p>
+              <ThemeToggle />
+            </div>
           </nav>
         </>
       )}

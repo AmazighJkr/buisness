@@ -15,7 +15,7 @@ export default function CategorySidebar({
       {open && (
         <button
           type="button"
-          className="fixed inset-0 top-12 z-40 bg-neutral-900/25 lg:hidden"
+          className="nav-scrim fixed inset-0 top-12 z-40 lg:hidden"
           aria-label="Close categories"
           onClick={onClose}
         />
