@@ -1,6 +1,3 @@
-from datetime import timedelta
-
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -16,6 +13,7 @@ from .payments import (
     stripe_secret_key,
 )
 from .serializers import ProjectCommandTrackSerializer
+from .subscriptions import complete_subscription_from_metadata
 from .tracking import get_command_for_code
 
 
@@ -115,11 +113,7 @@ class StripeWebhookView(APIView):
                     sub = UserSubscription.objects.select_related('pack').get(
                         id=meta.get('subscription_id'),
                     )
-                    now = timezone.now()
-                    sub.status = UserSubscription.Status.ACTIVE
-                    sub.started_at = now
-                    sub.expires_at = now + timedelta(days=sub.pack.duration_days)
-                    sub.save()
+                    complete_subscription_from_metadata(sub, meta)
                 except UserSubscription.DoesNotExist:
                     pass
 

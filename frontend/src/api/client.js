@@ -194,7 +194,10 @@ export async function fetchUserMe() {
 }
 
 export async function fetchPacks() {
-  const res = await fetch(`${API_BASE}/api/packs/`)
+  const headers = getUserHeaders(false)
+  const res = await fetch(`${API_BASE}/api/packs/`, {
+    headers: headers.Authorization ? headers : {},
+  })
   const data = await handleResponse(res)
   return data.results ?? data
 }

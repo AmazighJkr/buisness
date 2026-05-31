@@ -81,30 +81,46 @@ def create_command_checkout_session(command, success_url: str, cancel_url: str):
     )
 
 
-def create_pack_checkout_session(subscription, success_url: str, cancel_url: str):
+def create_pack_checkout_session(
+    subscription,
+    success_url: str,
+    cancel_url: str,
+    *,
+    charge_amount=None,
+    extra_metadata=None,
+):
     if not stripe_enabled():
         return None
     pack = subscription.pack
+    amount = Decimal(charge_amount) if charge_amount is not None else pack.price
+    if amount <= 0:
+        return None
     stripe = _stripe()
+    meta = {
+        'type': 'subscription',
+        'subscription_id': str(subscription.id),
+        'pack_id': str(pack.id),
+        'user_id': str(subscription.user_id),
+    }
+    if extra_metadata:
+        meta.update(extra_metadata)
+    description = (pack.description or '')[:200]
+    if meta.get('upgrade') == 'true':
+        description = f'Upgrade to {pack.name} (price difference). {description}'[:200]
     return stripe.checkout.Session.create(
         mode='payment',
         success_url=success_url,
         cancel_url=cancel_url,
         client_reference_id=str(subscription.id),
-        metadata={
-            'type': 'subscription',
-            'subscription_id': str(subscription.id),
-            'pack_id': str(pack.id),
-            'user_id': str(subscription.user_id),
-        },
+        metadata=meta,
         line_items=[{
             'quantity': 1,
             'price_data': {
                 'currency': os.getenv('PAYMENT_CURRENCY', 'usd'),
-                'unit_amount': _money(pack.price),
+                'unit_amount': _money(amount),
                 'product_data': {
                     'name': pack.name,
-                    'description': (pack.description or '')[:200],
+                    'description': description,
                 },
             },
         }],

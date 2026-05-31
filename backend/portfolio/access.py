@@ -3,6 +3,7 @@
 from django.utils import timezone
 
 from .models import SubscriptionPack, UserSubscription
+from .subscriptions import accessible_pack_ids, highest_active_pack_sort_order
 
 
 def active_subscriptions_for(user):
@@ -17,16 +18,16 @@ def active_subscriptions_for(user):
 
 
 def active_pack_ids(user):
-    return list(active_subscriptions_for(user).values_list('pack_id', flat=True))
+    return accessible_pack_ids(user)
 
 
 def user_can_view_project(user, project):
     if project.is_free:
         return True
-    pack_ids = active_pack_ids(user)
-    if not pack_ids:
+    tier = highest_active_pack_sort_order(user)
+    if tier <= 0:
         return False
-    return project.packs.filter(id__in=pack_ids).exists()
+    return project.packs.filter(is_active=True, sort_order__lte=tier).exists()
 
 
 def project_access(user, project):
@@ -39,5 +40,5 @@ def project_access(user, project):
 
 def required_packs_for(project):
     return list(
-        project.packs.filter(is_active=True).values('id', 'name', 'slug', 'price'),
+        project.packs.filter(is_active=True).values('id', 'name', 'slug', 'price', 'sort_order'),
     )

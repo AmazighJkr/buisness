@@ -748,10 +748,19 @@ class UserSubscriptionBriefSerializer(serializers.ModelSerializer):
 class CustomerMeSerializer(serializers.ModelSerializer):
     subscriptions = serializers.SerializerMethodField()
     active_pack_ids = serializers.SerializerMethodField()
+    subscription_tier = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'subscriptions', 'active_pack_ids']
+        fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'subscriptions',
+            'active_pack_ids',
+            'subscription_tier',
+        ]
 
     def get_subscriptions(self, obj):
         from .access import active_subscriptions_for
@@ -764,9 +773,16 @@ class CustomerMeSerializer(serializers.ModelSerializer):
 
         return [str(x) for x in active_pack_ids(obj)]
 
+    def get_subscription_tier(self, obj):
+        from .subscriptions import highest_active_pack_sort_order
+
+        return highest_active_pack_sort_order(obj)
+
 
 class SubscriptionPackPublicSerializer(serializers.ModelSerializer):
     project_count = serializers.SerializerMethodField()
+    access_state = serializers.SerializerMethodField()
+    price_due = serializers.SerializerMethodField()
 
     class Meta:
         model = SubscriptionPack
@@ -777,11 +793,48 @@ class SubscriptionPackPublicSerializer(serializers.ModelSerializer):
             'description',
             'price',
             'duration_days',
+            'sort_order',
             'project_count',
+            'access_state',
+            'price_due',
         ]
 
     def get_project_count(self, obj):
         return obj.projects.count()
+
+    def _quote(self, obj):
+        cache = self.context.setdefault('_pack_quotes', {})
+        key = str(obj.id)
+        if key not in cache:
+            from .subscriptions import quote_subscribe
+
+            request = self.context.get('request')
+            user = getattr(request, 'user', None) if request else None
+            if user and user.is_authenticated and not user.is_staff:
+                cache[key] = quote_subscribe(user, obj)
+            else:
+                cache[key] = None
+        return cache[key]
+
+    def get_access_state(self, obj):
+        quote = self._quote(obj)
+        if quote is None:
+            return 'available'
+        if quote.already_active:
+            return 'active'
+        if quote.blocked_downgrade:
+            return 'included'
+        if quote.is_upgrade:
+            return 'upgrade'
+        return 'available'
+
+    def get_price_due(self, obj):
+        quote = self._quote(obj)
+        if quote is None:
+            return str(obj.price)
+        if quote.blocked_downgrade or quote.already_active:
+            return str(obj.price)
+        return str(quote.amount)
 
 
 class SubscriptionPackAdminSerializer(serializers.ModelSerializer):

@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .access import active_subscriptions_for
 from .models import SubscriptionPack, UserSubscription
 from .payments import (
     create_pack_checkout_session,
@@ -23,6 +22,7 @@ from .serializers import (
     CustomerRegisterSerializer,
     SubscriptionPackPublicSerializer,
 )
+from .subscriptions import activate_subscription, quote_subscribe
 
 User = get_user_model()
 
@@ -95,18 +95,14 @@ class SubscribePackView(APIView):
         except SubscriptionPack.DoesNotExist:
             return Response({'detail': 'Pack not found.'}, status=404)
 
-        now = timezone.now()
-        existing = UserSubscription.objects.filter(
-            user=request.user,
-            pack=pack,
-            status=UserSubscription.Status.ACTIVE,
-            expires_at__gt=now,
-        ).first()
-        if existing:
+        quote = quote_subscribe(request.user, pack)
+        if quote.already_active:
             return Response({
                 'detail': 'You already have an active subscription for this pack.',
-                'subscription_id': str(existing.id),
-                'expires_at': existing.expires_at,
+            }, status=400)
+        if quote.blocked_downgrade:
+            return Response({
+                'detail': 'You already have a higher-tier subscription. Lower packs are included.',
             }, status=400)
 
         subscription = UserSubscription.objects.create(
@@ -119,31 +115,58 @@ class SubscribePackView(APIView):
         success = f'{base}/account?subscribed=1'
         cancel = f'{base}/subscriptions?cancelled=1'
 
-        if stripe_enabled() and pack.price > 0:
-            session = create_pack_checkout_session(subscription, success, cancel)
+        extra_metadata = {}
+        if quote.is_upgrade:
+            extra_metadata = {
+                'upgrade': 'true',
+                'replaces_subscription_id': quote.replaces_subscription_id or '',
+                'expires_at': quote.expires_at.isoformat() if quote.expires_at else '',
+            }
+            if quote.expires_at:
+                subscription.expires_at = quote.expires_at
+                subscription.save(update_fields=['expires_at'])
+
+        charge = quote.amount
+
+        if stripe_enabled() and charge > 0:
+            session = create_pack_checkout_session(
+                subscription,
+                success,
+                cancel,
+                charge_amount=charge,
+                extra_metadata=extra_metadata,
+            )
             return Response({
                 'subscription_id': str(subscription.id),
                 'checkout_url': session.url,
-                'amount': str(pack.price),
+                'amount': str(charge),
+                'full_price': str(pack.price),
+                'is_upgrade': quote.is_upgrade,
                 'mode': 'stripe',
             })
 
-        if payments_auto_confirm() or pack.price <= 0:
-            subscription.status = UserSubscription.Status.ACTIVE
-            subscription.started_at = now
-            subscription.expires_at = now + timedelta(days=pack.duration_days)
-            subscription.save()
+        if charge <= 0 or payments_auto_confirm():
+            activate_subscription(
+                subscription,
+                expires_at=quote.expires_at if quote.is_upgrade else None,
+                replaces_subscription_id=quote.replaces_subscription_id,
+            )
+            subscription.refresh_from_db()
             return Response({
                 'subscription_id': str(subscription.id),
                 'status': subscription.status,
                 'expires_at': subscription.expires_at,
+                'amount': str(charge),
+                'is_upgrade': quote.is_upgrade,
                 'mode': 'activated',
             })
 
         return Response({
             'subscription_id': str(subscription.id),
             'status': subscription.status,
-            'amount': str(pack.price),
+            'amount': str(charge),
+            'full_price': str(pack.price),
+            'is_upgrade': quote.is_upgrade,
             'mode': 'manual',
             'instructions': payment_instructions(subscription=True),
         }, status=201)
