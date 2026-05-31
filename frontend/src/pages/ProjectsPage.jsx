@@ -85,17 +85,17 @@ export default function ProjectsPage() {
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <PageHeader
         highlight="/projects"
-        beforeLogo={
+        headerStart={
           <button
             type="button"
             onClick={() => setSidebarOpen((o) => !o)}
-            className="theme-toggle-btn flex shrink-0 items-center gap-1.5 !px-2.5"
+            className="theme-toggle-btn site-header-categories-btn flex shrink-0 items-center gap-1.5 !px-2.5"
             aria-expanded={sidebarOpen}
             aria-controls="projects-category-sidebar"
             aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
           >
             <PanelLeft className="h-5 w-5 shrink-0" />
-            <span className="hidden text-xs sm:inline">{sidebarOpen ? 'Hide' : 'Categories'}</span>
+            <span className="hidden text-xs lg:inline">{sidebarOpen ? 'Hide' : 'Categories'}</span>
           </button>
         }
       />

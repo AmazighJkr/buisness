@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react'
-import GoogleSignInButton from '../GoogleSignInButton.jsx'
+import ContinueWithGoogle from '../ContinueWithGoogle.jsx'
 import ThemeToggle from '../ThemeToggle.jsx'
 import { fetchAuthConfig } from '../../api/client.js'
 
@@ -83,20 +83,16 @@ export default function AuthLoginCard({
 
           {error && <div className="auth-error">{error}</div>}
 
-          {googleClientId && (
-            <>
-              <div className="auth-google-wrap mt-5">
-                <GoogleSignInButton
-                  clientId={googleClientId}
-                  onSuccess={handleGoogle}
-                  onError={onGoogleError}
-                />
-              </div>
-              <div className="auth-divider">
-                <span>or continue with email</span>
-              </div>
-            </>
-          )}
+          <div className="auth-google-wrap mt-5">
+            <ContinueWithGoogle
+              clientId={googleClientId}
+              onSuccess={handleGoogle}
+              onError={(err) => onGoogleError?.(err)}
+            />
+          </div>
+          <div className="auth-divider">
+            <span>or continue with email</span>
+          </div>
 
           <form className="auth-form" onSubmit={onSubmit} autoComplete="on">
             <div>
