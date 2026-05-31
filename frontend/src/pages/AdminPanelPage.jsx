@@ -23,6 +23,7 @@ import {
   validateUploadFile,
 } from '../api/client.js'
 import AdminCategories from '../components/AdminCategories.jsx'
+import AdminCustomers from '../components/AdminCustomers.jsx'
 import AdminPacks from '../components/AdminPacks.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
@@ -383,7 +384,8 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
   if (hasPerm(user, 'edit_project') || user.is_superuser) tabs.push(['packs', 'Packs'])
-  if (user.is_superuser) tabs.push(['users', 'Users'])
+  if (user.is_superuser) tabs.push(['clients', 'Clients'])
+  if (user.is_superuser) tabs.push(['users', 'Staff'])
 
   const projectForm = (
     <form onSubmit={handleSaveProject} autoComplete="off" className="panel max-w-3xl space-y-4 p-6">
@@ -601,6 +603,8 @@ export default function AdminPanelPage() {
       {tab === 'categories' && hasPerm(user, 'manage_categories') && <AdminCategories />}
 
       {tab === 'packs' && (hasPerm(user, 'edit_project') || user.is_superuser) && <AdminPacks />}
+
+      {tab === 'clients' && user.is_superuser && <AdminCustomers />}
 
       {tab === 'projects' && (
         <ul className="space-y-2 max-w-3xl">

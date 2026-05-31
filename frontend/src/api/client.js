@@ -364,6 +364,25 @@ export async function adminFetchUsers() {
   return data.results ?? data
 }
 
+export async function adminFetchCustomers() {
+  const res = await fetch(`${API_BASE}/api/admin/customers/`, { headers: getAdminHeaders() })
+  const data = await handleResponse(res)
+  const rows = data.results ?? data
+  if (data.next) {
+    let url = data.next
+    const all = [...rows]
+    while (url) {
+      const pageUrl = url.startsWith('http') ? url : `${API_BASE}${url}`
+      const pageRes = await fetch(pageUrl, { headers: getAdminHeaders() })
+      const pageData = await handleResponse(pageRes)
+      all.push(...(pageData.results ?? pageData))
+      url = pageData.next || null
+    }
+    return all
+  }
+  return rows
+}
+
 export async function adminCreateUser(body) {
   const res = await fetch(`${API_BASE}/api/admin/users/`, {
     method: 'POST',

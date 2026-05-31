@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.utils import timezone
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
@@ -9,11 +9,20 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Comment, CommandMessage, Project, ProjectCategory, ProjectCommand, SubscriptionPack
+from .models import (
+    Comment,
+    CommandMessage,
+    Project,
+    ProjectCategory,
+    ProjectCommand,
+    SubscriptionPack,
+    UserSubscription,
+)
 from .permissions import (
     CanDeleteComment,
     CanEditProject,
     CanManageCategories,
+    CanManageCustomers,
     CanManagePacks,
     CanManageUsers,
     CanPostProject,
@@ -22,6 +31,7 @@ from .permissions import (
     IsStaffUser,
 )
 from .serializers import (
+    AdminCustomerSerializer,
     AdminProjectSerializer,
     AdminUserCreateSerializer,
     AdminUserSerializer,
@@ -315,6 +325,44 @@ class AdminUserListCreateView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return AdminUserCreateSerializer
         return AdminUserSerializer
+
+
+def _customer_queryset():
+    return (
+        User.objects.filter(is_staff=False)
+        .prefetch_related(
+            Prefetch(
+                'subscriptions',
+                queryset=UserSubscription.objects.select_related('pack').order_by('-created_at'),
+            ),
+            Prefetch(
+                'project_commands',
+                queryset=ProjectCommand.objects.select_related('associated_project').order_by(
+                    '-created_at',
+                ),
+            ),
+        )
+        .order_by('-date_joined')
+    )
+
+
+class AdminCustomerListView(generics.ListAPIView):
+    """Registered client accounts — visible to superuser only."""
+
+    permission_classes = [CanManageCustomers]
+    serializer_class = AdminCustomerSerializer
+
+    def get_queryset(self):
+        return _customer_queryset()
+
+
+class AdminCustomerDetailView(generics.RetrieveAPIView):
+    permission_classes = [CanManageCustomers]
+    serializer_class = AdminCustomerSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return _customer_queryset()
 
 
 class AdminMeView(APIView):

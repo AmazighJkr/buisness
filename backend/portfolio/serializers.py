@@ -842,3 +842,75 @@ class SubscriptionPackAdminSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         self._apply_projects(instance, project_ids)
         return instance
+
+
+class AdminCustomerSubscriptionSerializer(serializers.ModelSerializer):
+    pack_name = serializers.CharField(source='pack.name', read_only=True)
+
+    class Meta:
+        model = UserSubscription
+        fields = [
+            'id',
+            'pack_name',
+            'status',
+            'started_at',
+            'expires_at',
+            'created_at',
+        ]
+
+
+class AdminCustomerCommandSerializer(serializers.ModelSerializer):
+    project_title = serializers.CharField(
+        source='associated_project.title',
+        read_only=True,
+        default='',
+    )
+
+    class Meta:
+        model = ProjectCommand
+        fields = [
+            'id',
+            'tracking_code',
+            'status',
+            'payment_status',
+            'quoted_price',
+            'client_name',
+            'client_email',
+            'project_title',
+            'created_at',
+        ]
+
+
+class AdminCustomerSerializer(serializers.ModelSerializer):
+    subscriptions = AdminCustomerSubscriptionSerializer(many=True, read_only=True)
+    commands = AdminCustomerCommandSerializer(
+        source='project_commands',
+        many=True,
+        read_only=True,
+    )
+    active_subscriptions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'date_joined',
+            'last_login',
+            'is_active',
+            'active_subscriptions',
+            'subscriptions',
+            'commands',
+        ]
+
+    def get_active_subscriptions(self, obj):
+        now = timezone.now()
+        return sum(
+            1
+            for sub in obj.subscriptions.all()
+            if sub.status == UserSubscription.Status.ACTIVE
+            and sub.expires_at
+            and sub.expires_at > now
+        )

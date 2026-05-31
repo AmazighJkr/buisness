@@ -14,6 +14,8 @@ from .views import (
     AdminCommentDestroyView,
     AdminCommentListView,
     AdminCommandViewSet,
+    AdminCustomerDetailView,
+    AdminCustomerListView,
     AdminMeView,
     AdminProjectViewSet,
     AdminSubscriptionPackViewSet,
@@ -51,6 +53,8 @@ urlpatterns = [
     path('admin/', include(admin_router.urls)),
     path('admin/me/', AdminMeView.as_view(), name='admin-me'),
     path('admin/users/', AdminUserListCreateView.as_view(), name='admin-users'),
+    path('admin/customers/', AdminCustomerListView.as_view(), name='admin-customers'),
+    path('admin/customers/<int:id>/', AdminCustomerDetailView.as_view(), name='admin-customer-detail'),
     path('admin/comments/', AdminCommentListView.as_view(), name='admin-comment-list'),
     path('admin/comments/<uuid:id>/', AdminCommentDestroyView.as_view(), name='admin-comment-delete'),
 ]

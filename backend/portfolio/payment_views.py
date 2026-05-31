@@ -53,7 +53,7 @@ class CommandPayView(APIView):
                 'mode': 'stripe',
             })
 
-        if PAYMENTS_AUTO_CONFIRM or request.data.get('confirm') is True:
+        if payments_auto_confirm() or request.data.get('confirm') is True:
             command.payment_status = ProjectCommand.PaymentStatus.PAID
             command.save(update_fields=['payment_status'])
             return Response(
