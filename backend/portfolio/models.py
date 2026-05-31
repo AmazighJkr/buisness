@@ -56,6 +56,10 @@ class Project(models.Model):
         default=False,
         help_text='Show in trending/default grid on Projects page',
     )
+    is_free = models.BooleanField(
+        default=False,
+        help_text='Visible to everyone without a subscription pack',
+    )
     featured_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -88,12 +92,26 @@ class Project(models.Model):
 class ProjectCommand(models.Model):
     class Status(models.TextChoices):
         PENDING = 'Pending', 'Pending'
+        ACCEPTED = 'Accepted', 'Accepted'
         IN_DESIGN = 'In_Design', 'In Design'
         PROTOTYPING = 'Prototyping', 'Prototyping'
         TESTING = 'Testing', 'Testing'
         SHIPPED = 'Shipped', 'Shipped'
 
+    class PaymentStatus(models.TextChoices):
+        NONE = 'none', 'None'
+        PENDING = 'pending', 'Pending'
+        PAID = 'paid', 'Paid'
+        WAIVED = 'waived', 'Waived'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='project_commands',
+    )
     client_name = models.CharField(max_length=120, blank=True)
     client_email = models.EmailField(blank=True)
     associated_project = models.ForeignKey(
@@ -111,6 +129,19 @@ class ProjectCommand(models.Model):
     access_token = models.CharField(max_length=64, unique=True, editable=False)
     tracking_code = models.CharField(max_length=12, unique=True, editable=False, db_index=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    quoted_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Bill amount when command is accepted',
+    )
+    payment_status = models.CharField(
+        max_length=10,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.NONE,
+    )
+    accepted_at = models.DateTimeField(null=True, blank=True)
     staff_response = models.TextField(blank=True)
     responded_at = models.DateTimeField(null=True, blank=True)
     responded_by = models.ForeignKey(
@@ -196,3 +227,63 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.author_name} on {self.project.title}'
+
+
+class SubscriptionPack(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=80, unique=True)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    duration_days = models.PositiveIntegerField(
+        default=30,
+        help_text='Access length after payment',
+    )
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    projects = models.ManyToManyField(
+        Project,
+        blank=True,
+        related_name='packs',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+        permissions = [
+            ('manage_packs', 'Can manage subscription packs'),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class UserSubscription(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending payment'
+        ACTIVE = 'active', 'Active'
+        EXPIRED = 'expired', 'Expired'
+        CANCELLED = 'cancelled', 'Cancelled'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )
+    pack = models.ForeignKey(
+        SubscriptionPack,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    started_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username} → {self.pack.name} ({self.status})'

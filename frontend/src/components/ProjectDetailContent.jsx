@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ProjectLockedPanel from './ProjectLockedPanel.jsx'
 import CodePanel from './CodePanel.jsx'
 import MaterialsTable from './MaterialsTable.jsx'
 import ProjectComments from './ProjectComments.jsx'
@@ -22,6 +23,21 @@ export default function ProjectDetailContent({ project, onBack }) {
   const videoConfig = project.video_url ? resolveVideoEmbed(project.video_url) : null
   const codeFiles = (project.code_files || []).filter((f) => f?.code?.trim())
   const hasDescription = Boolean(project.description?.trim())
+
+  if (project.locked) {
+    return (
+      <div className="mx-auto w-full max-w-5xl space-y-4 pb-10 lg:w-[75%]">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-sm text-dark-muted transition-colors hover:text-dark-text"
+        >
+          ← Back to list
+        </button>
+        <ProjectLockedPanel project={project} />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-4 pb-10 lg:w-[75%]">

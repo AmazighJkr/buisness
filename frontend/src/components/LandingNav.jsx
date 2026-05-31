@@ -92,7 +92,7 @@ export default function LandingNav() {
         <>
           <button
             type="button"
-            className="fixed inset-0 top-[53px] z-40 bg-black/60 lg:hidden"
+            className="fixed inset-0 top-[53px] z-40 bg-neutral-900/25 lg:hidden"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
           />

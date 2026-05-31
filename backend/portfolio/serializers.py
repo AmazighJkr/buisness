@@ -8,7 +8,16 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .embed_utils import normalize_code_files, resolve_simulation_embed_url
-from .models import Comment, CommandMessage, Project, ProjectCategory, ProjectCommand
+from .models import (
+    Comment,
+    CommandMessage,
+    Project,
+    ProjectCategory,
+    ProjectCommand,
+    SubscriptionPack,
+    UserSubscription,
+)
+from .access import project_access, required_packs_for, user_can_view_project
 from .validators import validate_upload_extension
 
 User = get_user_model()
@@ -20,6 +29,7 @@ PORTFOLIO_PERMS = [
     'view_commands',
     'respond_commands',
     'moderate_comment',
+    'manage_packs',
 ]
 
 
@@ -107,6 +117,8 @@ class ProjectListSerializer(serializers.ModelSerializer):
     libraries_list = serializers.SerializerMethodField()
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
     category_name = serializers.CharField(source='subcategory.parent.name', read_only=True)
+    access = serializers.SerializerMethodField()
+    locked = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -120,9 +132,31 @@ class ProjectListSerializer(serializers.ModelSerializer):
             'subcategory_name',
             'category_name',
             'is_featured',
+            'is_free',
+            'access',
+            'locked',
             'featured_order',
             'created_at',
         ]
+
+    def _user(self):
+        request = self.context.get('request')
+        return request.user if request else None
+
+    def get_access(self, obj):
+        return project_access(self._user(), obj)
+
+    def get_locked(self, obj):
+        return self.get_access(obj) == 'locked'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('locked'):
+            desc = (instance.description or '').strip()
+            data['description'] = (
+                desc[:140] + '…' if len(desc) > 140 else desc
+            ) or 'Subscribe to unlock full project details.'
+        return data
 
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
@@ -146,6 +180,9 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
     category_name = serializers.CharField(source='subcategory.parent.name', read_only=True)
+    access = serializers.SerializerMethodField()
+    locked = serializers.SerializerMethodField()
+    required_packs = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -155,6 +192,10 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'description',
             'subcategory_name',
             'category_name',
+            'is_free',
+            'access',
+            'locked',
+            'required_packs',
             'materials',
             'wiring',
             'schematic_url',
@@ -167,6 +208,51 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'comments',
             'created_at',
         ]
+
+    def _user(self):
+        request = self.context.get('request')
+        return request.user if request else None
+
+    def get_access(self, obj):
+        return project_access(self._user(), obj)
+
+    def get_locked(self, obj):
+        return self.get_access(obj) == 'locked'
+
+    def get_required_packs(self, obj):
+        if obj.is_free:
+            return []
+        return required_packs_for(obj)
+
+    def to_representation(self, instance):
+        user = self._user()
+        if not user_can_view_project(user, instance):
+            desc = (instance.description or '').strip()
+            return {
+                'id': str(instance.id),
+                'title': instance.title,
+                'description': (
+                    desc[:220] + '…' if len(desc) > 220 else desc
+                ) or 'Subscribe to unlock this project.',
+                'subcategory_name': instance.subcategory.name,
+                'category_name': instance.subcategory.parent.name if instance.subcategory.parent_id else '',
+                'is_free': instance.is_free,
+                'access': 'locked',
+                'locked': True,
+                'required_packs': required_packs_for(instance),
+                'materials': [],
+                'wiring': [],
+                'schematic_url': None,
+                'schematic_file_missing': False,
+                'simulation_url': '',
+                'simulation_embed_url': None,
+                'video_url': '',
+                'libraries_list': [],
+                'code_files': [],
+                'comments': [],
+                'created_at': instance.created_at,
+            }
+        return super().to_representation(instance)
 
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
@@ -235,6 +321,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
     schematic_url = serializers.SerializerMethodField(read_only=True)
+    pack_ids = serializers.SerializerMethodField(read_only=True)
+    pack_ids_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Project
@@ -256,6 +344,9 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'code_files',
             'code_files_json',
             'is_featured',
+            'is_free',
+            'pack_ids',
+            'pack_ids_json',
             'featured_order',
             'created_at',
             'updated_at',
@@ -287,6 +378,13 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
 
+    def get_pack_ids(self, obj):
+        return [str(p.id) for p in obj.packs.all()]
+
+    def _apply_packs(self, instance, pack_ids):
+        if pack_ids is not None:
+            instance.packs.set(SubscriptionPack.objects.filter(id__in=pack_ids))
+
     def _merge_request_files(self, validated_data):
         request = self.context.get('request')
         if request and hasattr(request, 'FILES') and 'schematic_image' in request.FILES:
@@ -306,14 +404,18 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             })
 
     def create(self, validated_data):
+        pack_ids = validated_data.pop('pack_ids', None)
         validated_data = self._merge_request_files(validated_data)
         instance = super().create(validated_data)
+        self._apply_packs(instance, pack_ids)
         self._verify_schematic_saved(instance)
         return instance
 
     def update(self, instance, validated_data):
+        pack_ids = validated_data.pop('pack_ids', None)
         validated_data = self._merge_request_files(validated_data)
         instance = super().update(instance, validated_data)
+        self._apply_packs(instance, pack_ids)
         self._verify_schematic_saved(instance)
         return instance
 
@@ -341,6 +443,19 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         if 'is_featured' in self.initial_data:
             val = self.initial_data.get('is_featured')
             attrs['is_featured'] = str(val).lower() in ('true', '1', 'on', 'yes')
+        if 'is_free' in self.initial_data:
+            val = self.initial_data.get('is_free')
+            attrs['is_free'] = str(val).lower() in ('true', '1', 'on', 'yes')
+        if 'pack_ids_json' in self.initial_data:
+            raw = self.initial_data.get('pack_ids_json', '[]')
+            try:
+                parsed = json.loads(raw) if raw else []
+            except json.JSONDecodeError as exc:
+                raise serializers.ValidationError({'pack_ids_json': 'Invalid pack list.'}) from exc
+            if not isinstance(parsed, list):
+                raise serializers.ValidationError({'pack_ids_json': 'Must be a list.'})
+            attrs['pack_ids'] = parsed
+        attrs.pop('pack_ids_json', None)
         if 'featured_order' in self.initial_data:
             try:
                 attrs['featured_order'] = int(self.initial_data.get('featured_order') or 0)
@@ -443,6 +558,7 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     messages = CommandMessagePublicSerializer(many=True, read_only=True)
+    payment_due = serializers.SerializerMethodField()
 
     class Meta:
         model = ProjectCommand
@@ -456,10 +572,22 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
             'objectives',
             'problems',
             'project_title',
+            'quoted_price',
+            'payment_status',
+            'payment_due',
+            'accepted_at',
             'created_at',
             'responded_at',
             'messages',
         ]
+
+    def get_payment_due(self, obj):
+        return (
+            obj.status == ProjectCommand.Status.ACCEPTED
+            and obj.quoted_price
+            and obj.quoted_price > 0
+            and obj.payment_status == ProjectCommand.PaymentStatus.PENDING
+        )
 
 
 class ProjectCommandTrackBriefSerializer(serializers.ModelSerializer):
@@ -510,6 +638,9 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
             'problems',
             'attachment',
             'status',
+            'quoted_price',
+            'payment_status',
+            'accepted_at',
             'staff_response',
             'responded_at',
             'responded_by_name',
@@ -521,10 +652,18 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
 class ProjectCommandRespondSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectCommand
-        fields = ['status', 'staff_response']
+        fields = ['status', 'staff_response', 'quoted_price', 'payment_status']
 
     def validate_staff_response(self, value):
         return (value or '').strip()
+
+    def validate(self, attrs):
+        status = attrs.get('status')
+        quoted = attrs.get('quoted_price')
+        if status == ProjectCommand.Status.ACCEPTED and quoted and quoted > 0:
+            if 'payment_status' not in attrs:
+                attrs['payment_status'] = ProjectCommand.PaymentStatus.PENDING
+        return attrs
 
 
 class AdminUserCreateSerializer(serializers.Serializer):
@@ -571,3 +710,135 @@ class AdminUserSerializer(serializers.ModelSerializer):
             for p in obj.get_all_permissions()
             if p.startswith('portfolio.') and p.split('.')[-1] in PORTFOLIO_PERMS
         ]
+
+
+class CustomerRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(min_length=8, write_only=True)
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'first_name']
+
+    def validate_email(self, value):
+        if User.objects.filter(email__iexact=value.strip()).exists():
+            raise serializers.ValidationError('An account with this email already exists.')
+        return value.strip().lower()
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User.objects.create_user(
+            is_staff=False,
+            **validated_data,
+        )
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class UserSubscriptionBriefSerializer(serializers.ModelSerializer):
+    pack_name = serializers.CharField(source='pack.name', read_only=True)
+    pack_slug = serializers.CharField(source='pack.slug', read_only=True)
+
+    class Meta:
+        model = UserSubscription
+        fields = ['id', 'pack_name', 'pack_slug', 'status', 'started_at', 'expires_at']
+
+
+class CustomerMeSerializer(serializers.ModelSerializer):
+    subscriptions = serializers.SerializerMethodField()
+    active_pack_ids = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'subscriptions', 'active_pack_ids']
+
+    def get_subscriptions(self, obj):
+        from .access import active_subscriptions_for
+
+        qs = active_subscriptions_for(obj)
+        return UserSubscriptionBriefSerializer(qs, many=True).data
+
+    def get_active_pack_ids(self, obj):
+        from .access import active_pack_ids
+
+        return [str(x) for x in active_pack_ids(obj)]
+
+
+class SubscriptionPackPublicSerializer(serializers.ModelSerializer):
+    project_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SubscriptionPack
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'description',
+            'price',
+            'duration_days',
+            'project_count',
+        ]
+
+    def get_project_count(self, obj):
+        return obj.projects.count()
+
+
+class SubscriptionPackAdminSerializer(serializers.ModelSerializer):
+    project_ids = serializers.SerializerMethodField(read_only=True)
+    project_ids_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    project_count = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = SubscriptionPack
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'description',
+            'price',
+            'duration_days',
+            'is_active',
+            'sort_order',
+            'project_ids',
+            'project_ids_json',
+            'project_count',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_project_ids(self, obj):
+        return [str(p.id) for p in obj.projects.all()]
+
+    def get_project_count(self, obj):
+        return obj.projects.count()
+
+    def validate(self, attrs):
+        if 'project_ids_json' in self.initial_data:
+            raw = self.initial_data.get('project_ids_json', '[]')
+            try:
+                parsed = json.loads(raw) if raw else []
+            except json.JSONDecodeError as exc:
+                raise serializers.ValidationError({'project_ids_json': 'Invalid project list.'}) from exc
+            if not isinstance(parsed, list):
+                raise serializers.ValidationError({'project_ids_json': 'Must be a list.'})
+            attrs['project_ids'] = parsed
+        attrs.pop('project_ids_json', None)
+        return attrs
+
+    def _apply_projects(self, instance, project_ids):
+        if project_ids is not None:
+            instance.projects.set(Project.objects.filter(id__in=project_ids))
+
+    def create(self, validated_data):
+        project_ids = validated_data.pop('project_ids', None)
+        instance = super().create(validated_data)
+        self._apply_projects(instance, project_ids)
+        return instance
+
+    def update(self, instance, validated_data):
+        project_ids = validated_data.pop('project_ids', None)
+        instance = super().update(instance, validated_data)
+        self._apply_projects(instance, project_ids)
+        return instance

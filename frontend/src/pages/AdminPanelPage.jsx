@@ -12,6 +12,7 @@ import {
   adminFetchCommands,
   adminFetchComments,
   adminFetchProjects,
+  adminFetchPacks,
   adminFetchUsers,
   adminLogin,
   adminLogout,
@@ -22,12 +23,13 @@ import {
   validateUploadFile,
 } from '../api/client.js'
 import AdminCategories from '../components/AdminCategories.jsx'
+import AdminPacks from '../components/AdminPacks.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
 import CommandComposer from '../components/CommandComposer.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import EditableRows from '../components/EditableRows.jsx'
-import { COMMAND_STATUSES } from '../constants/commandStatus.js'
+import { COMMAND_STATUSES, PAYMENT_STATUSES } from '../constants/commandStatus.js'
 
 const ALL_PERMS = Object.keys(PERM_LABELS)
 const EMPTY_MAT = { component: '', quantity: '', notes: '' }
@@ -40,10 +42,11 @@ function normalizeUrl(raw) {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`
 }
 
-function buildProjectFormData(form, materials, wiring, codeFiles, schematic) {
+function buildProjectFormData(form, materials, wiring, codeFiles, schematic, packIds) {
   const fd = new FormData()
   fd.append('subcategory', form.subcategory)
   fd.append('is_featured', form.is_featured ? 'true' : 'false')
+  fd.append('is_free', form.is_free ? 'true' : 'false')
   fd.append('featured_order', String(form.featured_order || 0))
   fd.append('title', form.title)
   fd.append('description', form.description)
@@ -56,6 +59,7 @@ function buildProjectFormData(form, materials, wiring, codeFiles, schematic) {
   fd.append('wiring_json', JSON.stringify(wiring.filter((r) => r.from_pin?.trim() || r.to_pin?.trim())))
   fd.append('simulation_url', normalizeUrl(form.simulation_url) || '')
   fd.append('video_url', normalizeUrl(form.video_url) || '')
+  fd.append('pack_ids_json', JSON.stringify(packIds || []))
   if (schematic) fd.append('schematic_image', schematic)
   return fd
 }
@@ -89,6 +93,7 @@ export default function AdminPanelPage() {
     simulation_url: '',
     video_url: '',
     is_featured: false,
+    is_free: false,
     featured_order: 0,
   })
   const [materials, setMaterials] = useState([{ ...EMPTY_MAT }])
@@ -106,6 +111,10 @@ export default function AdminPanelPage() {
 
   const [selectedCommand, setSelectedCommand] = useState(null)
   const [statusDraft, setStatusDraft] = useState('Pending')
+  const [quotedPriceDraft, setQuotedPriceDraft] = useState('')
+  const [paymentStatusDraft, setPaymentStatusDraft] = useState('none')
+  const [selectedPackIds, setSelectedPackIds] = useState([])
+  const [adminPacks, setAdminPacks] = useState([])
   const [chatSending, setChatSending] = useState(false)
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -115,6 +124,7 @@ export default function AdminPanelPage() {
     if (hasPerm(me, 'edit_project') || hasPerm(me, 'post_project')) {
       tasks.push(adminFetchProjects().then(setProjects).catch(() => []))
       tasks.push(adminFetchCategories().then(setCategories).catch(() => []))
+      tasks.push(adminFetchPacks().then(setAdminPacks).catch(() => []))
     }
     if (hasPerm(me, 'manage_categories')) {
       tasks.push(adminFetchCategories().then(setCategories).catch(() => []))
@@ -122,7 +132,7 @@ export default function AdminPanelPage() {
     if (hasPerm(me, 'view_commands')) {
       tasks.push(adminFetchCommands().then(setCommands).catch(() => []))
     }
-    if (hasPerm(me, 'delete_comment')) {
+    if (hasPerm(me, 'moderate_comment')) {
       tasks.push(adminFetchComments().then(setComments).catch(() => []))
     }
     if (me?.is_superuser) {
@@ -176,12 +186,14 @@ export default function AdminPanelPage() {
       simulation_url: '',
       video_url: '',
       is_featured: false,
+      is_free: false,
       featured_order: 0,
     })
     setMaterials([{ ...EMPTY_MAT }])
     setWiring([])
     setCodeFiles([{ ...EMPTY_CODE }])
     setSchematic(null)
+    setSelectedPackIds([])
     setEditId(null)
   }
 
@@ -196,7 +208,7 @@ export default function AdminPanelPage() {
       return
     }
     try {
-      const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic)
+      const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, selectedPackIds)
       if (editId) {
         await adminUpdateProject(editId, fd)
         setMsg({ type: 'success', text: 'Project updated.' })
@@ -227,8 +239,10 @@ export default function AdminPanelPage() {
       simulation_url: p.simulation_url || '',
       video_url: p.video_url || '',
       is_featured: !!p.is_featured,
+      is_free: !!p.is_free,
       featured_order: p.featured_order || 0,
     })
+    setSelectedPackIds(p.pack_ids || [])
     setMaterials(p.materials?.length ? p.materials : [{ ...EMPTY_MAT }])
     setWiring(p.wiring || [])
     setCodeFiles(
@@ -272,6 +286,8 @@ export default function AdminPanelPage() {
       const c = await adminFetchCommand(id)
       setSelectedCommand(c)
       setStatusDraft(c.status)
+      setQuotedPriceDraft(c.quoted_price != null ? String(c.quoted_price) : '')
+      setPaymentStatusDraft(c.payment_status || 'none')
     } catch (err) {
       setMsg({ type: 'error', text: err.message })
     }
@@ -282,10 +298,17 @@ export default function AdminPanelPage() {
     if (!selectedCommand || !hasPerm(user, 'respond_commands')) return
     setSubmitting(true)
     try {
-      const updated = await adminRespondCommand(selectedCommand.id, {
+      const body = {
         status: statusDraft,
         staff_response: '',
-      })
+      }
+      if (quotedPriceDraft !== '') {
+        body.quoted_price = Number(quotedPriceDraft)
+      }
+      if (paymentStatusDraft) {
+        body.payment_status = paymentStatusDraft
+      }
+      const updated = await adminRespondCommand(selectedCommand.id, body)
       setSelectedCommand(updated)
       setCommands(await adminFetchCommands())
       setMsg({ type: 'success', text: 'Status updated.' })
@@ -325,7 +348,7 @@ export default function AdminPanelPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md space-y-6 bg-dark-bg p-8 min-h-screen text-dark-text">
-        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-white">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-dark-text">
           ADMIN_PANEL
         </h1>
         <form onSubmit={handleLogin} className="border border-lab-border bg-lab-surface chamfer p-6 space-y-4">
@@ -359,6 +382,7 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
+  if (hasPerm(user, 'edit_project') || user.is_superuser) tabs.push(['packs', 'Packs'])
   if (user.is_superuser) tabs.push(['users', 'Users'])
 
   const projectForm = (
@@ -404,6 +428,35 @@ export default function AdminPanelPage() {
       <label className="flex items-center gap-2 text-sm text-dark-muted">
         <input
           type="checkbox"
+          checked={form.is_free}
+          onChange={(e) => setForm((f) => ({ ...f, is_free: e.target.checked }))}
+        />
+        Free project (no subscription required)
+      </label>
+
+      {!form.is_free && adminPacks.length > 0 && (
+        <div className="border border-dark-border p-3 text-xs">
+          <p className="mb-2 text-dark-muted">Subscription packs (pick one or more)</p>
+          {adminPacks.map((pack) => (
+            <label key={pack.id} className="mb-1 flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={selectedPackIds.includes(pack.id)}
+                onChange={() =>
+                  setSelectedPackIds((ids) =>
+                    ids.includes(pack.id) ? ids.filter((x) => x !== pack.id) : [...ids, pack.id],
+                  )
+                }
+              />
+              <span>{pack.name}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      <label className="flex items-center gap-2 text-sm text-dark-muted">
+        <input
+          type="checkbox"
           checked={form.is_featured}
           onChange={(e) => setForm((f) => ({ ...f, is_featured: e.target.checked }))}
         />
@@ -442,7 +495,7 @@ export default function AdminPanelPage() {
       </div>
 
       <div>
-        <p className="mb-2 text-xs text-gray-400">Wiring (optional)</p>
+        <p className="mb-2 text-xs text-dark-muted">Wiring (optional)</p>
         <EditableRows
           columns={[
             { key: 'from_pin', label: 'From' },
@@ -455,7 +508,7 @@ export default function AdminPanelPage() {
         />
       </div>
 
-      <label className="block text-xs text-gray-400">
+      <label className="block text-xs text-dark-muted">
         Schematic image (PNG/JPG/WebP, max 5 MB)
         <input
           type="file"
@@ -493,7 +546,7 @@ export default function AdminPanelPage() {
         className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
       <div>
-        <p className="mb-2 text-xs text-gray-400">Code files (optional — add multiple with titles)</p>
+        <p className="mb-2 text-xs text-dark-muted">Code files (optional — add multiple with titles)</p>
         <CodeFilesEditor
           files={codeFiles}
           onChange={setCodeFiles}
@@ -512,7 +565,7 @@ export default function AdminPanelPage() {
         </button>
         {editId && (
           <button type="button" onClick={resetProjectForm}
-            className="border border-lab-border px-4 text-xs text-gray-400">Cancel</button>
+            className="border border-lab-border px-4 text-xs text-dark-muted">Cancel</button>
         )}
       </div>
     </form>
@@ -525,7 +578,7 @@ export default function AdminPanelPage() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-lab-border pb-4">
         <div className="flex items-center gap-2">
           <Cpu className="h-5 w-5 text-lab-copper" />
-          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-white">ADMIN_PANEL</h1>
+          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-dark-text">ADMIN_PANEL</h1>
           <span className="text-xs text-lab-green">[{user.username}]</span>
         </div>
         <button type="button" onClick={() => { adminLogout(); setUser(null) }}
@@ -546,6 +599,8 @@ export default function AdminPanelPage() {
       {tab === 'post' && (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) && projectForm}
 
       {tab === 'categories' && hasPerm(user, 'manage_categories') && <AdminCategories />}
+
+      {tab === 'packs' && (hasPerm(user, 'edit_project') || user.is_superuser) && <AdminPacks />}
 
       {tab === 'projects' && (
         <ul className="space-y-2 max-w-3xl">
@@ -586,7 +641,7 @@ export default function AdminPanelPage() {
                   }`}
                 >
                   <div className="flex justify-between gap-2">
-                    <span className="text-gray-300">{c.client_name || c.client_email || 'Anonymous'}</span>
+                    <span className="text-dark-text">{c.client_name || c.client_email || 'Anonymous'}</span>
                     <span className="text-lab-copper shrink-0">{c.status}</span>
                   </div>
                   <p className="mt-1 line-clamp-2 text-gray-500">{c.idea_description}</p>
@@ -606,7 +661,7 @@ export default function AdminPanelPage() {
                   Close
                 </button>
               </div>
-              <p className="text-gray-300 whitespace-pre-wrap">{selectedCommand.idea_description}</p>
+              <p className="text-dark-text whitespace-pre-wrap">{selectedCommand.idea_description}</p>
 
               {selectedCommand.tracking_code && (
                 <div className="border border-lab-border bg-lab-bg p-3 space-y-2">
@@ -621,23 +676,46 @@ export default function AdminPanelPage() {
               <CommandStatusBar status={selectedCommand.status} />
 
               {hasPerm(user, 'respond_commands') && (
-                <form onSubmit={handleUpdateStatus} className="flex gap-2">
-                  <select
-                    value={statusDraft}
-                    onChange={(e) => setStatusDraft(e.target.value)}
-                    className="flex-1 border border-lab-border bg-lab-bg px-2 py-1"
-                  >
-                    {COMMAND_STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="border border-lab-cyan px-3 py-1 text-lab-cyan disabled:opacity-50"
-                  >
-                    Update status
-                  </button>
+                <form onSubmit={handleUpdateStatus} className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    <select
+                      value={statusDraft}
+                      onChange={(e) => setStatusDraft(e.target.value)}
+                      className="min-w-[8rem] flex-1 border border-lab-border bg-lab-bg px-2 py-1"
+                    >
+                      {COMMAND_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Quoted price"
+                      value={quotedPriceDraft}
+                      onChange={(e) => setQuotedPriceDraft(e.target.value)}
+                      className="w-28 border border-lab-border bg-lab-bg px-2 py-1"
+                    />
+                    <select
+                      value={paymentStatusDraft}
+                      onChange={(e) => setPaymentStatusDraft(e.target.value)}
+                      className="border border-lab-border bg-lab-bg px-2 py-1"
+                    >
+                      {PAYMENT_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="border border-lab-cyan px-3 py-1 text-lab-cyan disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-gray-500">
+                    Set status to Accepted + price to show a payment bill on the client tracker.
+                  </p>
                 </form>
               )}
 
@@ -666,7 +744,7 @@ export default function AdminPanelPage() {
             <li key={c.id} className="flex justify-between gap-2 border border-lab-border bg-lab-surface p-3 text-xs">
               <div>
                 <span className="text-lab-cyan">{c.author_name}</span> on <span className="text-lab-copper">{c.project_title}</span>
-                <p className="text-gray-400 mt-1">{c.text}</p>
+                <p className="text-dark-muted mt-1">{c.text}</p>
               </div>
               <button type="button" onClick={async () => {
                 await adminDeleteComment(c.id)
@@ -693,7 +771,7 @@ export default function AdminPanelPage() {
             <div className="space-y-2">
               <p className="text-xs text-gray-500">Permissions</p>
               {ALL_PERMS.map((perm) => (
-                <label key={perm} className="flex items-center gap-2 text-xs text-gray-300">
+                <label key={perm} className="flex items-center gap-2 text-xs text-dark-text">
                   <input type="checkbox" checked={newUser.permissions.includes(perm)}
                     onChange={() => toggleNewUserPerm(perm)} />
                   {PERM_LABELS[perm]}

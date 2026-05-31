@@ -17,7 +17,7 @@ export default function CommandStatusBar({ status }) {
               key={step.value}
               className={`border px-2 py-1 text-xs ${
                 active
-                  ? 'border-lab-accent text-lab-accent'
+                  ? 'border-lab-cyan text-lab-cyan'
                   : done
                     ? 'border-dark-border text-dark-text'
                     : 'border-dark-border text-dark-muted'

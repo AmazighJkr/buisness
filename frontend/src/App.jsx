@@ -4,6 +4,8 @@ import ProjectsPage from './pages/ProjectsPage.jsx'
 import AdminPanelPage from './pages/AdminPanelPage.jsx'
 import CommandTrackPage from './pages/CommandTrackPage.jsx'
 import CommandPage from './pages/CommandPage.jsx'
+import AccountPage from './pages/AccountPage.jsx'
+import SubscriptionsPage from './pages/SubscriptionsPage.jsx'
 
 export default function App() {
   return (
@@ -13,6 +15,8 @@ export default function App() {
       <Route path="projects/:projectId" element={<ProjectsPage />} />
       <Route path="command" element={<CommandPage />} />
       <Route path="track" element={<CommandTrackPage />} />
+      <Route path="account" element={<AccountPage />} />
+      <Route path="subscriptions" element={<SubscriptionsPage />} />
       <Route path="admin-panel" element={<AdminPanelPage />} />
     </Routes>
   )

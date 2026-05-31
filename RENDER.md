@@ -103,6 +103,35 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 
 ---
 
+## Payments & subscriptions
+
+### Customer accounts
+- Public **Register / Sign in** at `/account` (not the admin panel).
+- Admin staff still use `/admin-panel` and `ADMIN_PASSWORD`.
+
+### Command payment bills
+1. Admin → **Commands** → set status **Accepted**, enter **Quoted price**, set payment **Pending**.
+2. Client opens **Track command** — sees **Payment bill** with amount and **Pay now**.
+
+### Subscription packs
+- Admin → **Packs** tab: create/edit packs, assign projects, set price & duration.
+- On projects: mark **Free** OR assign to pack(s) in **Post / Edit**.
+- Users subscribe at `/subscriptions` (requires account).
+
+### Stripe (optional, recommended for real payments)
+| Variable | Purpose |
+|----------|---------|
+| `STRIPE_SECRET_KEY` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
+| `PUBLIC_SITE_URL` | e.g. `https://embeddedgrid.onrender.com` |
+| `PAYMENT_CURRENCY` | Default `usd` |
+
+Webhook URL: `https://your-domain/api/webhooks/stripe/`
+
+Without Stripe, set `PAYMENTS_AUTO_CONFIRM=true` for testing (auto-activates payments/subscriptions).
+
+---
+
 ## Free tier notes
 
 - Service **spins down** after ~15 min idle; first visit may take 30–60 s to wake up.

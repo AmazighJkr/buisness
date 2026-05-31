@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
+import CommandPaymentBill from '../components/CommandPaymentBill.jsx'
 import CommandChat from '../components/CommandChat.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import SectionBox from '../components/SectionBox.jsx'
@@ -218,6 +219,15 @@ export default function CommandTrackPage() {
             <SectionBox title="Development status">
               <CommandStatusBar status={command.status} />
             </SectionBox>
+
+            {(command.quoted_price > 0 || command.status === 'Accepted') && (
+              <SectionBox title="Payment">
+                <CommandPaymentBill
+                  command={command}
+                  onUpdated={(updated) => setCommand(updated)}
+                />
+              </SectionBox>
+            )}
 
             <SectionBox title="Private chat">
               <p className="mb-3 text-xs text-dark-muted">

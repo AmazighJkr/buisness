@@ -1,5 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const ADMIN_TOKEN_KEY = 'admin_access_token'
+const USER_TOKEN_KEY = 'user_access_token'
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 async function apiFetch(url, options = {}) {
@@ -12,6 +13,27 @@ async function apiFetch(url, options = {}) {
     )
   }
   return handleResponse(res)
+}
+
+function getUserHeaders(includeJson = true) {
+  const headers = {}
+  if (includeJson) headers['Content-Type'] = 'application/json'
+  const token = localStorage.getItem(USER_TOKEN_KEY)
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  return headers
+}
+
+function authHeaders(includeJson = true) {
+  const user = getUserHeaders(includeJson)
+  if (user.Authorization) return user
+  return getAdminHeaders(includeJson)
+}
+
+async function userFetch(url, options = {}) {
+  return apiFetch(url, {
+    ...options,
+    headers: { ...getUserHeaders(), ...(options.headers || {}) },
+  })
 }
 
 function getAdminHeaders(includeJson = true) {
@@ -61,26 +83,26 @@ async function handleResponse(res) {
 }
 
 export async function fetchCategories() {
-  const res = await fetch(`${API_BASE}/api/categories/`)
+  const res = await fetch(`${API_BASE}/api/categories/`, { headers: getUserHeaders(false) })
   const data = await handleResponse(res)
   return data.results ?? data
 }
 
 export async function fetchProjects(subcategoryId) {
   const q = subcategoryId ? `?subcategory=${subcategoryId}` : ''
-  const res = await fetch(`${API_BASE}/api/projects/${q}`)
+  const res = await fetch(`${API_BASE}/api/projects/${q}`, { headers: getUserHeaders(false) })
   const data = await handleResponse(res)
   return data.results ?? data
 }
 
 export async function fetchFeaturedProjects() {
-  const res = await fetch(`${API_BASE}/api/projects/?featured=true`)
+  const res = await fetch(`${API_BASE}/api/projects/?featured=true`, { headers: getUserHeaders(false) })
   const data = await handleResponse(res)
   return data.results ?? data
 }
 
 export async function fetchProject(id) {
-  const res = await fetch(`${API_BASE}/api/projects/${id}/`)
+  const res = await fetch(`${API_BASE}/api/projects/${id}/`, { headers: getUserHeaders(false) })
   const data = await handleResponse(res)
   if (data.subcategory) {
     data.subcategory_name = data.subcategory_name || ''
@@ -118,6 +140,90 @@ export async function fetchCommandTrackByCode(code) {
 export async function fetchCommandTrackByEmail(email) {
   const q = new URLSearchParams({ email: email.trim().toLowerCase() })
   const res = await fetch(`${API_BASE}/api/commands/track/?${q}`)
+  return handleResponse(res)
+}
+
+export async function payCommand(code, body = {}) {
+  const q = new URLSearchParams({ code: code.trim().toUpperCase() })
+  const res = await fetch(`${API_BASE}/api/commands/pay/?${q}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export function userLogout() {
+  localStorage.removeItem(USER_TOKEN_KEY)
+  localStorage.removeItem('user_refresh_token')
+}
+
+export async function userRegister(body) {
+  const data = await apiFetch(`${API_BASE}/api/auth/register/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  localStorage.setItem(USER_TOKEN_KEY, data.access)
+  return data
+}
+
+export async function userLogin(username, password) {
+  const data = await apiFetch(`${API_BASE}/api/auth/login/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  })
+  localStorage.setItem(USER_TOKEN_KEY, data.access)
+  return data
+}
+
+export async function fetchUserMe() {
+  const res = await fetch(`${API_BASE}/api/auth/me/`, { headers: getUserHeaders() })
+  if (res.status === 401 || res.status === 403) return null
+  return handleResponse(res)
+}
+
+export async function fetchPacks() {
+  const res = await fetch(`${API_BASE}/api/packs/`)
+  const data = await handleResponse(res)
+  return data.results ?? data
+}
+
+export async function subscribeToPack(packId) {
+  return userFetch(`${API_BASE}/api/packs/${packId}/subscribe/`, { method: 'POST', body: '{}' })
+}
+
+export async function adminFetchPacks() {
+  const res = await fetch(`${API_BASE}/api/admin/packs/`, { headers: getAdminHeaders() })
+  const data = await handleResponse(res)
+  return data.results ?? data
+}
+
+export async function adminCreatePack(body) {
+  const res = await fetch(`${API_BASE}/api/admin/packs/`, {
+    method: 'POST',
+    headers: getAdminHeaders(),
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export async function adminUpdatePack(id, body) {
+  const res = await fetch(`${API_BASE}/api/admin/packs/${id}/`, {
+    method: 'PATCH',
+    headers: getAdminHeaders(),
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export async function adminDeletePack(id) {
+  const res = await fetch(`${API_BASE}/api/admin/packs/${id}/`, {
+    method: 'DELETE',
+    headers: getAdminHeaders(),
+  })
+  if (res.status === 204) return null
   return handleResponse(res)
 }
 
@@ -306,6 +412,7 @@ export const PERM_LABELS = {
   post_project: 'Post projects',
   edit_project: 'Edit projects',
   manage_categories: 'Manage categories',
+  manage_packs: 'Manage subscription packs',
   view_commands: 'View commands',
   respond_commands: 'Respond to commands',
   moderate_comment: 'Delete comments',

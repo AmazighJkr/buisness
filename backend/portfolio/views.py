@@ -9,11 +9,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Comment, CommandMessage, Project, ProjectCategory, ProjectCommand
+from .models import Comment, CommandMessage, Project, ProjectCategory, ProjectCommand, SubscriptionPack
 from .permissions import (
     CanDeleteComment,
     CanEditProject,
     CanManageCategories,
+    CanManagePacks,
     CanManageUsers,
     CanPostProject,
     CanRespondCommands,
@@ -40,6 +41,7 @@ from .serializers import (
     ProjectDetailSerializer,
     ProjectListSerializer,
     PORTFOLIO_PERMS,
+    SubscriptionPackAdminSerializer,
 )
 
 from .enterprise import enterprise_display_name
@@ -77,7 +79,9 @@ class CategoryListView(generics.ListAPIView):
 
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Project.objects.select_related('subcategory', 'subcategory__parent')
+    queryset = Project.objects.select_related('subcategory', 'subcategory__parent').prefetch_related(
+        'packs',
+    )
     lookup_field = 'id'
     permission_classes = [AllowAny]
 
@@ -116,6 +120,13 @@ class ProjectCommandCreateView(generics.CreateAPIView):
     serializer_class = ProjectCommandCreateSerializer
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.is_authenticated and not user.is_staff:
+            serializer.save(user=user)
+        else:
+            serializer.save()
 
 
 class CommandTrackView(APIView):
@@ -185,7 +196,7 @@ class CommandTrackMessageView(APIView):
 
 
 class AdminProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.select_related('subcategory').all()
+    queryset = Project.objects.select_related('subcategory').prefetch_related('packs').all()
     serializer_class = AdminProjectSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     lookup_field = 'id'
@@ -235,7 +246,23 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         new_status = serializer.validated_data.get('status', command.status)
         staff_response = serializer.validated_data.get('staff_response', '').strip()
+        quoted_price = serializer.validated_data.get('quoted_price', command.quoted_price)
+        payment_status = serializer.validated_data.get('payment_status', command.payment_status)
+
         command.status = new_status
+        if quoted_price is not None:
+            command.quoted_price = quoted_price
+        if payment_status:
+            command.payment_status = payment_status
+        if new_status == ProjectCommand.Status.ACCEPTED and not command.accepted_at:
+            command.accepted_at = timezone.now()
+        if (
+            new_status == ProjectCommand.Status.ACCEPTED
+            and command.quoted_price
+            and command.quoted_price > 0
+            and command.payment_status == ProjectCommand.PaymentStatus.NONE
+        ):
+            command.payment_status = ProjectCommand.PaymentStatus.PENDING
         if staff_response:
             command.staff_response = staff_response
             create_staff_message(command, request, text=staff_response)
@@ -310,3 +337,11 @@ class AdminMeView(APIView):
             'is_superuser': user.is_superuser,
             'permissions': perms,
         })
+
+
+class AdminSubscriptionPackViewSet(viewsets.ModelViewSet):
+    queryset = SubscriptionPack.objects.prefetch_related('projects').all()
+    serializer_class = SubscriptionPackAdminSerializer
+    lookup_field = 'id'
+    permission_classes = [CanManagePacks]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]

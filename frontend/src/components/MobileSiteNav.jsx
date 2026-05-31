@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react'
 const LINKS = [
   { to: '/', label: 'Home' },
   { to: '/projects', label: 'Projects' },
+  { to: '/subscriptions', label: 'Subscriptions' },
   { to: '/command', label: 'Submit command' },
   { to: '/track', label: 'Track' },
+  { to: '/account', label: 'Account' },
 ]
 
 export default function MobileSiteNav({ highlight = '' }) {
@@ -37,7 +39,7 @@ export default function MobileSiteNav({ highlight = '' }) {
         <>
           <button
             type="button"
-            className="fixed inset-0 top-12 z-[55] bg-black/60 lg:hidden"
+            className="fixed inset-0 top-12 z-[55] bg-neutral-900/25 lg:hidden"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
           />

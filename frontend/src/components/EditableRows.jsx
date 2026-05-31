@@ -11,7 +11,7 @@ export default function EditableRows({ columns, rows, onChange, emptyRow }) {
     <div className="space-y-2">
       <div className="overflow-x-auto border border-lab-border">
         <table className="w-full text-xs">
-          <thead className="border-b border-lab-border bg-black/40 text-gray-500">
+          <thead className="border-b border-lab-border bg-dark-panel text-dark-muted">
             <tr>
               {columns.map((c) => (
                 <th key={c.key} className="px-2 py-2 text-left font-normal">

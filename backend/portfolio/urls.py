@@ -1,6 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+from .auth_views import (
+    CustomerLoginView,
+    CustomerMeView,
+    CustomerRegisterView,
+    SubscribePackView,
+    SubscriptionPackListView,
+)
+from .payment_views import CommandPayView, StripeWebhookView
 from .views import (
     AdminCategoryViewSet,
     AdminCommentDestroyView,
@@ -8,6 +16,7 @@ from .views import (
     AdminCommandViewSet,
     AdminMeView,
     AdminProjectViewSet,
+    AdminSubscriptionPackViewSet,
     AdminUserListCreateView,
     CategoryListView,
     CommandTrackMessageView,
@@ -23,6 +32,7 @@ admin_router = DefaultRouter()
 admin_router.register(r'projects', AdminProjectViewSet, basename='admin-project')
 admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-category')
 admin_router.register(r'commands', AdminCommandViewSet, basename='admin-command')
+admin_router.register(r'packs', AdminSubscriptionPackViewSet, basename='admin-pack')
 
 urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
@@ -30,6 +40,13 @@ urlpatterns = [
     path('commands/', ProjectCommandCreateView.as_view(), name='command-create'),
     path('commands/track/', CommandTrackView.as_view(), name='command-track'),
     path('commands/messages/', CommandTrackMessageView.as_view(), name='command-messages'),
+    path('commands/pay/', CommandPayView.as_view(), name='command-pay'),
+    path('auth/register/', CustomerRegisterView.as_view(), name='auth-register'),
+    path('auth/login/', CustomerLoginView.as_view(), name='auth-login'),
+    path('auth/me/', CustomerMeView.as_view(), name='auth-me'),
+    path('packs/', SubscriptionPackListView.as_view(), name='pack-list'),
+    path('packs/<uuid:pack_id>/subscribe/', SubscribePackView.as_view(), name='pack-subscribe'),
+    path('webhooks/stripe/', StripeWebhookView.as_view(), name='stripe-webhook'),
     path('admin/', include(admin_router.urls)),
     path('admin/me/', AdminMeView.as_view(), name='admin-me'),
     path('admin/users/', AdminUserListCreateView.as_view(), name='admin-users'),
