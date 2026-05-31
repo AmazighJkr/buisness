@@ -45,14 +45,14 @@ services:
         value: https://embeddedgrid.onrender.com
       - key: PAYMENT_CURRENCY
         value: usd
-      # Leave empty until Stripe is set up; sync:false keeps your values on redeploy
+      # Paste real values in Render Dashboard → Environment (placeholders show after blueprint sync)
       - key: STRIPE_SECRET_KEY
-        value: ""
+        value: "PASTE_sk_test_KEY_FROM_STRIPE"
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
-        value: ""
+        value: "PASTE_whsec_FROM_STRIPE_WEBHOOKS"
         sync: false
-      # false = real Stripe checkout when keys above are set; true = instant “paid” without Stripe
+      # Set false once Stripe keys above are filled in
       - key: PAYMENTS_AUTO_CONFIRM
-        value: "true"
+        value: "false"
         sync: false

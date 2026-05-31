@@ -118,18 +118,35 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 - On projects: mark **Free** OR assign to pack(s) in **Post / Edit**.
 - Users subscribe at `/subscriptions` (requires account).
 
-### Stripe (optional, recommended for real payments)
+### Stripe — add keys in Render (do this manually)
 
-These variables are listed in `render.yaml` with **empty defaults**. After you push, they appear in Render → **Environment** — paste your values there, **Save**, then redeploy.
+**Important:** Pushing `render.yaml` to GitHub does **not** automatically add new variables to an existing Render service. You must add them in the dashboard:
 
-If they are still missing (older deploy before blueprint update): **Add Environment Variable** manually.
+1. Open [dashboard.render.com](https://dashboard.render.com)
+2. Click your **embeddedgrid** web service (not the database)
+3. Left sidebar → **Environment**
+4. Click **+ Add Environment Variable** — add each row below
+5. Click **Save Changes** (Render redeploys automatically)
 
-| Key | Value | Required? |
-|-----|--------|-----------|
-| `STRIPE_SECRET_KEY` | From Stripe → Developers → API keys (`sk_test_…` for testing) | For real card payments |
-| `STRIPE_WEBHOOK_SECRET` | From Stripe → Webhooks → your endpoint → Signing secret (`whsec_…`) | For real card payments |
-| `PUBLIC_SITE_URL` | `https://embeddedgrid.onrender.com` | Recommended |
-| `PAYMENTS_AUTO_CONFIRM` | `false` when Stripe keys are set; `true` for testing without Stripe | Optional |
+| Key | Value |
+|-----|--------|
+| `STRIPE_SECRET_KEY` | `sk_test_…` from [Stripe API keys](https://dashboard.stripe.com/test/apikeys) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_…` from [Stripe Webhooks](https://dashboard.stripe.com/test/webhooks) |
+| `PAYMENTS_AUTO_CONFIRM` | `false` |
+| `PUBLIC_SITE_URL` | `https://embeddedgrid.onrender.com` |
+
+After deploy, open `/api/payments/config/` — should show `"stripe": true`.
+
+**Optional — blueprint sync:** If you deployed via Blueprint, go to **Blueprints** → your blueprint → **Sync** to pull placeholder keys from `render.yaml`, then replace placeholder values in Environment.
+
+### Stripe setup reference
+
+| Key | Where in Stripe | Required? |
+|-----|-----------------|-----------|
+| `STRIPE_SECRET_KEY` | [API keys (test)](https://dashboard.stripe.com/test/apikeys) → Secret key | For card payments |
+| `STRIPE_WEBHOOK_SECRET` | [Webhooks (test)](https://dashboard.stripe.com/test/webhooks) → endpoint → Signing secret | For card payments |
+| `PUBLIC_SITE_URL` | Your site URL | Recommended |
+| `PAYMENTS_AUTO_CONFIRM` | `false` when Stripe is configured | Yes |
 | `PAYMENT_CURRENCY` | `usd` | Optional |
 
 **Stripe onboarding screen (“How do you want to accept recurring payments?”)**  
