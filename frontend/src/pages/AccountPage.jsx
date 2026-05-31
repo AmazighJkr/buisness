@@ -29,6 +29,7 @@ export default function AccountPage() {
     try {
       const data = await userLogin(form.username, form.password)
       setUser(data.user)
+      setError('')
     } catch (err) {
       setError(err.message)
     }
@@ -71,7 +72,8 @@ export default function AccountPage() {
       <main className="mx-auto max-w-md space-y-6 px-3 py-8 sm:px-4">
         {user ? (
           <>
-            <h1 className="text-xl font-semibold">Your account</h1>
+            <h1 className="text-xl font-semibold">Welcome, {user.username}</h1>
+            <p className="text-sm text-lab-cyan">You are signed in. Use the top bar to see your account on any page.</p>
             <div className="panel space-y-2 p-4 text-sm">
               <p>
                 <span className="text-dark-muted">Username:</span> {user.username}

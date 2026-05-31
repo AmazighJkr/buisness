@@ -119,16 +119,24 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 - Users subscribe at `/subscriptions` (requires account).
 
 ### Stripe (optional, recommended for real payments)
-| Variable | Purpose |
-|----------|---------|
-| `STRIPE_SECRET_KEY` | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
-| `PUBLIC_SITE_URL` | e.g. `https://embeddedgrid.onrender.com` |
-| `PAYMENT_CURRENCY` | Default `usd` |
 
-Webhook URL: `https://your-domain/api/webhooks/stripe/`
+These variables are **not created automatically** — add them in Render:
 
-Without Stripe, set `PAYMENTS_AUTO_CONFIRM=true` for testing (auto-activates payments/subscriptions).
+1. **embeddedgrid** → **Environment** → **Add Environment Variable**
+2. Add each key below, **Save**, then redeploy.
+
+| Key | Value | Required? |
+|-----|--------|-----------|
+| `STRIPE_SECRET_KEY` | From Stripe → Developers → API keys (`sk_test_…` for testing) | For real card payments |
+| `STRIPE_WEBHOOK_SECRET` | From Stripe → Webhooks → signing secret (`whsec_…`) | For real card payments |
+| `PUBLIC_SITE_URL` | `https://embeddedgrid.onrender.com` | Recommended |
+| `PAYMENTS_AUTO_CONFIRM` | `false` (live) or `true` (testing only — fake “paid” without Stripe) | Optional |
+| `PAYMENT_CURRENCY` | `usd` | Optional |
+
+Webhook URL in Stripe: `https://embeddedgrid.onrender.com/api/webhooks/stripe/`  
+Events: `checkout.session.completed`
+
+**Without Stripe:** leave `STRIPE_*` empty. Use `PAYMENTS_AUTO_CONFIRM=true` to test flows, or admin sets payment status to **Paid** manually.
 
 ---
 

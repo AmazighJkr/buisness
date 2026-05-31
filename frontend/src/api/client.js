@@ -156,6 +156,9 @@ export async function payCommand(code, body = {}) {
 export function userLogout() {
   localStorage.removeItem(USER_TOKEN_KEY)
   localStorage.removeItem('user_refresh_token')
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('user-session-changed'))
+  }
 }
 
 export async function userRegister(body) {
@@ -165,6 +168,9 @@ export async function userRegister(body) {
     body: JSON.stringify(body),
   })
   localStorage.setItem(USER_TOKEN_KEY, data.access)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('user-session-changed'))
+  }
   return data
 }
 
@@ -175,6 +181,9 @@ export async function userLogin(username, password) {
     body: JSON.stringify({ username, password }),
   })
   localStorage.setItem(USER_TOKEN_KEY, data.access)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('user-session-changed'))
+  }
   return data
 }
 
@@ -191,7 +200,11 @@ export async function fetchPacks() {
 }
 
 export async function subscribeToPack(packId) {
-  return userFetch(`${API_BASE}/api/packs/${packId}/subscribe/`, { method: 'POST', body: '{}' })
+  const data = await userFetch(`${API_BASE}/api/packs/${packId}/subscribe/`, { method: 'POST', body: '{}' })
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('user-session-changed'))
+  }
+  return data
 }
 
 export async function adminFetchPacks() {

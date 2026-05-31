@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import NavAccount from './NavAccount.jsx'
 
 const SECTIONS = [
   { id: 'home', label: 'Home' },
@@ -11,6 +12,7 @@ const SECTIONS = [
 
 const PAGE_LINKS = [
   { to: '/projects', label: 'Projects' },
+  { to: '/subscriptions', label: 'Subscriptions' },
   { to: '/command', label: 'Submit command' },
   { to: '/track', label: 'Track command' },
 ]
@@ -77,15 +79,18 @@ export default function LandingNav() {
           ))}
         </nav>
 
-        <button
-          type="button"
-          className="rounded border border-dark-border p-2 text-dark-muted hover:text-dark-text lg:hidden"
-          aria-expanded={menuOpen}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <NavAccount />
+          <button
+            type="button"
+            className="rounded border border-dark-border p-2 text-dark-muted hover:text-dark-text lg:hidden"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
@@ -121,6 +126,13 @@ export default function LandingNav() {
                 {label}
               </Link>
             ))}
+            <Link
+              to="/account"
+              onClick={() => setMenuOpen(false)}
+              className="mb-1 block rounded px-3 py-2.5 text-sm text-dark-muted hover:bg-dark-border/40 hover:text-dark-text"
+            >
+              Account
+            </Link>
           </nav>
         </>
       )}

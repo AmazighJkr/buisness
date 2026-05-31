@@ -6,12 +6,15 @@ import MobileSiteNav from '../components/MobileSiteNav.jsx'
 import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
+import { useUserSession } from '../hooks/useUserSession.js'
 import { fetchCategories, fetchFeaturedProjects, fetchProject, fetchProjects } from '../api/client.js'
 
 export default function ProjectsPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useProjectsSidebar()
+  const { user, hasActivePack } = useUserSession()
+  const accessKey = (user?.active_pack_ids || []).join(',')
 
   const [categories, setCategories] = useState([])
   const [expanded, setExpanded] = useState({})
@@ -33,7 +36,7 @@ export default function ProjectsPage() {
       .then(setProjects)
       .catch(() => setProjects([]))
       .finally(() => setLoading(false))
-  }, [selectedSubId])
+  }, [selectedSubId, accessKey])
 
   useEffect(() => {
     if (!projectId) {
@@ -43,7 +46,7 @@ export default function ProjectsPage() {
     fetchProject(projectId)
       .then(setProject)
       .catch(() => setProject(null))
-  }, [projectId])
+  }, [projectId, accessKey])
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1023px)')
@@ -141,9 +144,14 @@ export default function ProjectsPage() {
                 </h1>
                 <p className="text-xs text-dark-muted">
                   {selectedSubId
-                    ? 'Filtered by subcategory'
-                    : 'Featured modules — set in admin when publishing'}
+                    ? 'Filtered by subcategory — free projects open without an account'
+                    : 'Free projects need no sign-in. Pack projects unlock with your subscription.'}
                 </p>
+                {hasActivePack && (
+                  <p className="mt-1 text-xs text-lab-cyan">
+                    Signed in — your active pack{user.subscriptions?.length > 1 ? 's' : ''} unlock matching projects.
+                  </p>
+                )}
               </div>
 
               {loading ? (
