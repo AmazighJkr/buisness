@@ -35,6 +35,27 @@ export default function AuthLoginCard({
     [onGoogleSuccess],
   )
 
+  const handleFormSubmit = (e) => {
+    if (mode === 'register') {
+      if (!form.email?.trim()) {
+        e.preventDefault()
+        onGoogleError?.(new Error('Email is required.'))
+        return
+      }
+      if (!form.password || form.password.length < 8) {
+        e.preventDefault()
+        onGoogleError?.(new Error('Password must be at least 8 characters.'))
+        return
+      }
+      if (!form.username?.trim()) {
+        e.preventDefault()
+        onGoogleError?.(new Error('Username is required.'))
+        return
+      }
+    }
+    onSubmit(e)
+  }
+
   return (
     <div className="auth-page">
       <div className="auth-page-bg" aria-hidden />
@@ -94,7 +115,12 @@ export default function AuthLoginCard({
             <span>or continue with email</span>
           </div>
 
-          <form className="auth-form" onSubmit={onSubmit} autoComplete="on">
+          <form
+            className="auth-form"
+            onSubmit={handleFormSubmit}
+            autoComplete="on"
+            noValidate
+          >
             <div>
               <label className="auth-label" htmlFor="auth-username">
                 Username

@@ -758,6 +758,14 @@ class CustomerRegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'first_name']
 
+    def validate_username(self, value):
+        name = (value or '').strip()
+        if len(name) < 3:
+            raise serializers.ValidationError('Username must be at least 3 characters.')
+        if User.objects.filter(username__iexact=name).exists():
+            raise serializers.ValidationError('This username is already taken.')
+        return name
+
     def validate_email(self, value):
         if User.objects.filter(email__iexact=value.strip()).exists():
             raise serializers.ValidationError('An account with this email already exists.')

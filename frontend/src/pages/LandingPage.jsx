@@ -59,14 +59,14 @@ export default function LandingPage() {
       {/* HOME */}
       <section
         id="home"
-        className="relative flex min-h-screen items-center justify-center pt-16"
+        className="hero-section relative flex min-h-screen items-center justify-center pt-16"
       >
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="hero-bg absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/hero-bg.png')" }}
         />
-        <div className="absolute inset-0 hero-overlay" />
-        <div className="relative z-10 mx-auto max-w-4xl px-4 py-20 text-center sm:py-24">
+        <div className="hero-overlay absolute inset-0" aria-hidden />
+        <div className="hero-copy relative z-10 mx-auto max-w-4xl px-4 py-20 text-center sm:py-24">
           <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
             EmbeddedGrid
           </h1>

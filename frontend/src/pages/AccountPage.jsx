@@ -22,21 +22,42 @@ export default function AccountPage() {
   const [form, setForm] = useState({ username: '', email: '', password: '', first_name: '' })
 
   useEffect(() => {
+    let cancelled = false
     fetchUserMe()
       .then((me) => {
-        setUser(me)
+        if (cancelled) return
+        // Do not overwrite a successful login/register if this slow request started before the token existed.
+        setUser((current) => {
+          const hasToken = Boolean(localStorage.getItem('user_access_token'))
+          if (current && !me && hasToken) return current
+          return me
+        })
         const dest = returnTo && returnTo.startsWith('/') ? returnTo : null
         if (me && dest) navigate(dest, { replace: true })
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
     if (searchParams.get('subscribed') === '1') {
       setError('')
+    }
+    return () => {
+      cancelled = true
     }
   }, [searchParams, returnTo, navigate])
 
   const afterAuth = useCallback(
-    (authUser) => {
-      setUser(authUser)
+    async (authUser, tokenFromResponse) => {
+      let nextUser = authUser
+      if (!nextUser && tokenFromResponse) {
+        nextUser = await fetchUserMe()
+      }
+      if (!nextUser) {
+        setError('Signed in but could not load your profile. Refresh the page.')
+        return
+      }
+      setUser(nextUser)
+      setError('')
       const dest = returnTo && returnTo.startsWith('/') ? returnTo : null
       if (dest) navigate(dest, { replace: true })
     },
@@ -49,7 +70,7 @@ export default function AccountPage() {
       setSubmitting(true)
       try {
         const data = await userGoogleLogin(credential)
-        afterAuth(data.user)
+        await afterAuth(data.user, data.access)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -66,15 +87,15 @@ export default function AccountPage() {
     try {
       if (mode === 'login') {
         const data = await userLogin(form.username, form.password)
-        afterAuth(data.user)
+        await afterAuth(data.user, data.access)
       } else {
         const data = await userRegister({
-          username: form.username,
-          email: form.email,
+          username: form.username.trim(),
+          email: form.email.trim(),
           password: form.password,
-          first_name: form.first_name,
+          first_name: form.first_name.trim(),
         })
-        afterAuth(data.user)
+        await afterAuth(data.user, data.access)
       }
     } catch (err) {
       setError(err.message)

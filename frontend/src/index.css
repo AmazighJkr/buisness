@@ -40,7 +40,7 @@ html[data-theme="light"] {
   --eg-code-toolbar: #e2e8f0;
   --eg-code-tab-active: #ffffff;
   --eg-shadow: 0 4px 24px -4px rgb(15 23 42 / 0.08);
-  --eg-hero-overlay: rgb(255 255 255 / 0.82);
+  --eg-hero-overlay: rgb(255 255 255 / 0.28);
   --eg-nav-scrim: rgb(15 23 42 / 0.35);
   --eg-selection-bg: #bae6fd;
   --eg-selection-text: #0c4a6e;
@@ -64,7 +64,7 @@ html[data-theme="dark"] {
   --eg-code-toolbar: #1a2332;
   --eg-code-tab-active: #161d2b;
   --eg-shadow: 0 8px 32px -8px rgb(0 0 0 / 0.45);
-  --eg-hero-overlay: rgb(12 16 23 / 0.88);
+  --eg-hero-overlay: rgb(12 16 23 / 0.42);
   --eg-nav-scrim: rgb(0 0 0 / 0.55);
   --eg-selection-bg: #164e63;
   --eg-selection-text: #ecfeff;
@@ -490,8 +490,45 @@ body {
   background: var(--eg-nav-scrim);
 }
 
-.hero-overlay {
-  background: var(--eg-hero-overlay);
+.hero-section .hero-bg {
+  filter: saturate(1.08) contrast(1.06);
+}
+
+.hero-section .hero-overlay {
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.08) 0%,
+      rgb(255 255 255 / 0.18) 45%,
+      rgb(15 23 42 / 0.22) 100%
+    ),
+    var(--eg-hero-overlay);
+}
+
+html[data-theme='dark'] .hero-section .hero-overlay {
+  background:
+    linear-gradient(
+      180deg,
+      rgb(12 16 23 / 0.12) 0%,
+      rgb(12 16 23 / 0.35) 55%,
+      rgb(12 16 23 / 0.55) 100%
+    ),
+    var(--eg-hero-overlay);
+}
+
+.hero-copy {
+  padding: 2rem 2.25rem;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.78);
+  border: 1px solid rgb(255 255 255 / 0.65);
+  box-shadow: 0 12px 40px -8px rgb(15 23 42 / 0.18);
+  backdrop-filter: blur(14px);
+}
+
+html[data-theme='dark'] .hero-copy {
+  background: rgb(17 24 39 / 0.82);
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow: 0 12px 40px -8px rgb(0 0 0 / 0.45);
 }
 
 .theme-toggle-btn {
