@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Send } from 'lucide-react'
 import PageHeader from '../components/PageHeader.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
-import { fetchFeaturedProjects, submitCommand } from '../api/client.js'
+import { fetchProjects, submitCommand } from '../api/client.js'
 
 export default function CommandPage() {
   const [searchParams] = useSearchParams()
@@ -26,7 +26,7 @@ export default function CommandPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetchFeaturedProjects().then(setProjects).catch(() => [])
+    fetchProjects().then(setProjects).catch(() => [])
   }, [])
 
   useEffect(() => {

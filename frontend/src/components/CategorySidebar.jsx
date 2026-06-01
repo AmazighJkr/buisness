@@ -58,7 +58,7 @@ export default function CategorySidebar({
               !selectedSubId ? 'bg-dark-border text-dark-text' : 'text-dark-muted hover:text-dark-text'
             }`}
           >
-            Trending
+            All projects
           </button>
 
           {categories.map((cat) => {

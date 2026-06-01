@@ -97,17 +97,39 @@ export async function fetchCategories() {
   return data.results ?? data
 }
 
-export async function fetchProjects(subcategoryId) {
-  const q = subcategoryId ? `?subcategory=${subcategoryId}` : ''
-  const res = await fetch(`${API_BASE}/api/projects/${q}`, { headers: getUserHeaders(false) })
-  const data = await handleResponse(res)
-  return data.results ?? data
+function resolveApiUrl(pathOrUrl) {
+  if (!pathOrUrl) return null
+  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) return pathOrUrl
+  const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`
+  return `${API_BASE}${path}`
 }
 
+/** Follow DRF pagination so lists beyond PAGE_SIZE are fully loaded. */
+async function fetchPaginatedList(initialUrl) {
+  const items = []
+  let url = initialUrl
+  while (url) {
+    const res = await fetch(url, { headers: getUserHeaders(false) })
+    const data = await handleResponse(res)
+    if (Array.isArray(data)) return data
+    items.push(...(data.results ?? []))
+    url = resolveApiUrl(data.next)
+  }
+  return items
+}
+
+export async function fetchProjects(subcategoryId, { featured = false } = {}) {
+  const params = new URLSearchParams()
+  if (subcategoryId) params.set('subcategory', subcategoryId)
+  else if (featured) params.set('featured', 'true')
+  const q = params.toString()
+  const url = `${API_BASE}/api/projects/${q ? `?${q}` : ''}`
+  return fetchPaginatedList(url)
+}
+
+/** Featured-only grid (e.g. homepage highlights). Most pages should use fetchProjects(). */
 export async function fetchFeaturedProjects() {
-  const res = await fetch(`${API_BASE}/api/projects/?featured=true`, { headers: getUserHeaders(false) })
-  const data = await handleResponse(res)
-  return data.results ?? data
+  return fetchProjects(null, { featured: true })
 }
 
 export async function fetchProject(id) {

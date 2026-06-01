@@ -7,7 +7,7 @@ import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
 import { useUserSession } from '../hooks/useUserSession.js'
-import { fetchCategories, fetchFeaturedProjects, fetchProject, fetchProjects } from '../api/client.js'
+import { fetchCategories, fetchProject, fetchProjects } from '../api/client.js'
 import { accountUrlWithNext, subscriptionsUrlForProject } from '../utils/projectAccess.js'
 
 export default function ProjectsPage() {
@@ -30,9 +30,7 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     setLoading(true)
-    const loadList = selectedSubId
-      ? fetchProjects(selectedSubId)
-      : fetchFeaturedProjects()
+    const loadList = fetchProjects(selectedSubId || null)
     loadList
       .then(setProjects)
       .catch(() => setProjects([]))
@@ -157,12 +155,12 @@ export default function ProjectsPage() {
             <div className="p-3 sm:p-6">
               <div className="mb-4 sm:mb-6">
                 <h1 className="text-base font-semibold sm:text-lg">
-                  {selectedSubId ? 'Projects' : 'Trending projects'}
+                  {selectedSubId ? 'Projects' : 'All projects'}
                 </h1>
                 <p className="text-xs text-dark-muted">
                   {selectedSubId
                     ? 'Filtered by subcategory — free projects open without an account'
-                    : 'Free projects need no sign-in. Pack projects unlock with your subscription.'}
+                    : 'Featured projects appear first. Free projects need no sign-in; pack projects unlock with a subscription.'}
                 </p>
                 {hasActivePack && (
                   <p className="mt-1 text-xs text-lab-cyan">
