@@ -40,5 +40,7 @@ def project_access(user, project):
 
 def required_packs_for(project):
     return list(
-        project.packs.filter(is_active=True).values('id', 'name', 'slug', 'price', 'sort_order'),
+        project.packs.filter(is_active=True).values(
+            'id', 'name', 'slug', 'price', 'price_dzd', 'sort_order',
+        ),
     )

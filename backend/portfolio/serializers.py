@@ -597,6 +597,7 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
             'problems',
             'project_title',
             'quoted_price',
+            'quoted_price_dzd',
             'payment_status',
             'payment_due',
             'accepted_at',
@@ -606,10 +607,13 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
         ]
 
     def get_payment_due(self, obj):
+        has_bill = (
+            (obj.quoted_price and obj.quoted_price > 0)
+            or (obj.quoted_price_dzd and obj.quoted_price_dzd > 0)
+        )
         return (
             obj.status == ProjectCommand.Status.ACCEPTED
-            and obj.quoted_price
-            and obj.quoted_price > 0
+            and has_bill
             and obj.payment_status == ProjectCommand.PaymentStatus.PENDING
         )
 
@@ -663,6 +667,7 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
             'attachment',
             'status',
             'quoted_price',
+            'quoted_price_dzd',
             'payment_status',
             'accepted_at',
             'staff_response',
@@ -676,7 +681,13 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
 class ProjectCommandRespondSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectCommand
-        fields = ['status', 'staff_response', 'quoted_price', 'payment_status']
+        fields = [
+            'status',
+            'staff_response',
+            'quoted_price',
+            'quoted_price_dzd',
+            'payment_status',
+        ]
 
     def validate_staff_response(self, value):
         return (value or '').strip()
@@ -684,7 +695,10 @@ class ProjectCommandRespondSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         status = attrs.get('status')
         quoted = attrs.get('quoted_price')
-        if status == ProjectCommand.Status.ACCEPTED and quoted and quoted > 0:
+        quoted_dzd = attrs.get('quoted_price_dzd')
+        if status == ProjectCommand.Status.ACCEPTED and (
+            (quoted and quoted > 0) or (quoted_dzd and quoted_dzd > 0)
+        ):
             if 'payment_status' not in attrs:
                 attrs['payment_status'] = ProjectCommand.PaymentStatus.PENDING
         return attrs
@@ -807,6 +821,7 @@ class SubscriptionPackPublicSerializer(serializers.ModelSerializer):
     project_count = serializers.SerializerMethodField()
     access_state = serializers.SerializerMethodField()
     price_due = serializers.SerializerMethodField()
+    price_due_dzd = serializers.SerializerMethodField()
 
     class Meta:
         model = SubscriptionPack
@@ -816,11 +831,13 @@ class SubscriptionPackPublicSerializer(serializers.ModelSerializer):
             'slug',
             'description',
             'price',
+            'price_dzd',
             'duration_days',
             'sort_order',
             'project_count',
             'access_state',
             'price_due',
+            'price_due_dzd',
         ]
 
     def get_project_count(self, obj):
@@ -860,6 +877,14 @@ class SubscriptionPackPublicSerializer(serializers.ModelSerializer):
             return str(obj.price)
         return str(quote.amount)
 
+    def get_price_due_dzd(self, obj):
+        quote = self._quote(obj)
+        if quote is None:
+            return str(obj.price_dzd)
+        if quote.blocked_downgrade or quote.already_active:
+            return str(obj.price_dzd)
+        return str(quote.amount_dzd)
+
 
 class SubscriptionPackAdminSerializer(serializers.ModelSerializer):
     project_ids = serializers.SerializerMethodField(read_only=True)
@@ -874,6 +899,7 @@ class SubscriptionPackAdminSerializer(serializers.ModelSerializer):
             'slug',
             'description',
             'price',
+            'price_dzd',
             'duration_days',
             'is_active',
             'sort_order',

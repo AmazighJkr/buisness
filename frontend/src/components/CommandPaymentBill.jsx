@@ -1,16 +1,34 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CreditCard, Lock } from 'lucide-react'
-import { payCommand, payMyCommand } from '../api/client.js'
+import { fetchPaymentConfig, payCommand, payMyCommand } from '../api/client.js'
+import { detectClientCountry } from '../utils/paymentRegion.js'
+import { formatCommandBill, useDzdPricing } from '../utils/formatMoney.js'
 import { paymentStatusLabel } from '../constants/commandStatus.js'
 
 export default function CommandPaymentBill({ command, onUpdated, useAccountApi = false }) {
+  const [payLabel, setPayLabel] = useState('Pay now')
+  const [useDzd, setUseDzd] = useState(false)
+
+  useEffect(() => {
+    detectClientCountry().then(() =>
+      fetchPaymentConfig().then((cfg) => {
+        const dzd = useDzdPricing(cfg.provider)
+        setUseDzd(dzd)
+        if (dzd) setPayLabel('Pay with Chargily (Edahabia / CIB)')
+      }),
+    )
+  }, [])
+
   const paying = command.payment_due || (
     command.status === 'Accepted' &&
-    command.quoted_price > 0 &&
+    ((useDzd && command.quoted_price_dzd > 0) ||
+      (!useDzd && command.quoted_price > 0)) &&
     command.payment_status === 'pending'
   )
 
-  if (!command.quoted_price || command.quoted_price <= 0) return null
+  const billAmount = useDzd ? command.quoted_price_dzd : command.quoted_price
+  if (!billAmount || billAmount <= 0) return null
 
   const handlePay = async () => {
     try {
@@ -41,7 +59,7 @@ export default function CommandPaymentBill({ command, onUpdated, useAccountApi =
             Your command was accepted. Complete payment to start development.
           </p>
           <p className="mt-3 text-2xl font-semibold tabular-nums">
-            ${Number(command.quoted_price).toFixed(2)}
+            {formatCommandBill(command, useDzd)}
           </p>
           <p className="mt-1 text-xs text-dark-muted">
             Status: {paymentStatusLabel(command.payment_status)}
@@ -52,7 +70,7 @@ export default function CommandPaymentBill({ command, onUpdated, useAccountApi =
               onClick={handlePay}
               className="mt-4 border border-lab-cyan px-4 py-2 text-sm text-lab-cyan panel-hover"
             >
-              Pay now
+              {payLabel}
             </button>
           )}
           {command.payment_status === 'paid' && (

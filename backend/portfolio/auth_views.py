@@ -10,12 +10,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .google_auth import get_or_create_user_from_google, google_client_id, verify_google_credential
 from .models import SubscriptionPack, UserSubscription
+from .payment_routing import payment_provider_for_request, start_pack_checkout
 from .payments import (
-    create_pack_checkout_session,
     payment_instructions,
     payments_auto_confirm,
     site_base_url,
-    stripe_enabled,
 )
 from .permissions import IsCustomerUser
 from .serializers import (
@@ -164,23 +163,47 @@ class SubscribePackView(APIView):
                 subscription.save(update_fields=['expires_at'])
 
         charge = quote.amount
+        charge_dzd = quote.amount_dzd
+        provider = payment_provider_for_request(request)
 
-        if stripe_enabled() and charge > 0:
-            session = create_pack_checkout_session(
+        if provider == 'chargily' and charge_dzd <= 0:
+            return Response(
+                {'detail': 'This pack has no DZD price configured. Set price_dzd in admin.'},
+                status=400,
+            )
+        if provider == 'stripe' and charge <= 0:
+            return Response(
+                {'detail': 'This pack has no USD price configured.'},
+                status=400,
+            )
+
+        if (provider == 'chargily' and charge_dzd > 0) or (provider == 'stripe' and charge > 0):
+            provider, checkout_url = start_pack_checkout(
+                request,
                 subscription,
                 success,
                 cancel,
                 charge_amount=charge,
+                charge_amount_dzd=charge_dzd,
                 extra_metadata=extra_metadata,
             )
-            return Response({
-                'subscription_id': str(subscription.id),
-                'checkout_url': session.url,
-                'amount': str(charge),
-                'full_price': str(pack.price),
-                'is_upgrade': quote.is_upgrade,
-                'mode': 'stripe',
-            })
+            if checkout_url:
+                payload = {
+                    'subscription_id': str(subscription.id),
+                    'checkout_url': checkout_url,
+                    'is_upgrade': quote.is_upgrade,
+                    'mode': provider,
+                    'provider': provider,
+                }
+                if provider == 'chargily':
+                    payload['amount'] = str(charge_dzd)
+                    payload['full_price'] = str(pack.price_dzd)
+                    payload['currency'] = 'dzd'
+                else:
+                    payload['amount'] = str(charge)
+                    payload['full_price'] = str(pack.price)
+                    payload['currency'] = 'usd'
+                return Response(payload)
 
         if charge <= 0 or payments_auto_confirm():
             activate_subscription(
@@ -201,8 +224,9 @@ class SubscribePackView(APIView):
         return Response({
             'subscription_id': str(subscription.id),
             'status': subscription.status,
-            'amount': str(charge),
-            'full_price': str(pack.price),
+            'amount': str(charge_dzd if provider == 'chargily' else charge),
+            'full_price': str(pack.price_dzd if provider == 'chargily' else pack.price),
+            'currency': 'dzd' if provider == 'chargily' else 'usd',
             'is_upgrade': quote.is_upgrade,
             'mode': 'manual',
             'instructions': payment_instructions(subscription=True),

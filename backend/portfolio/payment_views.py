@@ -1,11 +1,22 @@
+import json
+import os
+
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ProjectCommand, UserSubscription
+from .chargily_payments import (
+    chargily_enabled,
+    chargily_public_key,
+    parse_chargily_event,
+    verify_chargily_signature,
+)
+from .models import ProjectCommand
+from .payment_fulfillment import fulfill_payment_metadata
+from .payment_region import client_country, is_algeria_request
+from .payment_routing import payment_provider_for_request, start_command_checkout
 from .payments import (
-    create_command_checkout_session,
     payment_instructions,
     payments_auto_confirm,
     site_base_url,
@@ -13,12 +24,11 @@ from .payments import (
     stripe_secret_key,
 )
 from .serializers import ProjectCommandTrackSerializer
-from .subscriptions import complete_subscription_from_metadata
 from .tracking import get_command_for_code, get_command_for_user, user_owns_command
 
 
 class CommandPayView(APIView):
-    """Start payment for an accepted command (tracking code required)."""
+    """Start payment for an accepted command (tracking code or account)."""
 
     permission_classes = [AllowAny]
 
@@ -36,8 +46,21 @@ class CommandPayView(APIView):
                 {'detail': 'Payment is only available after your command is accepted.'},
                 status=400,
             )
-        if not command.quoted_price or command.quoted_price <= 0:
+
+        provider = payment_provider_for_request(request)
+
+        if provider == 'chargily':
+            if not command.quoted_price_dzd or command.quoted_price_dzd <= 0:
+                return Response(
+                    {
+                        'detail': 'No DZD bill amount set for this command. '
+                        'Contact support or wait for admin to set quoted_price_dzd.',
+                    },
+                    status=400,
+                )
+        elif not command.quoted_price or command.quoted_price <= 0:
             return Response({'detail': 'No payment amount set for this command.'}, status=400)
+
         if command.payment_status == ProjectCommand.PaymentStatus.PAID:
             return Response({'detail': 'This command is already paid.'}, status=400)
         if command.payment_status == ProjectCommand.PaymentStatus.WAIVED:
@@ -51,13 +74,24 @@ class CommandPayView(APIView):
             success = f'{base}/track?code={command.tracking_code}&paid=1'
             cancel = f'{base}/track?code={command.tracking_code}'
 
-        if stripe_enabled():
-            session = create_command_checkout_session(command, success, cancel)
+        provider, checkout_url = start_command_checkout(request, command, success, cancel)
+        if checkout_url:
+            if provider == 'chargily':
+                return Response({
+                    'checkout_url': checkout_url,
+                    'amount': str(command.quoted_price_dzd),
+                    'currency': 'dzd',
+                    'payment_status': command.payment_status,
+                    'mode': provider,
+                    'provider': provider,
+                })
             return Response({
-                'checkout_url': session.url,
+                'checkout_url': checkout_url,
                 'amount': str(command.quoted_price),
+                'currency': 'usd',
                 'payment_status': command.payment_status,
-                'mode': 'stripe',
+                'mode': provider,
+                'provider': provider,
             })
 
         if payments_auto_confirm() or request.data.get('confirm') is True:
@@ -67,23 +101,34 @@ class CommandPayView(APIView):
                 ProjectCommandTrackSerializer(command, context={'request': request}).data,
             )
 
+        amount = command.quoted_price_dzd if provider == 'chargily' else command.quoted_price
         return Response({
-            'amount': str(command.quoted_price),
+            'amount': str(amount),
+            'currency': 'dzd' if provider == 'chargily' else 'usd',
             'payment_status': command.payment_status,
             'mode': 'manual',
+            'provider': 'manual',
             'instructions': payment_instructions(subscription=False),
         })
 
 
 class PaymentConfigView(APIView):
-    """Public payment mode (for verifying Render env without Stripe keys)."""
+    """Public payment providers and detected region."""
 
     permission_classes = [AllowAny]
 
     def get(self, request):
+        country = client_country(request)
+        provider = payment_provider_for_request(request)
         return Response({
             'stripe': stripe_enabled(),
+            'chargily': chargily_enabled(),
             'auto_confirm': payments_auto_confirm(),
+            'country': country,
+            'is_algeria': is_algeria_request(request),
+            'provider': provider,
+            'currency': 'dzd' if provider == 'chargily' else 'usd',
+            'chargily_public_key': chargily_public_key() if chargily_enabled() else '',
         })
 
 
@@ -91,8 +136,6 @@ class StripeWebhookView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        import os
-
         from .payments import _stripe
 
         webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET', '').strip()
@@ -109,21 +152,31 @@ class StripeWebhookView(APIView):
 
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
-            meta = session.get('metadata') or {}
-            if meta.get('type') == 'command':
-                try:
-                    cmd = ProjectCommand.objects.get(id=meta.get('command_id'))
-                    cmd.payment_status = ProjectCommand.PaymentStatus.PAID
-                    cmd.save(update_fields=['payment_status'])
-                except ProjectCommand.DoesNotExist:
-                    pass
-            elif meta.get('type') == 'subscription':
-                try:
-                    sub = UserSubscription.objects.select_related('pack').get(
-                        id=meta.get('subscription_id'),
-                    )
-                    complete_subscription_from_metadata(sub, meta)
-                except UserSubscription.DoesNotExist:
-                    pass
+            fulfill_payment_metadata(session.get('metadata') or {})
+
+        return Response({'received': True})
+
+
+class ChargilyWebhookView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        if not chargily_enabled():
+            return Response(status=404)
+
+        signature = request.headers.get('signature', '')
+        payload = request.body
+        if not verify_chargily_signature(signature, payload):
+            return Response(status=403)
+
+        try:
+            event = parse_chargily_event(payload)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return Response(status=400)
+
+        if event.get('type') == 'checkout.paid':
+            checkout = event.get('data') or {}
+            meta = checkout.get('metadata') or {}
+            fulfill_payment_metadata(meta)
 
         return Response({'received': True})

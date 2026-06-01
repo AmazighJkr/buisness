@@ -39,7 +39,7 @@ class ProjectCommentAdmin(admin.ModelAdmin):
 
 @admin.register(SubscriptionPack)
 class SubscriptionPackAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'price', 'duration_days', 'is_active', 'sort_order')
+    list_display = ('name', 'slug', 'price', 'price_dzd', 'duration_days', 'is_active', 'sort_order')
     list_filter = ('is_active',)
     search_fields = ('name', 'slug')
     filter_horizontal = ('projects',)

@@ -1,11 +1,22 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Lock } from 'lucide-react'
+import { fetchPaymentConfig } from '../api/client.js'
 import { useUserSession } from '../hooks/useUserSession.js'
 import { accountUrlWithNext, subscriptionsUrlForProject } from '../utils/projectAccess.js'
+import { detectClientCountry } from '../utils/paymentRegion.js'
+import { formatDzd, formatUsd, useDzdPricing } from '../utils/formatMoney.js'
 
 export default function ProjectLockedPanel({ project, projectId }) {
   const packs = project.required_packs || []
   const { isLoggedIn } = useUserSession()
+  const [useDzd, setUseDzd] = useState(false)
+
+  useEffect(() => {
+    detectClientCountry().then(() =>
+      fetchPaymentConfig().then((cfg) => setUseDzd(useDzdPricing(cfg.provider))),
+    )
+  }, [])
   const pid = projectId || project.id
   const subsUrl = subscriptionsUrlForProject(project, pid)
 
@@ -22,7 +33,9 @@ export default function ProjectLockedPanel({ project, projectId }) {
           {packs.map((p) => (
             <li key={p.id} className="flex justify-between border border-dark-border px-3 py-2">
               <span>{p.name}</span>
-              <span className="text-dark-muted">${Number(p.price).toFixed(2)}</span>
+              <span className="text-dark-muted">
+                {useDzd ? formatDzd(p.price_dzd) : formatUsd(p.price)}
+              </span>
             </li>
           ))}
         </ul>

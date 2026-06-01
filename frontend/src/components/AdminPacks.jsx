@@ -12,6 +12,7 @@ const EMPTY = {
   slug: '',
   description: '',
   price: '9.99',
+  price_dzd: '1500',
   duration_days: 30,
   is_active: true,
   sort_order: 0,
@@ -55,6 +56,7 @@ export default function AdminPacks() {
     const body = {
       ...form,
       price: Number(form.price) || 0,
+      price_dzd: Number(form.price_dzd) || 0,
       duration_days: Number(form.duration_days) || 30,
       sort_order: Number(form.sort_order) || 0,
       project_ids_json: JSON.stringify(form.project_ids),
@@ -81,6 +83,7 @@ export default function AdminPacks() {
       slug: pack.slug,
       description: pack.description || '',
       price: String(pack.price),
+      price_dzd: String(pack.price_dzd ?? 0),
       duration_days: pack.duration_days,
       is_active: pack.is_active,
       sort_order: pack.sort_order,
@@ -113,23 +116,37 @@ export default function AdminPacks() {
           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
           className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm"
         />
-        <div className="flex gap-2">
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Price"
-            value={form.price}
-            onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-            className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm"
-          />
-          <input
-            type="number"
-            placeholder="Days"
-            value={form.duration_days}
-            onChange={(e) => setForm((f) => ({ ...f, duration_days: e.target.value }))}
-            className="w-24 border border-lab-border bg-lab-bg px-3 py-2 text-sm"
-          />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="block text-xs text-dark-muted">
+            Price USD (Stripe)
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.price}
+              onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+              className="mt-1 w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block text-xs text-dark-muted">
+            Price DZD (Chargily)
+            <input
+              type="number"
+              step="1"
+              min="0"
+              value={form.price_dzd}
+              onChange={(e) => setForm((f) => ({ ...f, price_dzd: e.target.value }))}
+              className="mt-1 w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm"
+            />
+          </label>
         </div>
+        <input
+          type="number"
+          placeholder="Duration (days)"
+          value={form.duration_days}
+          onChange={(e) => setForm((f) => ({ ...f, duration_days: e.target.value }))}
+          className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm"
+        />
         <label className="flex items-center gap-2 text-xs">
           <input
             type="checkbox"
@@ -170,7 +187,8 @@ export default function AdminPacks() {
             <div>
               <p className="font-medium">{pack.name}</p>
               <p className="text-xs text-dark-muted">
-                ${Number(pack.price).toFixed(2)} · {pack.project_count} projects
+                ${Number(pack.price).toFixed(2)} · {Number(pack.price_dzd || 0).toLocaleString()} DZD ·{' '}
+                {pack.project_count} projects
                 {!pack.is_active && ' · inactive'}
               </p>
             </div>

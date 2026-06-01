@@ -301,19 +301,28 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
         new_status = serializer.validated_data.get('status', command.status)
         staff_response = serializer.validated_data.get('staff_response', '').strip()
         quoted_price = serializer.validated_data.get('quoted_price', command.quoted_price)
+        quoted_price_dzd = serializer.validated_data.get(
+            'quoted_price_dzd',
+            command.quoted_price_dzd,
+        )
         payment_status = serializer.validated_data.get('payment_status', command.payment_status)
 
         command.status = new_status
         if quoted_price is not None:
             command.quoted_price = quoted_price
+        if quoted_price_dzd is not None:
+            command.quoted_price_dzd = quoted_price_dzd
         if payment_status:
             command.payment_status = payment_status
         if new_status == ProjectCommand.Status.ACCEPTED and not command.accepted_at:
             command.accepted_at = timezone.now()
+        has_bill = (
+            (command.quoted_price and command.quoted_price > 0)
+            or (command.quoted_price_dzd and command.quoted_price_dzd > 0)
+        )
         if (
             new_status == ProjectCommand.Status.ACCEPTED
-            and command.quoted_price
-            and command.quoted_price > 0
+            and has_bill
             and command.payment_status == ProjectCommand.PaymentStatus.NONE
         ):
             command.payment_status = ProjectCommand.PaymentStatus.PENDING

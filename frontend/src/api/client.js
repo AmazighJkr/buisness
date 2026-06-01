@@ -1,3 +1,5 @@
+import { detectClientCountry, paymentCountryHeaders } from '../utils/paymentRegion.js'
+
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const ADMIN_TOKEN_KEY = 'admin_access_token'
 const USER_TOKEN_KEY = 'user_access_token'
@@ -155,20 +157,39 @@ export async function fetchCommandTrackByEmail(email) {
   return handleResponse(res)
 }
 
+export async function fetchPaymentConfig() {
+  await detectClientCountry()
+  const cc = paymentCountryHeaders()['X-Client-Country']
+  const params = new URLSearchParams()
+  if (cc) params.set('country', cc)
+  const qs = params.toString()
+  const res = await fetch(`${API_BASE}/api/payments/config/${qs ? `?${qs}` : ''}`, {
+    headers: paymentCountryHeaders(),
+  })
+  return handleResponse(res)
+}
+
 export async function payCommand(code, body = {}) {
+  await detectClientCountry()
   const q = new URLSearchParams({ code: code.trim().toUpperCase() })
+  const cc = paymentCountryHeaders()['X-Client-Country']
+  if (cc) q.set('country', cc)
   const res = await fetch(`${API_BASE}/api/commands/pay/?${q}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...paymentCountryHeaders() },
     body: JSON.stringify(body),
   })
   return handleResponse(res)
 }
 
 export async function payMyCommand(commandId, body = {}) {
+  await detectClientCountry()
   const q = new URLSearchParams({ command_id: commandId })
+  const cc = paymentCountryHeaders()['X-Client-Country']
+  if (cc) q.set('country', cc)
   return userFetch(`${API_BASE}/api/commands/pay/?${q}`, {
     method: 'POST',
+    headers: paymentCountryHeaders(),
     body: JSON.stringify(body),
   })
 }
@@ -241,7 +262,12 @@ export async function fetchPacks() {
 }
 
 export async function subscribeToPack(packId) {
-  const data = await userFetch(`${API_BASE}/api/packs/${packId}/subscribe/`, { method: 'POST', body: '{}' })
+  await detectClientCountry()
+  const data = await userFetch(`${API_BASE}/api/packs/${packId}/subscribe/`, {
+    method: 'POST',
+    headers: paymentCountryHeaders(),
+    body: '{}',
+  })
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('user-session-changed'))
   }

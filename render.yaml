@@ -59,3 +59,10 @@ services:
       - key: GOOGLE_OAUTH_CLIENT_ID
         value: ""
         sync: false
+      # Chargily Pay (Algeria — Edahabia / CIB). Webhook: /api/webhooks/chargily/
+      - key: CHARGILY_PUBLIC_KEY
+        value: "PASTE_test_or_live_pk_FROM_CHARGILY"
+        sync: false
+      - key: CHARGILY_SECRET_KEY
+        value: "PASTE_test_or_live_sk_FROM_CHARGILY"
+        sync: false

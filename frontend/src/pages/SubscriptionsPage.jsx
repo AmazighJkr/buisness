@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
-import { fetchPacks, fetchUserMe, subscribeToPack } from '../api/client.js'
+import { fetchPaymentConfig, fetchPacks, fetchUserMe, subscribeToPack } from '../api/client.js'
+import { detectClientCountry } from '../utils/paymentRegion.js'
+import { formatDzd, formatPackPrice, formatUsd, useDzdPricing } from '../utils/formatMoney.js'
 
 export default function SubscriptionsPage() {
   const [searchParams] = useSearchParams()
@@ -13,13 +15,21 @@ export default function SubscriptionsPage() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState('')
+  const [paymentProvider, setPaymentProvider] = useState('stripe')
+
+  const useDzd = useDzdPricing(paymentProvider)
 
   const load = async () => {
     setLoading(true)
     try {
-      const u = await fetchUserMe()
+      await detectClientCountry()
+      const [cfg, u, p] = await Promise.all([
+        fetchPaymentConfig(),
+        fetchUserMe(),
+        fetchPacks(),
+      ])
+      setPaymentProvider(cfg.provider || 'stripe')
       setUser(u)
-      const p = await fetchPacks()
       setPacks([...p].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)))
     } catch {
       setPacks([])
@@ -70,14 +80,16 @@ export default function SubscriptionsPage() {
       return <p className="mt-4 text-sm text-lab-green">Included in your plan</p>
     }
     if (state === 'upgrade') {
-      const due = Number(pack.price_due ?? pack.price)
+      const due = useDzd
+        ? Number(pack.price_due_dzd ?? pack.price_dzd)
+        : Number(pack.price_due ?? pack.price)
       return (
         <button
           type="button"
           onClick={() => handleSubscribe(pack.id)}
           className="btn-primary mt-4 w-full"
         >
-          Upgrade — ${due.toFixed(2)}
+          Upgrade — {useDzd ? formatDzd(due) : formatUsd(due)}
           <span className="block text-[10px] font-normal opacity-80">
             Pay difference only · same expiry date
           </span>
@@ -97,21 +109,21 @@ export default function SubscriptionsPage() {
 
   const priceLabel = (pack) => {
     if (pack.access_state === 'upgrade') {
+      const full = useDzd ? pack.price_dzd : pack.price
+      const due = useDzd ? pack.price_due_dzd ?? pack.price_dzd : pack.price_due ?? pack.price
       return (
         <>
           <span className="text-lg text-dark-muted line-through">
-            ${Number(pack.price).toFixed(2)}
+            {useDzd ? formatDzd(full) : formatUsd(full)}
           </span>{' '}
           <span className="text-2xl font-semibold tabular-nums">
-            ${Number(pack.price_due ?? pack.price).toFixed(2)}
+            {useDzd ? formatDzd(due) : formatUsd(due)}
           </span>
         </>
       )
     }
     return (
-      <span className="text-2xl font-semibold tabular-nums">
-        ${Number(pack.price).toFixed(2)}
-      </span>
+      <span className="text-2xl font-semibold tabular-nums">{formatPackPrice(pack, useDzd)}</span>
     )
   }
 
@@ -126,6 +138,14 @@ export default function SubscriptionsPage() {
             Higher packs include all projects from lower tiers. Upgrade anytime and pay only
             the price difference — your expiry date stays the same.
           </p>
+          {useDzd && (
+            <p className="mt-2 text-sm text-lab-cyan">
+              Prices in Algerian dinar (DZD). Payment via Chargily (Edahabia / CIB).
+            </p>
+          )}
+          {!useDzd && paymentProvider === 'stripe' && (
+            <p className="mt-2 text-sm text-dark-muted">Prices in US dollars (USD). Card payment via Stripe.</p>
+          )}
           {!user && (
             <p className="mt-2 text-sm">
               <Link to="/account" className="underline">

@@ -10,7 +10,12 @@ from .auth_views import (
     SubscribePackView,
     SubscriptionPackListView,
 )
-from .payment_views import CommandPayView, PaymentConfigView, StripeWebhookView
+from .payment_views import (
+    ChargilyWebhookView,
+    CommandPayView,
+    PaymentConfigView,
+    StripeWebhookView,
+)
 from .views import (
     AdminCategoryViewSet,
     AdminCommentDestroyView,
@@ -58,6 +63,7 @@ urlpatterns = [
     path('packs/', SubscriptionPackListView.as_view(), name='pack-list'),
     path('packs/<uuid:pack_id>/subscribe/', SubscribePackView.as_view(), name='pack-subscribe'),
     path('webhooks/stripe/', StripeWebhookView.as_view(), name='stripe-webhook'),
+    path('webhooks/chargily/', ChargilyWebhookView.as_view(), name='chargily-webhook'),
     path('admin/', include(admin_router.urls)),
     path('admin/me/', AdminMeView.as_view(), name='admin-me'),
     path('admin/users/', AdminUserListCreateView.as_view(), name='admin-users'),

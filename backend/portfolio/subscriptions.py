@@ -14,6 +14,7 @@ from .models import SubscriptionPack, UserSubscription
 @dataclass
 class SubscribeQuote:
     amount: Decimal
+    amount_dzd: Decimal
     is_upgrade: bool
     expires_at: timezone.datetime | None
     replaces_subscription_id: str | None
@@ -54,6 +55,7 @@ def quote_subscribe(user, target_pack: SubscriptionPack) -> SubscribeQuote:
     if any(s.pack_id == target_pack.id for s in active):
         return SubscribeQuote(
             amount=Decimal('0'),
+            amount_dzd=Decimal('0'),
             is_upgrade=False,
             expires_at=None,
             replaces_subscription_id=None,
@@ -64,6 +66,7 @@ def quote_subscribe(user, target_pack: SubscriptionPack) -> SubscribeQuote:
     if highest_tier > target_pack.sort_order:
         return SubscribeQuote(
             amount=Decimal('0'),
+            amount_dzd=Decimal('0'),
             is_upgrade=False,
             expires_at=None,
             replaces_subscription_id=None,
@@ -74,6 +77,7 @@ def quote_subscribe(user, target_pack: SubscriptionPack) -> SubscribeQuote:
     if not lower_subs:
         return SubscribeQuote(
             amount=target_pack.price,
+            amount_dzd=target_pack.price_dzd,
             is_upgrade=False,
             expires_at=None,
             replaces_subscription_id=None,
@@ -81,8 +85,10 @@ def quote_subscribe(user, target_pack: SubscriptionPack) -> SubscribeQuote:
 
     source = max(lower_subs, key=lambda s: s.pack.sort_order)
     amount = max(Decimal('0'), target_pack.price - source.pack.price)
+    amount_dzd = max(Decimal('0'), target_pack.price_dzd - source.pack.price_dzd)
     return SubscribeQuote(
         amount=amount,
+        amount_dzd=amount_dzd,
         is_upgrade=True,
         expires_at=source.expires_at,
         replaces_subscription_id=str(source.id),

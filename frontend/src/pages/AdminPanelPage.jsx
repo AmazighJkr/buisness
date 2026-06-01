@@ -114,6 +114,7 @@ export default function AdminPanelPage() {
   const [selectedCommand, setSelectedCommand] = useState(null)
   const [statusDraft, setStatusDraft] = useState('Pending')
   const [quotedPriceDraft, setQuotedPriceDraft] = useState('')
+  const [quotedPriceDzdDraft, setQuotedPriceDzdDraft] = useState('')
   const [paymentStatusDraft, setPaymentStatusDraft] = useState('none')
   const [selectedPackIds, setSelectedPackIds] = useState([])
   const [adminPacks, setAdminPacks] = useState([])
@@ -289,6 +290,7 @@ export default function AdminPanelPage() {
       setSelectedCommand(c)
       setStatusDraft(c.status)
       setQuotedPriceDraft(c.quoted_price != null ? String(c.quoted_price) : '')
+      setQuotedPriceDzdDraft(c.quoted_price_dzd != null ? String(c.quoted_price_dzd) : '')
       setPaymentStatusDraft(c.payment_status || 'none')
     } catch (err) {
       setMsg({ type: 'error', text: err.message })
@@ -306,6 +308,9 @@ export default function AdminPanelPage() {
       }
       if (quotedPriceDraft !== '') {
         body.quoted_price = Number(quotedPriceDraft)
+      }
+      if (quotedPriceDzdDraft !== '') {
+        body.quoted_price_dzd = Number(quotedPriceDzdDraft)
       }
       if (paymentStatusDraft) {
         body.payment_status = paymentStatusDraft
@@ -714,10 +719,21 @@ export default function AdminPanelPage() {
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="Quoted price"
+                      placeholder="USD"
+                      title="Quoted price USD (Stripe)"
                       value={quotedPriceDraft}
                       onChange={(e) => setQuotedPriceDraft(e.target.value)}
-                      className="w-28 border border-lab-border bg-lab-bg px-2 py-1"
+                      className="w-24 border border-lab-border bg-lab-bg px-2 py-1"
+                    />
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      placeholder="DZD"
+                      title="Quoted price DZD (Chargily)"
+                      value={quotedPriceDzdDraft}
+                      onChange={(e) => setQuotedPriceDzdDraft(e.target.value)}
+                      className="w-24 border border-lab-border bg-lab-bg px-2 py-1"
                     />
                     <select
                       value={paymentStatusDraft}
@@ -737,7 +753,7 @@ export default function AdminPanelPage() {
                     </button>
                   </div>
                   <p className="text-[10px] text-gray-500">
-                    Set status to Accepted + price to show a payment bill on the client tracker.
+                    Accepted + set USD and/or DZD bill amounts (Stripe / Chargily).
                   </p>
                 </form>
               )}

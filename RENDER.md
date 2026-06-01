@@ -173,6 +173,29 @@ Events: `checkout.session.completed`
 
 **Without Stripe:** leave `STRIPE_*` empty. Subscriptions and command bills **auto-activate** by default. Check: `GET /api/payments/config/` → `{"stripe": false, "auto_confirm": true}`. Set `PAYMENTS_AUTO_CONFIRM=false` only if you want manual bank-transfer instructions instead.
 
+### Chargily Pay (Algeria — Edahabia / CIB)
+
+Clients detected as being in **Algeria** are sent to **Chargily** instead of Stripe. Everyone else keeps **Stripe** (if configured).
+
+1. [Chargily Pay Dashboard](https://pay.chargily.com) → Developers → copy **Public** and **Secret** keys (`test_pk_` / `test_sk_` for test mode).
+2. Render → **Environment** → add:
+
+| Key | Value |
+|-----|--------|
+| `CHARGILY_PUBLIC_KEY` | `test_pk_…` or live public key |
+| `CHARGILY_SECRET_KEY` | `test_sk_…` or live secret key |
+3. **Webhook URL** in Chargily (رابط الWebhook):
+
+   `https://embeddedgrid.onrender.com/api/webhooks/chargily/`
+
+   Chargily signs webhooks with your **secret key** (no separate webhook secret). Event to handle: **`checkout.paid`**.
+
+4. Redeploy. Test from Algeria (or set `CHARGILY_FORCE_ALGERIA=true` on Render to force Chargily for all traffic).
+
+5. Check: `GET /api/payments/config/?country=DZ` → `"provider": "chargily"`, `"is_algeria": true`.
+
+The site sends country via `X-Client-Country` (browser geo / timezone). **Pack and command prices are separate:** set **USD** in admin for Stripe and **DZD** for Chargily — they are not auto-converted.
+
 ---
 
 ## Free tier notes

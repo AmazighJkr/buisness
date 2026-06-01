@@ -22,14 +22,15 @@ def stripe_enabled() -> bool:
 
 
 def payments_auto_confirm() -> bool:
-    """Instantly mark paid/active when Stripe Checkout is not used."""
+    """Instantly mark paid/active when no online checkout provider is configured."""
+    from .chargily_payments import chargily_enabled
+
     raw = os.getenv('PAYMENTS_AUTO_CONFIRM', '').strip().lower()
     if raw in ('false', '0', 'no'):
         return False
     if raw in ('true', '1', 'yes'):
         return True
-    # No Stripe keys: activate without checkout (testing / pre-Stripe launch).
-    return not stripe_enabled()
+    return not (stripe_enabled() or chargily_enabled())
 
 
 def payment_instructions(*, subscription: bool = False) -> str:

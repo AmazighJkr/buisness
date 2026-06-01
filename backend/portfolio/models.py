@@ -134,7 +134,14 @@ class ProjectCommand(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        help_text='Bill amount when command is accepted',
+        help_text='Bill amount in USD when accepted (Stripe)',
+    )
+    quoted_price_dzd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Bill amount in DZD when accepted (Chargily)',
     )
     payment_status = models.CharField(
         max_length=10,
@@ -234,7 +241,18 @@ class SubscriptionPack(models.Model):
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=80, unique=True)
     description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='USD price for Stripe (international)',
+    )
+    price_dzd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text='DZD price for Chargily (Algeria)',
+    )
     duration_days = models.PositiveIntegerField(
         default=30,
         help_text='Access length after payment',
