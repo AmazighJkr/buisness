@@ -25,6 +25,8 @@ from .views import (
     CategoryListView,
     CommandTrackMessageView,
     CommandTrackView,
+    MyCommandDetailView,
+    MyCommandsListView,
     ProjectCommandCreateView,
     ProjectViewSet,
 )
@@ -42,6 +44,8 @@ urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('', include(router.urls)),
     path('commands/', ProjectCommandCreateView.as_view(), name='command-create'),
+    path('commands/mine/', MyCommandsListView.as_view(), name='command-mine-list'),
+    path('commands/mine/<uuid:command_id>/', MyCommandDetailView.as_view(), name='command-mine-detail'),
     path('commands/track/', CommandTrackView.as_view(), name='command-track'),
     path('commands/messages/', CommandTrackMessageView.as_view(), name='command-messages'),
     path('commands/pay/', CommandPayView.as_view(), name='command-pay'),

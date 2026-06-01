@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Send } from 'lucide-react'
 import PageHeader from '../components/PageHeader.jsx'
+import { useUserSession } from '../hooks/useUserSession.js'
 import { fetchFeaturedProjects, submitCommand } from '../api/client.js'
 
 export default function CommandPage() {
   const [searchParams] = useSearchParams()
   const preselectedProject = searchParams.get('project') || ''
+  const { user, isLoggedIn } = useUserSession()
 
   const [projects, setProjects] = useState([])
   const [form, setForm] = useState({
@@ -33,6 +35,16 @@ export default function CommandPage() {
     }
   }, [preselectedProject])
 
+  useEffect(() => {
+    if (user?.email) {
+      setForm((f) => ({
+        ...f,
+        client_email: f.client_email || user.email,
+        client_name: f.client_name || user.first_name || user.username || '',
+      }))
+    }
+  }, [user])
+
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
   const handleSubmit = async (e) => {
@@ -45,11 +57,13 @@ export default function CommandPage() {
       setTracking(result)
       setStatus({
         type: 'success',
-        message: 'Command submitted. Save your tracking link below to follow progress and chat with us.',
+        message: isLoggedIn
+          ? 'Command submitted. View progress on the Track page.'
+          : 'Command submitted. Save your tracking link below to follow progress and chat with us.',
       })
       setForm({
-        client_name: '',
-        client_email: '',
+        client_name: isLoggedIn ? user?.first_name || user?.username || '' : '',
+        client_email: isLoggedIn ? user?.email || '' : '',
         associated_project: preselectedProject,
         idea_description: '',
         price_limit: '',
@@ -71,8 +85,17 @@ export default function CommandPage() {
       <main className="mx-auto max-w-3xl px-3 py-6 sm:px-4 sm:py-8">
         <h1 className="text-2xl font-semibold">Submit a command</h1>
         <p className="mt-2 text-sm text-dark-muted">
-          Describe your embedded or IoT project. No account required.
+          {isLoggedIn
+            ? 'Your command is linked to your account. Track it anytime from the Track page — no code needed.'
+            : 'Describe your embedded or IoT project. No account required — or sign in to manage commands in one place.'}
         </p>
+        {isLoggedIn && (
+          <p className="mt-2 text-sm">
+            <Link to="/track" className="text-lab-cyan underline">
+              View your commands
+            </Link>
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} autoComplete="off" className="panel mt-6 space-y-5 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -87,14 +110,15 @@ export default function CommandPage() {
               />
             </label>
             <label className="block text-xs text-dark-muted">
-              Email *
+              Email {!isLoggedIn && '*'}
               <input
                 type="email"
-                required
+                required={!isLoggedIn}
                 value={form.client_email}
                 onChange={update('client_email')}
-                className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
-                placeholder="Used for tracking your command"
+                disabled={isLoggedIn && Boolean(user?.email)}
+                className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text disabled:opacity-70"
+                placeholder={isLoggedIn ? 'From your account' : 'Used for guest tracking'}
               />
             </label>
           </div>
@@ -178,17 +202,36 @@ export default function CommandPage() {
             </p>
           )}
 
-          {tracking?.tracking_code && (
+          {tracking && (
             <div className="border border-dark-border bg-dark-bg p-3 text-xs">
-              <p className="text-dark-muted">Your tracking code — save it to follow progress:</p>
-              <p className="mt-2 font-mono text-lg tracking-wide text-dark-text">{tracking.tracking_code}</p>
-              <Link
-                to={`/track?code=${encodeURIComponent(tracking.tracking_code)}`}
-                className="mt-3 inline-block text-dark-text underline"
-              >
-                Open command tracker
-              </Link>
-              <p className="mt-2 text-dark-muted">You can also track using the email you provided.</p>
+              {isLoggedIn ? (
+                <>
+                  <p className="text-dark-muted">Command saved to your account.</p>
+                  <Link to="/track" className="mt-3 inline-block text-dark-text underline">
+                    Open Track — your commands
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-dark-muted">Your tracking code — save it to follow progress:</p>
+                  <p className="mt-2 font-mono text-lg tracking-wide text-dark-text">
+                    {tracking.tracking_code}
+                  </p>
+                  <Link
+                    to={`/track?code=${encodeURIComponent(tracking.tracking_code)}`}
+                    className="mt-3 inline-block text-dark-text underline"
+                  >
+                    Open command tracker
+                  </Link>
+                  <p className="mt-2 text-dark-muted">
+                    You can also track using the email you provided, or{' '}
+                    <Link to="/account" className="underline">
+                      create an account
+                    </Link>{' '}
+                    for easier access next time.
+                  </p>
+                </>
+              )}
             </div>
           )}
 

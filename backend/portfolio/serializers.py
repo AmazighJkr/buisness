@@ -119,6 +119,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='subcategory.parent.name', read_only=True)
     access = serializers.SerializerMethodField()
     locked = serializers.SerializerMethodField()
+    required_packs = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -135,6 +136,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
             'is_free',
             'access',
             'locked',
+            'required_packs',
             'featured_order',
             'created_at',
         ]
@@ -148,6 +150,11 @@ class ProjectListSerializer(serializers.ModelSerializer):
 
     def get_locked(self, obj):
         return self.get_access(obj) == 'locked'
+
+    def get_required_packs(self, obj):
+        if obj.is_free or self.get_access(obj) != 'locked':
+            return []
+        return required_packs_for(obj)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -466,6 +473,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
 
 class ProjectCommandCreateSerializer(serializers.ModelSerializer):
     tracking_code = serializers.CharField(read_only=True)
+    client_email = serializers.EmailField(required=False, allow_blank=True)
 
     class Meta:
         model = ProjectCommand
@@ -482,6 +490,22 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
             'attachment',
         ]
         read_only_fields = ['id', 'tracking_code']
+
+    def validate(self, attrs):
+        request = self.context.get('request')
+        user = getattr(request, 'user', None) if request else None
+        signed_in = user and user.is_authenticated and not user.is_staff
+        email = (attrs.get('client_email') or '').strip()
+        if signed_in:
+            if not email and user.email:
+                attrs['client_email'] = user.email.strip().lower()
+            elif email:
+                attrs['client_email'] = email.lower()
+        elif not email:
+            raise serializers.ValidationError({'client_email': 'Email is required.'})
+        else:
+            attrs['client_email'] = email.lower()
+        return attrs
 
     def validate_attachment(self, value):
         if value:

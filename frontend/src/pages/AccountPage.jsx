@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
 import AuthLoginCard from '../components/auth/AuthLoginCard.jsx'
 import {
@@ -11,7 +11,9 @@ import {
 } from '../api/client.js'
 
 export default function AccountPage() {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const returnTo = searchParams.get('next')
   const [mode, setMode] = useState('login')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -21,25 +23,41 @@ export default function AccountPage() {
 
   useEffect(() => {
     fetchUserMe()
-      .then(setUser)
+      .then((me) => {
+        setUser(me)
+        const dest = returnTo && returnTo.startsWith('/') ? returnTo : null
+        if (me && dest) navigate(dest, { replace: true })
+      })
       .finally(() => setLoading(false))
     if (searchParams.get('subscribed') === '1') {
       setError('')
     }
-  }, [searchParams])
+  }, [searchParams, returnTo, navigate])
 
-  const handleGoogleSuccess = useCallback(async (credential) => {
-    setError('')
-    setSubmitting(true)
-    try {
-      const data = await userGoogleLogin(credential)
-      setUser(data.user)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSubmitting(false)
-    }
-  }, [])
+  const afterAuth = useCallback(
+    (authUser) => {
+      setUser(authUser)
+      const dest = returnTo && returnTo.startsWith('/') ? returnTo : null
+      if (dest) navigate(dest, { replace: true })
+    },
+    [navigate, returnTo],
+  )
+
+  const handleGoogleSuccess = useCallback(
+    async (credential) => {
+      setError('')
+      setSubmitting(true)
+      try {
+        const data = await userGoogleLogin(credential)
+        afterAuth(data.user)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    [afterAuth],
+  )
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -48,7 +66,7 @@ export default function AccountPage() {
     try {
       if (mode === 'login') {
         const data = await userLogin(form.username, form.password)
-        setUser(data.user)
+        afterAuth(data.user)
       } else {
         const data = await userRegister({
           username: form.username,
@@ -56,7 +74,7 @@ export default function AccountPage() {
           password: form.password,
           first_name: form.first_name,
         })
-        setUser(data.user)
+        afterAuth(data.user)
       }
     } catch (err) {
       setError(err.message)

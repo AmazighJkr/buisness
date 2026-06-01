@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { CreditCard, Lock } from 'lucide-react'
-import { payCommand } from '../api/client.js'
+import { payCommand, payMyCommand } from '../api/client.js'
 import { paymentStatusLabel } from '../constants/commandStatus.js'
 
-export default function CommandPaymentBill({ command, onUpdated }) {
+export default function CommandPaymentBill({ command, onUpdated, useAccountApi = false }) {
   const paying = command.payment_due || (
     command.status === 'Accepted' &&
     command.quoted_price > 0 &&
@@ -14,7 +14,9 @@ export default function CommandPaymentBill({ command, onUpdated }) {
 
   const handlePay = async () => {
     try {
-      const result = await payCommand(command.tracking_code)
+      const result = useAccountApi
+        ? await payMyCommand(command.id)
+        : await payCommand(command.tracking_code)
       if (result.checkout_url) {
         window.location.href = result.checkout_url
         return

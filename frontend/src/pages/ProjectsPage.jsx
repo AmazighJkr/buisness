@@ -8,12 +8,13 @@ import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
 import { useUserSession } from '../hooks/useUserSession.js'
 import { fetchCategories, fetchFeaturedProjects, fetchProject, fetchProjects } from '../api/client.js'
+import { accountUrlWithNext, subscriptionsUrlForProject } from '../utils/projectAccess.js'
 
 export default function ProjectsPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useProjectsSidebar()
-  const { user, hasActivePack } = useUserSession()
+  const { user, hasActivePack, isLoggedIn, loading: sessionLoading } = useUserSession()
   const accessKey = (user?.active_pack_ids || []).join(',')
 
   const [categories, setCategories] = useState([])
@@ -49,6 +50,15 @@ export default function ProjectsPage() {
   }, [projectId, accessKey])
 
   useEffect(() => {
+    if (!projectId || !project?.locked || sessionLoading) return
+    if (!isLoggedIn) {
+      navigate(accountUrlWithNext(`/projects/${projectId}`), { replace: true })
+      return
+    }
+    navigate(subscriptionsUrlForProject(project, projectId), { replace: true })
+  }, [project, projectId, isLoggedIn, sessionLoading, navigate])
+
+  useEffect(() => {
     const mq = window.matchMedia('(max-width: 1023px)')
     const lock = () => {
       if (mq.matches && sidebarOpen) {
@@ -77,6 +87,16 @@ export default function ProjectsPage() {
   }
 
   const openProject = (id) => {
+    const p = projects.find((pr) => pr.id === id)
+    if (p?.locked) {
+      if (!isLoggedIn) {
+        navigate(accountUrlWithNext(`/projects/${id}`))
+      } else {
+        navigate(subscriptionsUrlForProject(p, id))
+      }
+      if (window.innerWidth < 1024) closeSidebar()
+      return
+    }
     navigate(`/projects/${id}`)
     if (window.innerWidth < 1024) closeSidebar()
   }
@@ -124,13 +144,15 @@ export default function ProjectsPage() {
         />
 
         <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-          {projectId && project ? (
+          {projectId && project && !project.locked ? (
             <div className="px-3 py-4 sm:px-6 lg:px-8">
               <ProjectDetailContent
                 project={project}
                 onBack={() => navigate('/projects')}
               />
             </div>
+          ) : projectId && (sessionLoading || project?.locked) ? (
+            <div className="p-6 text-sm text-dark-muted animate-pulse">Loading…</div>
           ) : (
             <div className="p-3 sm:p-6">
               <div className="mb-4 sm:mb-6">

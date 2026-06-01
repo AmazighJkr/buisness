@@ -127,8 +127,20 @@ export async function submitCommand(fields) {
       form.append(key, value)
     }
   })
-  const res = await fetch(`${API_BASE}/api/commands/`, { method: 'POST', body: form })
+  const res = await fetch(`${API_BASE}/api/commands/`, {
+    method: 'POST',
+    body: form,
+    headers: getUserHeaders(false),
+  })
   return handleResponse(res)
+}
+
+export async function fetchMyCommands() {
+  return userFetch(`${API_BASE}/api/commands/mine/`)
+}
+
+export async function fetchMyCommand(commandId) {
+  return userFetch(`${API_BASE}/api/commands/mine/${commandId}/`)
 }
 
 export async function fetchCommandTrackByCode(code) {
@@ -151,6 +163,14 @@ export async function payCommand(code, body = {}) {
     body: JSON.stringify(body),
   })
   return handleResponse(res)
+}
+
+export async function payMyCommand(commandId, body = {}) {
+  const q = new URLSearchParams({ command_id: commandId })
+  return userFetch(`${API_BASE}/api/commands/pay/?${q}`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
 }
 
 export function userLogout() {
@@ -277,6 +297,23 @@ export async function postCommandMessage(code, payload) {
     body,
   })
   return handleResponse(res)
+}
+
+export async function postMyCommandMessage(commandId, payload) {
+  const q = new URLSearchParams({ command_id: commandId })
+  const headers = { ...getUserHeaders(false) }
+  let body
+  if (payload instanceof FormData) {
+    body = payload
+  } else {
+    headers['Content-Type'] = 'application/json'
+    body = JSON.stringify(payload)
+  }
+  return apiFetch(`${API_BASE}/api/commands/messages/?${q}`, {
+    method: 'POST',
+    headers,
+    body,
+  })
 }
 
 export async function adminLogin(username, password) {

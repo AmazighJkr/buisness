@@ -14,7 +14,7 @@ from .payments import (
 )
 from .serializers import ProjectCommandTrackSerializer
 from .subscriptions import complete_subscription_from_metadata
-from .tracking import get_command_for_code
+from .tracking import get_command_for_code, get_command_for_user, user_owns_command
 
 
 class CommandPayView(APIView):
@@ -23,8 +23,13 @@ class CommandPayView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        code = request.query_params.get('code')
-        command = get_command_for_code(code)
+        user = request.user
+        command_id = request.query_params.get('command_id')
+        if command_id and user.is_authenticated and not user.is_staff:
+            command = get_command_for_user(user, command_id)
+        else:
+            code = request.query_params.get('code')
+            command = get_command_for_code(code)
 
         if command.status != ProjectCommand.Status.ACCEPTED:
             return Response(
@@ -39,8 +44,12 @@ class CommandPayView(APIView):
             return Response({'detail': 'Payment was waived for this command.'}, status=400)
 
         base = site_base_url(request)
-        success = f'{base}/track?code={command.tracking_code}&paid=1'
-        cancel = f'{base}/track?code={command.tracking_code}'
+        if user.is_authenticated and not user.is_staff and user_owns_command(user, command):
+            success = f'{base}/track?command={command.id}&paid=1'
+            cancel = f'{base}/track?command={command.id}'
+        else:
+            success = f'{base}/track?code={command.tracking_code}&paid=1'
+            cancel = f'{base}/track?code={command.tracking_code}'
 
         if stripe_enabled():
             session = create_command_checkout_session(command, success, cancel)

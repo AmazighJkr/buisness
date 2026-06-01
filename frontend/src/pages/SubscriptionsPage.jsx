@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
 import { fetchPacks, fetchUserMe, subscribeToPack } from '../api/client.js'
 
 export default function SubscriptionsPage() {
+  const [searchParams] = useSearchParams()
+  const highlightPackId = searchParams.get('pack')
+  const highlightProjectId = searchParams.get('project')
+  const packRefs = useRef({})
+
   const [packs, setPacks] = useState([])
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -26,6 +31,12 @@ export default function SubscriptionsPage() {
   useEffect(() => {
     load()
   }, [])
+
+  useEffect(() => {
+    if (!highlightPackId || loading) return
+    const el = packRefs.current[highlightPackId]
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [highlightPackId, loading, packs])
 
   const handleSubscribe = async (packId) => {
     if (!user) {
@@ -127,12 +138,28 @@ export default function SubscriptionsPage() {
 
         {msg && <p className="text-sm text-dark-muted">{msg}</p>}
 
+        {highlightProjectId && (
+          <p className="rounded border border-lab-cyan/40 bg-lab-cyan/10 px-3 py-2 text-sm text-dark-text">
+            Subscribe to unlock the project you selected. The recommended pack is highlighted below.
+          </p>
+        )}
+
         {loading ? (
           <p className="text-sm text-dark-muted animate-pulse">Loading packs…</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {packs.map((pack) => (
-              <article key={pack.id} className="panel flex flex-col p-5">
+              <article
+                key={pack.id}
+                ref={(el) => {
+                  packRefs.current[pack.id] = el
+                }}
+                className={`panel flex flex-col p-5 ${
+                  highlightPackId === pack.id
+                    ? 'ring-2 ring-lab-cyan ring-offset-2 ring-offset-[var(--eg-bg)]'
+                    : ''
+                }`}
+              >
                 <h2 className="text-lg font-medium">{pack.name}</h2>
                 <p className="mt-2 flex-1 text-sm text-dark-muted">{pack.description}</p>
                 <p className="mt-4">

@@ -28,6 +28,7 @@ from .permissions import (
     CanPostProject,
     CanRespondCommands,
     CanViewCommands,
+    IsCustomerUser,
     IsStaffUser,
 )
 from .serializers import (
@@ -55,7 +56,12 @@ from .serializers import (
 )
 
 from .enterprise import enterprise_display_name
-from .tracking import get_command_for_code, normalize_client_email
+from .tracking import (
+    commands_for_user,
+    get_command_for_code,
+    get_command_for_user,
+    normalize_client_email,
+)
 from .validators import validate_upload_extension
 
 User = get_user_model()
@@ -139,12 +145,45 @@ class ProjectCommandCreateView(generics.CreateAPIView):
             serializer.save()
 
 
+class MyCommandsListView(APIView):
+    """Commands linked to the signed-in customer account."""
+
+    permission_classes = [IsCustomerUser]
+
+    def get(self, request):
+        commands = commands_for_user(request.user)
+        return Response({
+            'commands': ProjectCommandTrackBriefSerializer(commands, many=True).data,
+        })
+
+
+class MyCommandDetailView(APIView):
+    permission_classes = [IsCustomerUser]
+
+    def get(self, request, command_id):
+        command = get_command_for_user(request.user, command_id)
+        return Response(
+            ProjectCommandTrackSerializer(command, context={'request': request}).data,
+        )
+
+
 class CommandTrackView(APIView):
+    """Guest lookup by tracking code or email. Signed-in users should use /commands/mine/."""
+
     permission_classes = [AllowAny]
 
     def get(self, request):
+        user = request.user
+        signed_in = user.is_authenticated and not user.is_staff
+
         code = request.query_params.get('code')
         email = request.query_params.get('email')
+
+        if signed_in and email and not code:
+            return Response(
+                {'detail': 'Sign in — open Track to see your commands, or use a tracking code.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if code:
             command = get_command_for_code(code)
@@ -179,8 +218,13 @@ class CommandTrackMessageView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request):
-        code = request.query_params.get('code')
-        command = get_command_for_code(code)
+        user = request.user
+        command_id = request.query_params.get('command_id')
+        if command_id and user.is_authenticated and not user.is_staff:
+            command = get_command_for_user(user, command_id)
+        else:
+            code = request.query_params.get('code')
+            command = get_command_for_code(code)
         serializer = CommandMessageCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         text = serializer.validated_data.get('text', '')

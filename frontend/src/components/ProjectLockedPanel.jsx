@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom'
 import { Lock } from 'lucide-react'
 import { useUserSession } from '../hooks/useUserSession.js'
+import { accountUrlWithNext, subscriptionsUrlForProject } from '../utils/projectAccess.js'
 
-export default function ProjectLockedPanel({ project }) {
+export default function ProjectLockedPanel({ project, projectId }) {
   const packs = project.required_packs || []
-  const { isLoggedIn, hasActivePack } = useUserSession()
+  const { isLoggedIn } = useUserSession()
+  const pid = projectId || project.id
+  const subsUrl = subscriptionsUrlForProject(project, pid)
 
   return (
     <div className="rounded border border-dark-border bg-dark-panel p-6 text-center">
@@ -25,24 +28,22 @@ export default function ProjectLockedPanel({ project }) {
         </ul>
       )}
       <div className="mt-5 flex flex-wrap justify-center gap-2">
-        <Link
-          to="/subscriptions"
-          className="border border-lab-cyan px-4 py-2 text-sm text-lab-cyan panel-hover"
-        >
-          {isLoggedIn ? 'Subscribe to a pack' : 'View subscription packs'}
-        </Link>
-        {!isLoggedIn && (
-          <Link
-            to="/account"
-            className="border border-dark-border px-4 py-2 text-sm panel-hover"
-          >
-            Sign in (use Sign in in the top bar)
+        {isLoggedIn ? (
+          <Link to={subsUrl} className="border border-lab-cyan px-4 py-2 text-sm text-lab-cyan panel-hover">
+            Subscribe to unlock
           </Link>
-        )}
-        {isLoggedIn && !hasActivePack && (
-          <p className="w-full text-xs text-dark-muted">
-            You are signed in — choose a pack above to unlock this project.
-          </p>
+        ) : (
+          <>
+            <Link
+              to={accountUrlWithNext(`/projects/${pid}`)}
+              className="border border-lab-cyan px-4 py-2 text-sm text-lab-cyan panel-hover"
+            >
+              Sign in or create account
+            </Link>
+            <Link to={subsUrl} className="border border-dark-border px-4 py-2 text-sm panel-hover">
+              View packs
+            </Link>
+          </>
         )}
       </div>
     </div>
