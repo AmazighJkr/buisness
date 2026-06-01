@@ -1,4 +1,11 @@
-import { detectClientCountry, paymentCountryHeaders } from '../utils/paymentRegion.js'
+import {
+  detectClientCountry,
+  getCachedPaymentProvider,
+  paymentCountryHeaders,
+  paymentProviderHeaders,
+  paymentRoutingParams,
+  setCachedPaymentProvider,
+} from '../utils/paymentRegion.js'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const ADMIN_TOKEN_KEY = 'admin_access_token'
@@ -157,39 +164,49 @@ export async function fetchCommandTrackByEmail(email) {
   return handleResponse(res)
 }
 
-export async function fetchPaymentConfig() {
-  await detectClientCountry()
-  const cc = paymentCountryHeaders()['X-Client-Country']
-  const params = new URLSearchParams()
-  if (cc) params.set('country', cc)
+export async function fetchPaymentConfig({ forceRefresh = false } = {}) {
+  const country = await detectClientCountry({ forceRefresh })
+  const params = paymentRoutingParams(null, country)
   const qs = params.toString()
   const res = await fetch(`${API_BASE}/api/payments/config/${qs ? `?${qs}` : ''}`, {
-    headers: paymentCountryHeaders(),
+    headers: { ...paymentCountryHeaders(), ...paymentProviderHeaders() },
   })
-  return handleResponse(res)
+  const data = await handleResponse(res)
+  if (data.provider) setCachedPaymentProvider(data.provider)
+  return data
 }
 
-export async function payCommand(code, body = {}) {
-  await detectClientCountry()
-  const q = new URLSearchParams({ code: code.trim().toUpperCase() })
-  const cc = paymentCountryHeaders()['X-Client-Country']
-  if (cc) q.set('country', cc)
+async function paymentRequestOptions(provider) {
+  const p = provider || getCachedPaymentProvider()
+  await detectClientCountry({ forceRefresh: true })
+  return {
+    headers: {
+      ...paymentCountryHeaders(),
+      ...paymentProviderHeaders(p),
+    },
+    provider: p,
+  }
+}
+
+export async function payCommand(code, body = {}, provider) {
+  const { headers, provider: p } = await paymentRequestOptions(provider)
+  const q = paymentRoutingParams(p, null)
+  q.set('code', code.trim().toUpperCase())
   const res = await fetch(`${API_BASE}/api/commands/pay/?${q}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...paymentCountryHeaders() },
+    headers: { 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify(body),
   })
   return handleResponse(res)
 }
 
-export async function payMyCommand(commandId, body = {}) {
-  await detectClientCountry()
-  const q = new URLSearchParams({ command_id: commandId })
-  const cc = paymentCountryHeaders()['X-Client-Country']
-  if (cc) q.set('country', cc)
+export async function payMyCommand(commandId, body = {}, provider) {
+  const { headers, provider: p } = await paymentRequestOptions(provider)
+  const q = paymentRoutingParams(p, null)
+  q.set('command_id', commandId)
   return userFetch(`${API_BASE}/api/commands/pay/?${q}`, {
     method: 'POST',
-    headers: paymentCountryHeaders(),
+    headers,
     body: JSON.stringify(body),
   })
 }
@@ -261,11 +278,12 @@ export async function fetchPacks() {
   return data.results ?? data
 }
 
-export async function subscribeToPack(packId) {
-  await detectClientCountry()
-  const data = await userFetch(`${API_BASE}/api/packs/${packId}/subscribe/`, {
+export async function subscribeToPack(packId, provider) {
+  const { headers, provider: p } = await paymentRequestOptions(provider)
+  const q = paymentRoutingParams(p, null)
+  const data = await userFetch(`${API_BASE}/api/packs/${packId}/subscribe/?${q}`, {
     method: 'POST',
-    headers: paymentCountryHeaders(),
+    headers,
     body: '{}',
   })
   if (typeof window !== 'undefined') {

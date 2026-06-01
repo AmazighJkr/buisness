@@ -6,7 +6,7 @@ from .chargily_payments import (
     create_command_chargily_checkout,
     create_pack_chargily_checkout,
 )
-from .payment_region import client_country, is_algeria_request
+from .payment_region import explicit_payment_provider, is_algeria_request
 from .payments import create_command_checkout_session, create_pack_checkout_session, stripe_enabled
 
 
@@ -16,6 +16,12 @@ def payment_provider_for_request(request) -> str:
     stripe — rest of world (card)
     manual — no provider configured for this region
     """
+    chosen = explicit_payment_provider(request)
+    if chosen == 'chargily' and chargily_enabled():
+        return 'chargily'
+    if chosen == 'stripe' and stripe_enabled():
+        return 'stripe'
+
     if is_algeria_request(request) and chargily_enabled():
         return 'chargily'
     if stripe_enabled():

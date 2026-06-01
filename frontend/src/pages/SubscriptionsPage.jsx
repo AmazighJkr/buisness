@@ -24,7 +24,7 @@ export default function SubscriptionsPage() {
     try {
       await detectClientCountry()
       const [cfg, u, p] = await Promise.all([
-        fetchPaymentConfig(),
+        fetchPaymentConfig({ forceRefresh: true }),
         fetchUserMe(),
         fetchPacks(),
       ])
@@ -55,7 +55,7 @@ export default function SubscriptionsPage() {
     }
     setMsg('')
     try {
-      const result = await subscribeToPack(packId)
+      const result = await subscribeToPack(packId, paymentProvider)
       if (result.checkout_url) {
         window.location.href = result.checkout_url
         return

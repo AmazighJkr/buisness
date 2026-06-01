@@ -2,22 +2,22 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CreditCard, Lock } from 'lucide-react'
 import { fetchPaymentConfig, payCommand, payMyCommand } from '../api/client.js'
-import { detectClientCountry } from '../utils/paymentRegion.js'
 import { formatCommandBill, useDzdPricing } from '../utils/formatMoney.js'
 import { paymentStatusLabel } from '../constants/commandStatus.js'
 
 export default function CommandPaymentBill({ command, onUpdated, useAccountApi = false }) {
   const [payLabel, setPayLabel] = useState('Pay now')
   const [useDzd, setUseDzd] = useState(false)
+  const [provider, setProvider] = useState('stripe')
 
   useEffect(() => {
-    detectClientCountry().then(() =>
-      fetchPaymentConfig().then((cfg) => {
-        const dzd = useDzdPricing(cfg.provider)
-        setUseDzd(dzd)
-        if (dzd) setPayLabel('Pay with Chargily (Edahabia / CIB)')
-      }),
-    )
+    fetchPaymentConfig({ forceRefresh: true }).then((cfg) => {
+      const p = cfg.provider || 'stripe'
+      setProvider(p)
+      const dzd = useDzdPricing(p)
+      setUseDzd(dzd)
+      if (dzd) setPayLabel('Pay with Chargily (Edahabia / CIB)')
+    })
   }, [])
 
   const paying = command.payment_due || (
@@ -33,8 +33,8 @@ export default function CommandPaymentBill({ command, onUpdated, useAccountApi =
   const handlePay = async () => {
     try {
       const result = useAccountApi
-        ? await payMyCommand(command.id)
-        : await payCommand(command.tracking_code)
+        ? await payMyCommand(command.id, {}, provider)
+        : await payCommand(command.tracking_code, {}, provider)
       if (result.checkout_url) {
         window.location.href = result.checkout_url
         return
