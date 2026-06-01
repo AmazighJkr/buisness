@@ -23,17 +23,27 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState([])
   const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
-    fetchCategories().then(setCategories).catch(() => [])
+    setLoadError('')
+    fetchCategories()
+      .then(setCategories)
+      .catch((err) => {
+        setCategories([])
+        setLoadError(err.message || 'Could not load categories.')
+      })
   }, [])
 
   useEffect(() => {
     setLoading(true)
-    const loadList = fetchProjects(selectedSubId || null)
-    loadList
+    setLoadError('')
+    fetchProjects(selectedSubId || null)
       .then(setProjects)
-      .catch(() => setProjects([]))
+      .catch((err) => {
+        setProjects([])
+        setLoadError(err.message || 'Could not load projects.')
+      })
       .finally(() => setLoading(false))
   }, [selectedSubId, accessKey])
 
@@ -169,9 +179,25 @@ export default function ProjectsPage() {
                 )}
               </div>
 
+              {loadError && (
+                <p className="mb-4 border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                  {loadError}
+                  {loadError.toLowerCase().includes('token') && (
+                    <span>
+                      {' '}
+                      Try{' '}
+                      <Link to="/account" className="underline">
+                        signing in again
+                      </Link>{' '}
+                      or clear site data for this domain.
+                    </span>
+                  )}
+                </p>
+              )}
+
               {loading ? (
                 <p className="text-sm text-dark-muted animate-pulse">Loading...</p>
-              ) : projects.length === 0 ? (
+              ) : !loadError && projects.length === 0 ? (
                 <p className="text-sm text-dark-muted">No projects here yet.</p>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">

@@ -24,12 +24,38 @@ async function apiFetch(url, options = {}) {
   return handleResponse(res)
 }
 
+function clearUserToken() {
+  if (typeof window === 'undefined') return
+  if (!localStorage.getItem(USER_TOKEN_KEY)) return
+  localStorage.removeItem(USER_TOKEN_KEY)
+  window.dispatchEvent(new Event('user-session-changed'))
+}
+
 function getUserHeaders(includeJson = true) {
   const headers = {}
   if (includeJson) headers['Content-Type'] = 'application/json'
   const token = localStorage.getItem(USER_TOKEN_KEY)
   if (token) headers['Authorization'] = `Bearer ${token}`
   return headers
+}
+
+/** Public API reads: optional JWT for pack access; drop invalid tokens and retry. */
+async function publicFetch(url, options = {}) {
+  const token = localStorage.getItem(USER_TOKEN_KEY)
+  const extra = options.headers || {}
+
+  const doFetch = (withAuth) => {
+    const headers = { ...extra }
+    if (withAuth && token) headers.Authorization = `Bearer ${token}`
+    return fetch(url, { ...options, headers })
+  }
+
+  let res = await doFetch(Boolean(token))
+  if (res.status === 401 && token) {
+    clearUserToken()
+    res = await doFetch(false)
+  }
+  return handleResponse(res)
 }
 
 function authHeaders(includeJson = true) {
@@ -92,8 +118,7 @@ async function handleResponse(res) {
 }
 
 export async function fetchCategories() {
-  const res = await fetch(`${API_BASE}/api/categories/`, { headers: getUserHeaders(false) })
-  const data = await handleResponse(res)
+  const data = await publicFetch(`${API_BASE}/api/categories/`)
   return data.results ?? data
 }
 
@@ -109,8 +134,7 @@ async function fetchPaginatedList(initialUrl) {
   const items = []
   let url = initialUrl
   while (url) {
-    const res = await fetch(url, { headers: getUserHeaders(false) })
-    const data = await handleResponse(res)
+    const data = await publicFetch(url)
     if (Array.isArray(data)) return data
     items.push(...(data.results ?? []))
     url = resolveApiUrl(data.next)
@@ -133,8 +157,7 @@ export async function fetchFeaturedProjects() {
 }
 
 export async function fetchProject(id) {
-  const res = await fetch(`${API_BASE}/api/projects/${id}/`, { headers: getUserHeaders(false) })
-  const data = await handleResponse(res)
+  const data = await publicFetch(`${API_BASE}/api/projects/${id}/`)
   if (data.subcategory) {
     data.subcategory_name = data.subcategory_name || ''
     data.category_name = data.category_name || ''
@@ -286,17 +309,18 @@ export async function userLogin(username, password) {
 }
 
 export async function fetchUserMe() {
+  const token = localStorage.getItem(USER_TOKEN_KEY)
+  if (!token) return null
   const res = await fetch(`${API_BASE}/api/auth/me/`, { headers: getUserHeaders() })
-  if (res.status === 401 || res.status === 403) return null
+  if (res.status === 401 || res.status === 403) {
+    clearUserToken()
+    return null
+  }
   return handleResponse(res)
 }
 
 export async function fetchPacks() {
-  const headers = getUserHeaders(false)
-  const res = await fetch(`${API_BASE}/api/packs/`, {
-    headers: headers.Authorization ? headers : {},
-  })
-  const data = await handleResponse(res)
+  const data = await publicFetch(`${API_BASE}/api/packs/`)
   return data.results ?? data
 }
 
