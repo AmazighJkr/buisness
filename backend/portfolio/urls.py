@@ -21,6 +21,7 @@ from .store_views import (
     MyStoreOrdersListView,
     StoreOrderCreateView,
     StoreOrderPayView,
+    StoreOrderResumeView,
     StoreOrderTrackView,
 )
 from .views import (
@@ -68,6 +69,7 @@ urlpatterns = [
     path('store/orders/', StoreOrderCreateView.as_view(), name='store-order-create'),
     path('store/orders/track/', StoreOrderTrackView.as_view(), name='store-order-track'),
     path('store/orders/mine/', MyStoreOrdersListView.as_view(), name='store-order-mine'),
+    path('store/orders/<uuid:order_id>/resume/', StoreOrderResumeView.as_view(), name='store-order-resume'),
     path('store/orders/<uuid:order_id>/pay/', StoreOrderPayView.as_view(), name='store-order-pay'),
     path('', include(router.urls)),
     path('commands/', ProjectCommandCreateView.as_view(), name='command-create'),

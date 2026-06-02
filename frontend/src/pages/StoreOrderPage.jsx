@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import StoreHeader from '../components/StoreHeader.jsx'
 import { payStoreOrder, trackStoreOrder } from '../api/client.js'
+import { useCart } from '../hooks/useCart.js'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
+import { clearPendingStoreOrder } from '../utils/storeCheckout.js'
 import { formatDzd } from '../utils/formatMoney.js'
 
 const STATUS_LABEL = {
@@ -19,6 +21,7 @@ export default function StoreOrderPage() {
   const paidBanner = searchParams.get('paid') === '1'
   const codBanner = searchParams.get('cod') === '1'
   const { chargily } = useStoreRegion()
+  const { clearCart } = useCart()
 
   const [trackNumber, setTrackNumber] = useState(numberParam)
   const [trackEmail, setTrackEmail] = useState('')
@@ -31,6 +34,13 @@ export default function StoreOrderPage() {
     if (!numberParam) return
     setTrackNumber(numberParam)
   }, [numberParam])
+
+  useEffect(() => {
+    if (paidBanner || codBanner) {
+      clearPendingStoreOrder()
+      clearCart()
+    }
+  }, [paidBanner, codBanner, clearCart])
 
   const loadOrder = async (e) => {
     e?.preventDefault()

@@ -126,7 +126,7 @@ export default function StoreProductDetail({
               disabled={!inStock}
               onClick={() => {
                 onAdd(product)
-                navigate('/shop/checkout')
+                navigate('/shop/checkout', { state: { freshCheckout: true } })
               }}
               className="amazon-buybox__checkout-btn"
             >

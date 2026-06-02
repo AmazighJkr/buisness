@@ -192,6 +192,14 @@ export async function createStoreOrder(payload) {
   return handleResponse(res)
 }
 
+export async function fetchStoreOrderResume(orderId) {
+  await detectClientCountry()
+  const res = await fetch(`${API_BASE}/api/store/orders/${orderId}/resume/`, {
+    headers: paymentCountryHeaders(),
+  })
+  return handleResponse(res)
+}
+
 export async function payStoreOrder(orderId, body = {}) {
   await detectClientCountry()
   const headers = {

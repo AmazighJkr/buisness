@@ -112,6 +112,26 @@ class StoreOrderPayView(APIView):
         })
 
 
+class StoreOrderResumeView(APIView):
+    """Unpaid order summary for completing Chargily after cancel/back."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, order_id):
+        require_algeria_store(request)
+        try:
+            order = StoreOrder.objects.prefetch_related('items').get(id=order_id)
+        except StoreOrder.DoesNotExist:
+            return Response({'detail': 'Order not found.'}, status=404)
+        if order.payment_status == StoreOrder.PaymentStatus.PAID:
+            return Response({
+                'paid': True,
+                'order_number': order.order_number,
+                'detail': 'This order is already paid.',
+            })
+        return Response(StoreOrderPublicSerializer(order).data)
+
+
 class StoreOrderTrackView(APIView):
     permission_classes = [AllowAny]
 

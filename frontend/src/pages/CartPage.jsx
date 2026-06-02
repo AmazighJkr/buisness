@@ -76,7 +76,11 @@ export default function CartPage() {
                   <span className="text-dark-muted">Subtotal</span>
                   <span>{formatDzd(subtotalDzd)}</span>
                 </div>
-                <Link to="/shop/checkout" className="btn-primary mt-4 block w-full text-center">
+                <Link
+                  to="/shop/checkout"
+                  state={{ freshCheckout: true }}
+                  className="btn-primary mt-4 block w-full text-center"
+                >
                   Checkout
                 </Link>
               </div>
