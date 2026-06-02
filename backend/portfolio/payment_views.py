@@ -120,12 +120,14 @@ class PaymentConfigView(APIView):
     def get(self, request):
         country = client_country(request)
         provider = payment_provider_for_request(request)
+        is_dz = is_algeria_request(request)
         return Response({
             'stripe': stripe_enabled(),
             'chargily': chargily_enabled(),
             'auto_confirm': payments_auto_confirm(),
             'country': country,
-            'is_algeria': is_algeria_request(request),
+            'is_algeria': is_dz,
+            'store_available': is_dz,
             'provider': provider,
             'currency': 'dzd' if provider == 'chargily' else 'usd',
             'chargily_public_key': chargily_public_key() if chargily_enabled() else '',

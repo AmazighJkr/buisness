@@ -20,8 +20,10 @@ export default function PageHeader({ highlight = '', headerStart = null, beforeL
           <SiteNavDesktop />
 
           <div className="site-header-actions">
+            <Link to="/shop" className="store-entry-btn hidden sm:inline-flex">
+              Store
+            </Link>
             <ThemeToggle compact />
-            <NavCart />
             <NavAccount />
             <SiteNavMobile />
           </div>

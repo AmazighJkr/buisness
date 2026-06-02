@@ -307,7 +307,7 @@ class StoreProduct(models.Model):
     )
     name = models.CharField(max_length=160)
     slug = models.SlugField(max_length=180, unique=True)
-    short_description = models.CharField(max_length=220, blank=True)
+    short_description = models.TextField(blank=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='store/products/', blank=True, null=True)
     price_usd = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -324,6 +324,24 @@ class StoreProduct(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class StoreProductImage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(
+        StoreProduct,
+        on_delete=models.CASCADE,
+        related_name='gallery',
+    )
+    image = models.ImageField(upload_to='store/products/gallery/')
+    alt_text = models.CharField(max_length=160, blank=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return f'{self.product.name} image'
 
 
 class StoreOrder(models.Model):

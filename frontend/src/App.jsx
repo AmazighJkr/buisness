@@ -28,10 +28,11 @@ export default function App() {
       <Route index element={<LandingPage />} />
       <Route path="projects" element={<ProjectsPage />} />
       <Route path="projects/:projectId" element={<ProjectsPage />} />
-      <Route path="shop" element={<ShopPage />} />
       <Route path="shop/cart" element={<CartPage />} />
       <Route path="shop/checkout" element={<CheckoutPage />} />
       <Route path="shop/order" element={<StoreOrderPage />} />
+      <Route path="shop/:productSlug" element={<ShopPage />} />
+      <Route path="shop" element={<ShopPage />} />
       <Route path="command" element={<CommandPage />} />
       <Route path="track" element={<CommandTrackPage />} />
       <Route path="account" element={<AccountPage />} />

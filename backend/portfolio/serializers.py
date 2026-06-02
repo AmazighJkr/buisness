@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.contrib.auth.models import Permission
 from django.utils import timezone
+from django.utils.text import slugify
 from rest_framework import serializers
 
 from .embed_utils import normalize_code_files, resolve_simulation_embed_url
@@ -20,6 +21,7 @@ from .models import (
     StoreOrder,
     StoreOrderItem,
     StoreProduct,
+    StoreProductImage,
     UserSubscription,
 )
 from .access import project_access, required_packs_for, user_can_view_project
@@ -132,6 +134,7 @@ class StoreCategoryPublicSerializer(serializers.ModelSerializer):
 
 class StoreProductPublicSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    gallery_urls = serializers.SerializerMethodField()
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_slug = serializers.CharField(source='category.slug', read_only=True)
 
@@ -144,6 +147,7 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
             'short_description',
             'description',
             'image_url',
+            'gallery_urls',
             'price_usd',
             'price_dzd',
             'stock_qty',
@@ -157,6 +161,20 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         return media_url(obj.image)
+
+    def get_gallery_urls(self, obj):
+        urls = []
+        main = media_url(obj.image)
+        if main:
+            urls.append(main)
+        gallery = getattr(obj, '_prefetched_objects_cache', {}).get('gallery')
+        if gallery is None:
+            gallery = obj.gallery.all()
+        for row in gallery:
+            url = media_url(row.image)
+            if url and url not in urls:
+                urls.append(url)
+        return urls
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
@@ -371,6 +389,7 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
 class AdminStoreCategorySerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField(read_only=True)
     product_count = serializers.SerializerMethodField(read_only=True)
+    slug = serializers.CharField(max_length=120)
 
     class Meta:
         model = StoreCategory
@@ -402,10 +421,27 @@ class AdminStoreCategorySerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Category image must be 5 MB or smaller.')
         return value
 
+    def validate_slug(self, value):
+        return _normalize_store_slug(self.Meta.model, value, self.instance)
+
+
+class AdminStoreProductImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StoreProductImage
+        fields = ['id', 'image_url', 'alt_text', 'sort_order']
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
 
 class AdminStoreProductSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField(read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
+    gallery = AdminStoreProductImageSerializer(many=True, read_only=True)
+    gallery_urls = serializers.SerializerMethodField()
+    slug = serializers.CharField(max_length=180)
 
     class Meta:
         model = StoreProduct
@@ -419,6 +455,8 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
             'description',
             'image',
             'image_url',
+            'gallery',
+            'gallery_urls',
             'price_usd',
             'price_dzd',
             'stock_qty',
@@ -433,12 +471,48 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
     def get_image_url(self, obj):
         return media_url(obj.image)
 
+    def get_gallery_urls(self, obj):
+        urls = []
+        main = media_url(obj.image)
+        if main:
+            urls.append(main)
+        for row in obj.gallery.all():
+            url = media_url(row.image)
+            if url and url not in urls:
+                urls.append(url)
+        return urls
+
     def validate_image(self, value):
         if value:
             validate_upload_extension(value)
             if value.size > 5 * 1024 * 1024:
                 raise serializers.ValidationError('Product image must be 5 MB or smaller.')
         return value
+
+    def validate_slug(self, value):
+        return _normalize_store_slug(self.Meta.model, value, self.instance)
+
+
+def _normalize_store_slug(model, value, instance):
+    slug = slugify(value or '', allow_unicode=False)
+    if not slug:
+        raise serializers.ValidationError(
+            'Enter a valid link using letters and numbers (e.g. my-product).',
+        )
+    conflict = model.objects.filter(slug=slug)
+    if instance:
+        conflict = conflict.exclude(pk=instance.pk)
+        if conflict.exists():
+            raise serializers.ValidationError('This store link is already in use. Pick another.')
+        return slug
+    if not conflict.exists():
+        return slug
+    base = slug
+    n = 2
+    while model.objects.filter(slug=slug).exists():
+        slug = f'{base}-{n}'
+        n += 1
+    return slug
 
 
 class StoreOrderItemSerializer(serializers.ModelSerializer):

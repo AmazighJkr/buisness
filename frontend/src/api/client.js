@@ -151,8 +151,13 @@ export async function fetchProjects(subcategoryId, { featured = false } = {}) {
   return fetchPaginatedList(url)
 }
 
+async function storeFetch(url) {
+  await detectClientCountry()
+  return publicFetch(url, { headers: paymentCountryHeaders() })
+}
+
 export async function fetchStoreCategories() {
-  const data = await publicFetch(`${API_BASE}/api/store/categories/`)
+  const data = await storeFetch(`${API_BASE}/api/store/categories/`)
   return data.results ?? data
 }
 
@@ -162,25 +167,42 @@ export async function fetchStoreProducts({ category = '', featured = false, q = 
   if (featured) params.set('featured', 'true')
   if (q) params.set('q', q)
   const qs = params.toString()
-  const data = await publicFetch(`${API_BASE}/api/store/products/${qs ? `?${qs}` : ''}`)
+  const data = await storeFetch(`${API_BASE}/api/store/products/${qs ? `?${qs}` : ''}`)
   return data.results ?? data
 }
 
+export async function fetchStoreProduct(idOrSlug) {
+  const data = await storeFetch(
+    `${API_BASE}/api/store/products/${encodeURIComponent(idOrSlug)}/`,
+  )
+  return data
+}
+
 export async function createStoreOrder(payload) {
+  await detectClientCountry()
   const res = await fetch(`${API_BASE}/api/store/orders/`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getUserHeaders(false) },
+    headers: {
+      'Content-Type': 'application/json',
+      ...paymentCountryHeaders(),
+      ...getUserHeaders(false),
+    },
     body: JSON.stringify(payload),
   })
   return handleResponse(res)
 }
 
-export async function payStoreOrder(orderId, body = {}, provider) {
-  const { headers, provider: p } = await paymentRequestOptions(provider)
-  const q = paymentRoutingParams(p, null)
+export async function payStoreOrder(orderId, body = {}) {
+  await detectClientCountry()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...paymentCountryHeaders(),
+    ...getUserHeaders(false),
+  }
+  const q = paymentRoutingParams('chargily', null)
   const res = await fetch(`${API_BASE}/api/store/orders/${orderId}/pay/?${q}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...headers, ...getUserHeaders(false) },
+    headers,
     body: JSON.stringify(body),
   })
   return handleResponse(res)
@@ -501,10 +523,24 @@ export async function adminUpdateProject(id, formData) {
   })
 }
 
+const ALLOWED_IMAGE_EXTENSIONS = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+])
+
 export function validateUploadFile(file, label = 'File') {
   if (!file) return null
   if (file.size > MAX_UPLOAD_BYTES) {
     return `${label} must be 5 MB or smaller (this file is ${(file.size / (1024 * 1024)).toFixed(1)} MB).`
+  }
+  const name = file.name || ''
+  const dot = name.lastIndexOf('.')
+  const ext = dot >= 0 ? name.slice(dot).toLowerCase() : ''
+  if (ext && !ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+    return `${label} type not allowed (${ext || 'unknown'}). Use PNG, JPG, GIF, or WebP.`
   }
   return null
 }
@@ -665,11 +701,41 @@ export async function adminUpdateStoreProduct(id, formData) {
   })
 }
 
+/** Quick edits (name, prices, stock) without uploading files. */
+export async function adminPatchStoreProduct(id, body) {
+  return apiFetch(`${API_BASE}/api/admin/store/products/${id}/`, {
+    method: 'PATCH',
+    headers: getAdminHeaders(),
+    body: JSON.stringify(body),
+  })
+}
+
 export async function adminDeleteStoreProduct(id) {
   const res = await fetch(`${API_BASE}/api/admin/store/products/${id}/`, {
     method: 'DELETE',
     headers: getAdminHeaders(),
   })
+  if (res.status === 204) return null
+  return handleResponse(res)
+}
+
+export async function adminAddProductGallery(productId, files) {
+  const fd = new FormData()
+  for (const file of files) {
+    fd.append('images', file)
+  }
+  return apiFetch(`${API_BASE}/api/admin/store/products/${productId}/gallery/`, {
+    method: 'POST',
+    headers: adminHeadersMultipart(),
+    body: fd,
+  })
+}
+
+export async function adminDeleteProductGalleryImage(productId, imageId) {
+  const res = await fetch(
+    `${API_BASE}/api/admin/store/products/${productId}/gallery/${imageId}/`,
+    { method: 'DELETE', headers: getAdminHeaders() },
+  )
   if (res.status === 204) return null
   return handleResponse(res)
 }

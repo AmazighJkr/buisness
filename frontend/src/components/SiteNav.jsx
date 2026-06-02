@@ -1,16 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
-
-const LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/projects', label: 'Projects' },
-  { to: '/shop', label: 'Shop' },
-  { to: '/shop/order', label: 'My order' },
-  { to: '/subscriptions', label: 'Subscriptions' },
-  { to: '/command', label: 'Submit command' },
-  { to: '/track', label: 'Track' },
-]
+import { NAV_LAB, navLinkActive } from '../config/siteNav.js'
 
 const SiteNavContext = createContext(null)
 
@@ -36,10 +27,7 @@ export function SiteNavProvider({ highlight = '', children }) {
     setOpen(false)
   }, [highlight])
 
-  const isActive = (to) => {
-    if (to === '/') return highlight === '/' || highlight === ''
-    return highlight === to
-  }
+  const isActive = (to) => navLinkActive(highlight, to)
 
   return (
     <SiteNavContext.Provider value={{ highlight, open, setOpen, isActive }}>
@@ -48,19 +36,20 @@ export function SiteNavProvider({ highlight = '', children }) {
   )
 }
 
-export function SiteNavDesktop() {
+function NavLink({ to, label }) {
   const { isActive } = useSiteNav()
-
   return (
-    <nav className="site-nav-desktop" aria-label="Main navigation">
-      {LINKS.map(({ to, label }) => (
-        <Link
-          key={to}
-          to={to}
-          className={`site-nav-link ${isActive(to) ? 'site-nav-link-active' : ''}`}
-        >
-          {label}
-        </Link>
+    <Link to={to} className={`site-nav-link ${isActive(to) ? 'site-nav-link-active' : ''}`}>
+      {label}
+    </Link>
+  )
+}
+
+export function SiteNavDesktop() {
+  return (
+    <nav className="site-nav-desktop" aria-label="Lab navigation">
+      {NAV_LAB.map(({ to, label }) => (
+        <NavLink key={to} to={to} label={label} />
       ))}
     </nav>
   )
@@ -90,7 +79,8 @@ export function SiteNavMobile() {
             onClick={() => setOpen(false)}
           />
           <nav className="site-nav-drawer" aria-label="Mobile navigation">
-            {LINKS.map(({ to, label }) => (
+            <p className="site-nav-drawer-heading">Lab</p>
+            {NAV_LAB.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
@@ -100,6 +90,14 @@ export function SiteNavMobile() {
                 {label}
               </Link>
             ))}
+            <p className="site-nav-drawer-heading mt-3">Store</p>
+            <Link
+              to="/shop"
+              onClick={() => setOpen(false)}
+              className="site-nav-drawer-link site-nav-drawer-link--store"
+            >
+              Open store
+            </Link>
             <Link
               to="/account"
               onClick={() => setOpen(false)}
@@ -114,7 +112,6 @@ export function SiteNavMobile() {
   )
 }
 
-/** @deprecated Use SiteNavProvider + SiteNavDesktop + SiteNavMobile in PageHeader */
 export default function SiteNav({ highlight = '' }) {
   return (
     <SiteNavProvider highlight={highlight}>

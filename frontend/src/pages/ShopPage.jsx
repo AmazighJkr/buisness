@@ -1,136 +1,240 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import PageHeader from '../components/PageHeader.jsx'
-import { fetchStoreCategories, fetchStoreProducts } from '../api/client.js'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { PanelLeft } from 'lucide-react'
+import StoreHeader from '../components/StoreHeader.jsx'
+import StoreCategorySidebar from '../components/store/StoreCategorySidebar.jsx'
+import StoreProductCard from '../components/store/StoreProductCard.jsx'
+import StoreProductDetail from '../components/store/StoreProductDetail.jsx'
+import { fetchStoreCategories, fetchStoreProduct, fetchStoreProducts } from '../api/client.js'
+import StoreAlgeriaGate, { StoreNotAvailableInRegion } from '../components/store/StoreAlgeriaGate.jsx'
 import { useCart } from '../hooks/useCart.js'
-import { formatDzd, formatUsd } from '../utils/formatMoney.js'
+import { useStoreRegion } from '../hooks/useStoreRegion.js'
+import { useStoreSidebar } from '../hooks/useStoreSidebar.js'
 
 export default function ShopPage() {
-  const { addItem, itemCount } = useCart()
+  const { productSlug } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const categoryParam = searchParams.get('category') || ''
+  const queryParam = searchParams.get('q') || ''
+
+  const [sidebarOpen, setSidebarOpen] = useStoreSidebar()
+  const { addItem } = useCart()
   const [addedId, setAddedId] = useState(null)
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [query, setQuery] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [product, setProduct] = useState(null)
+  const [loadingList, setLoadingList] = useState(true)
+  const [loadingProduct, setLoadingProduct] = useState(false)
   const [error, setError] = useState('')
+  const { loading: regionLoading, isAlgeria } = useStoreRegion()
+  const activeCategory = categories.find((c) => c.slug === categoryParam)
 
   useEffect(() => {
+    if (!isAlgeria) return
     fetchStoreCategories().then(setCategories).catch(() => [])
-  }, [])
+  }, [isAlgeria])
 
   useEffect(() => {
-    setLoading(true)
+    if (!isAlgeria || productSlug) return
+    setLoadingList(true)
     setError('')
-    fetchStoreProducts({ category: selectedCategory, q: query.trim() })
+    fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
       .then(setProducts)
       .catch((err) => {
         setProducts([])
-        setError(err.message || 'Could not load store products.')
+        setError(err.message || 'Could not load products.')
       })
-      .finally(() => setLoading(false))
-  }, [selectedCategory, query])
+      .finally(() => setLoadingList(false))
+  }, [isAlgeria, productSlug, categoryParam, queryParam])
 
-  const categoryLabel = useMemo(() => {
-    if (!selectedCategory) return 'All categories'
-    return categories.find((c) => c.slug === selectedCategory)?.name || 'Category'
-  }, [categories, selectedCategory])
+  useEffect(() => {
+    if (!isAlgeria || !productSlug) {
+      setProduct(null)
+      return
+    }
+    setLoadingProduct(true)
+    setError('')
+    fetchStoreProduct(productSlug)
+      .then(setProduct)
+      .catch(() => {
+        setProduct(null)
+        setError('Product not found.')
+      })
+      .finally(() => setLoadingProduct(false))
+  }, [isAlgeria, productSlug])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)')
+    const lock = () => {
+      if (mq.matches && sidebarOpen) document.body.style.overflow = 'hidden'
+      else document.body.style.overflow = ''
+    }
+    lock()
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [sidebarOpen])
+
+  const updateParams = (next) => {
+    const params = new URLSearchParams(searchParams)
+    if (next.category !== undefined) {
+      if (next.category) params.set('category', next.category)
+      else params.delete('category')
+    }
+    if (next.q !== undefined) {
+      if (next.q) params.set('q', next.q)
+      else params.delete('q')
+    }
+    setSearchParams(params, { replace: true })
+  }
+
+  const selectCategory = (slug) => {
+    updateParams({ category: slug })
+    navigate(`/shop${buildShopQuery(slug, queryParam)}`)
+    if (window.innerWidth < 1024) setSidebarOpen(false)
+  }
+
+  const setQuery = (q) => {
+    updateParams({ q })
+    if (productSlug) {
+      navigate(`/shop/${productSlug}${buildShopQuery(categoryParam, q)}`)
+    }
+  }
+
+  const backToList = () => {
+    navigate(`/shop${buildShopQuery(categoryParam, queryParam)}`)
+  }
+
+  const handleAdd = (p) => {
+    addItem(p, 1)
+    setAddedId(p.id)
+    setTimeout(() => setAddedId((cur) => (cur === p.id ? null : cur)), 2200)
+  }
+
+  const listQuery = buildShopQuery(categoryParam, queryParam)
+
+  if (!regionLoading && !isAlgeria) {
+    return <StoreNotAvailableInRegion />
+  }
 
   return (
-    <div className="page-shell">
-      <PageHeader highlight="/shop" />
-      <main className="mx-auto max-w-6xl p-4 sm:p-6">
-        <section className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold sm:text-3xl">Shop</h1>
-            <p className="mt-2 text-sm text-dark-muted">
-              Browse ready-to-order electronics and embedded products.
-            </p>
-          </div>
-          {itemCount > 0 && (
-            <Link to="/shop/cart" className="btn-primary text-sm">
-              View cart ({itemCount})
-            </Link>
-          )}
-        </section>
+    <StoreAlgeriaGate loading={regionLoading}>
+    <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
+      <StoreHeader
+        highlight={productSlug ? `/shop/${productSlug}` : '/shop'}
+        searchValue={queryParam}
+        onSearchChange={setQuery}
+        headerStart={
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((o) => !o)}
+            className="theme-toggle-btn site-header-categories-btn flex shrink-0 items-center gap-1.5 !px-2.5"
+            aria-expanded={sidebarOpen}
+            aria-controls="store-category-sidebar"
+            aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
+          >
+            <PanelLeft className="h-5 w-5 shrink-0" />
+            <span className="hidden text-xs lg:inline">{sidebarOpen ? 'Hide' : 'Categories'}</span>
+          </button>
+        }
+      />
 
-        <section className="mb-5 grid gap-3 sm:grid-cols-3">
-          <label className="text-xs text-dark-muted">
-            Category
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
-            >
-              <option value="">All categories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.slug}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="sm:col-span-2 text-xs text-dark-muted">
-            Search
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products..."
-              className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
-            />
-          </label>
-        </section>
+      {!sidebarOpen && (
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="flex w-full items-center justify-center gap-2 border-b border-dark-border bg-dark-panel px-3 py-2.5 text-sm text-dark-text lg:hidden"
+        >
+          <PanelLeft className="h-4 w-4 text-dark-muted" />
+          Browse categories
+        </button>
+      )}
 
-        <p className="mb-3 text-xs text-dark-muted">
-          {categoryLabel} · {products.length} product{products.length === 1 ? '' : 's'}
-        </p>
+      <div className="flex min-h-0 flex-1">
+        <StoreCategorySidebar
+          id="store-category-sidebar"
+          categories={categories}
+          selectedSlug={categoryParam}
+          onSelectCategory={selectCategory}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
-        {error && <p className="mb-4 border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
-
-        {loading ? (
-          <p className="text-sm text-dark-muted animate-pulse">Loading products...</p>
-        ) : products.length === 0 ? (
-          <p className="text-sm text-dark-muted">No products found.</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((p) => (
-              <article key={p.id} className="panel overflow-hidden">
-                {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} className="h-44 w-full object-cover" />
-                ) : (
-                  <div className="h-44 w-full border-b border-dark-border bg-dark-bg" />
-                )}
-                <div className="p-4">
-                  <p className="text-xs text-dark-muted">{p.category_name}</p>
-                  <h2 className="mt-1 text-lg font-semibold">{p.name}</h2>
-                  <p className="mt-2 text-sm text-dark-muted">{p.short_description || p.description || 'No description yet.'}</p>
-                  <div className="mt-4 flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold">{formatUsd(Number(p.price_usd || 0))}</p>
-                      <p className="text-xs text-dark-muted">{formatDzd(Number(p.price_dzd || 0))}</p>
-                    </div>
-                    <p className="text-xs text-dark-muted">
-                      Stock: <span className={p.stock_qty > 0 ? 'text-lab-green' : 'text-red-400'}>{p.stock_qty}</span>
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={p.stock_qty < 1}
-                    onClick={() => {
-                      addItem(p, 1)
-                      setAddedId(p.id)
-                      setTimeout(() => setAddedId((cur) => (cur === p.id ? null : cur)), 2000)
-                    }}
-                    className="btn-primary mt-4 w-full text-sm disabled:opacity-40"
-                  >
-                    {p.stock_qty < 1 ? 'Out of stock' : addedId === p.id ? 'Added!' : 'Add to cart'}
+        <main className="store-main-column min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="px-3 py-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+            {productSlug ? (
+              loadingProduct ? (
+                <p className="text-sm text-dark-muted animate-pulse">Loading product…</p>
+              ) : product ? (
+                <StoreProductDetail
+                  product={product}
+                  onBack={backToList}
+                  onAdd={handleAdd}
+                  added={addedId === product.id}
+                  searchQuery={queryParam}
+                  categorySlug={categoryParam}
+                />
+              ) : (
+                <div className="panel p-6 text-center">
+                  <p className="text-sm text-dark-muted">{error || 'Product not found.'}</p>
+                  <button type="button" onClick={backToList} className="btn-primary mt-4">
+                    Back to store
                   </button>
                 </div>
-              </article>
-            ))}
+              )
+            ) : (
+              <>
+                <div className="mb-4">
+                  <h1 className="font-display text-xl font-semibold sm:text-2xl">Store</h1>
+                  <p className="mt-1 text-sm text-dark-muted">
+                    {activeCategory
+                      ? activeCategory.name
+                      : queryParam
+                        ? `Results for “${queryParam}”`
+                        : 'Hardware and modules ready to ship'}
+                  </p>
+                </div>
+
+                {error && <p className="store-alert store-alert--error mb-4">{error}</p>}
+
+                {loadingList ? (
+                  <div className="store-grid">
+                    {[1, 2, 3, 4].map((n) => (
+                      <div key={n} className="store-skeleton" />
+                    ))}
+                  </div>
+                ) : products.length === 0 ? (
+                  <div className="panel p-8 text-center">
+                    <p className="text-sm text-dark-muted">No products match your filters.</p>
+                  </div>
+                ) : (
+                  <div className="store-grid">
+                    {products.map((p) => (
+                      <StoreProductCard
+                        key={p.id}
+                        product={p}
+                        added={addedId === p.id}
+                        onAdd={handleAdd}
+                        linkTo={`/shop/${p.slug}${listQuery}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        )}
-      </main>
+        </main>
+      </div>
     </div>
+    </StoreAlgeriaGate>
   )
+}
+
+function buildShopQuery(category, q) {
+  const params = new URLSearchParams()
+  if (category) params.set('category', category)
+  if (q) params.set('q', q)
+  const s = params.toString()
+  return s ? `?${s}` : ''
 }

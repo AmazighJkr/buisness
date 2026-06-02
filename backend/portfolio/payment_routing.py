@@ -79,11 +79,8 @@ def start_pack_checkout(
 
 
 def start_store_checkout(request, order, success_url: str, cancel_url: str):
-    provider = payment_provider_for_request(request)
-    if provider == 'chargily':
+    """Store checkout is Algeria-only — always Chargily (DZD), never Stripe."""
+    if chargily_enabled():
         resp = create_store_chargily_checkout(order, success_url, cancel_url)
-        return provider, chargily_checkout_url(resp)
-    if provider == 'stripe':
-        session = create_store_checkout_session(order, success_url, cancel_url)
-        return provider, session.url if session else None
-    return provider, None
+        return 'chargily', chargily_checkout_url(resp)
+    return 'manual', None

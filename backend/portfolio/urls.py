@@ -33,6 +33,8 @@ from .views import (
     AdminMeView,
     AdminProjectViewSet,
     AdminStoreCategoryViewSet,
+    AdminStoreProductGalleryImageView,
+    AdminStoreProductGalleryView,
     AdminStoreProductViewSet,
     AdminSubscriptionPackViewSet,
     AdminUserListCreateView,
@@ -91,4 +93,14 @@ urlpatterns = [
     path('admin/customers/<int:id>/', AdminCustomerDetailView.as_view(), name='admin-customer-detail'),
     path('admin/comments/', AdminCommentListView.as_view(), name='admin-comment-list'),
     path('admin/comments/<uuid:id>/', AdminCommentDestroyView.as_view(), name='admin-comment-delete'),
+    path(
+        'admin/store/products/<uuid:product_id>/gallery/',
+        AdminStoreProductGalleryView.as_view(),
+        name='admin-store-product-gallery',
+    ),
+    path(
+        'admin/store/products/<uuid:product_id>/gallery/<uuid:image_id>/',
+        AdminStoreProductGalleryImageView.as_view(),
+        name='admin-store-product-gallery-image',
+    ),
 ]

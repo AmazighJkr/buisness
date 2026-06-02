@@ -5,8 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .authentication import OptionalJWTAuthentication
+from .chargily_payments import chargily_enabled
 from .models import StoreOrder
-from .payment_routing import payment_provider_for_request, start_store_checkout
+from .payment_routing import start_store_checkout
+from .store_region import require_algeria_store, store_cod_instructions
 from .payments import payment_instructions, payments_auto_confirm, site_base_url
 from .permissions import CanManageStore, IsCustomerUser
 from .serializers import (
@@ -22,6 +24,7 @@ class StoreOrderCreateView(APIView):
     authentication_classes = [OptionalJWTAuthentication]
 
     def post(self, request):
+        require_algeria_store(request)
         ser = StoreOrderCreateSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
@@ -42,10 +45,13 @@ class StoreOrderPayView(APIView):
     authentication_classes = [OptionalJWTAuthentication]
 
     def post(self, request, order_id):
+        require_algeria_store(request)
         try:
             order = StoreOrder.objects.prefetch_related('items').get(id=order_id)
         except StoreOrder.DoesNotExist:
             return Response({'detail': 'Order not found.'}, status=404)
+
+        payment_method = (request.data.get('payment_method') or '').strip().lower()
 
         if order.payment_status == StoreOrder.PaymentStatus.PAID:
             return Response({'detail': 'This order is already paid.'}, status=400)
@@ -54,15 +60,27 @@ class StoreOrderPayView(APIView):
         if order.status == StoreOrder.Status.CANCELLED:
             return Response({'detail': 'This order was cancelled.'}, status=400)
 
-        provider = payment_provider_for_request(request)
-        if provider == 'chargily':
-            if not order.total_dzd or order.total_dzd <= 0:
-                return Response(
-                    {'detail': 'No DZD total for this order.'},
-                    status=400,
-                )
-        elif not order.total_usd or order.total_usd <= 0:
-            return Response({'detail': 'No USD total for this order.'}, status=400)
+        if not order.total_dzd or order.total_dzd <= 0:
+            return Response({'detail': 'No DZD total for this order.'}, status=400)
+
+        if payment_method in ('cod', 'cash_on_delivery', 'delivery'):
+            order.payment_status = StoreOrder.PaymentStatus.PENDING
+            order.save(update_fields=['payment_status', 'updated_at'])
+            return Response({
+                'mode': 'cod',
+                'provider': 'cod',
+                'payment_status': order.payment_status,
+                'currency': 'dzd',
+                'amount': str(order.total_dzd),
+                'instructions': store_cod_instructions(order.order_number),
+                'order': StoreOrderPublicSerializer(order).data,
+            })
+
+        if not chargily_enabled():
+            return Response(
+                {'detail': 'Online card payment is not configured. Choose pay on delivery.'},
+                status=400,
+            )
 
         base = site_base_url(request)
         success = f'{base}/shop/order?number={order.order_number}&paid=1'
@@ -70,11 +88,10 @@ class StoreOrderPayView(APIView):
 
         provider, checkout_url = start_store_checkout(request, order, success, cancel)
         if checkout_url:
-            amount = order.total_dzd if provider == 'chargily' else order.total_usd
             return Response({
                 'checkout_url': checkout_url,
-                'amount': str(amount),
-                'currency': 'dzd' if provider == 'chargily' else 'usd',
+                'amount': str(order.total_dzd),
+                'currency': 'dzd',
                 'payment_status': order.payment_status,
                 'mode': provider,
                 'provider': provider,
@@ -85,10 +102,9 @@ class StoreOrderPayView(APIView):
             order.refresh_from_db()
             return Response(StoreOrderPublicSerializer(order).data)
 
-        amount = order.total_dzd if provider == 'chargily' else order.total_usd
         return Response({
-            'amount': str(amount),
-            'currency': 'dzd' if provider == 'chargily' else 'usd',
+            'amount': str(order.total_dzd),
+            'currency': 'dzd',
             'payment_status': order.payment_status,
             'mode': 'manual',
             'provider': 'manual',

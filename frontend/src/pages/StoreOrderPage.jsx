@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import PageHeader from '../components/PageHeader.jsx'
-import { fetchPaymentConfig, payStoreOrder, trackStoreOrder } from '../api/client.js'
-import { formatDzd, formatStoreTotal, formatUsd, useDzdPricing } from '../utils/formatMoney.js'
+import StoreHeader from '../components/StoreHeader.jsx'
+import { payStoreOrder, trackStoreOrder } from '../api/client.js'
+import { useStoreRegion } from '../hooks/useStoreRegion.js'
+import { formatDzd } from '../utils/formatMoney.js'
 
 const STATUS_LABEL = {
   pending: 'Pending',
@@ -16,21 +17,15 @@ export default function StoreOrderPage() {
   const [searchParams] = useSearchParams()
   const numberParam = searchParams.get('number') || ''
   const paidBanner = searchParams.get('paid') === '1'
-  const manualBanner = searchParams.get('manual') === '1'
+  const codBanner = searchParams.get('cod') === '1'
+  const { chargily } = useStoreRegion()
 
   const [trackNumber, setTrackNumber] = useState(numberParam)
   const [trackEmail, setTrackEmail] = useState('')
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [paymentProvider, setPaymentProvider] = useState('stripe')
   const [paying, setPaying] = useState(false)
-
-  const useDzd = useDzdPricing(paymentProvider)
-
-  useEffect(() => {
-    fetchPaymentConfig().then((cfg) => setPaymentProvider(cfg.provider || 'stripe')).catch(() => {})
-  }, [])
 
   useEffect(() => {
     if (!numberParam) return
@@ -52,17 +47,22 @@ export default function StoreOrderPage() {
     }
   }
 
-  const retryPay = async () => {
+  const retryPay = async (method) => {
     if (!order?.id) return
     setPaying(true)
     setError('')
     try {
-      const result = await payStoreOrder(order.id, {}, paymentProvider)
+      const result = await payStoreOrder(order.id, { payment_method: method })
       if (result.checkout_url) {
         window.location.href = result.checkout_url
         return
       }
-      setError(result.instructions || 'Use manual payment instructions.')
+      if (result.mode === 'cod') {
+        setError('')
+        window.location.reload()
+        return
+      }
+      setError(result.instructions || 'Could not start payment.')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -72,7 +72,7 @@ export default function StoreOrderPage() {
 
   return (
     <div className="page-shell">
-      <PageHeader highlight="/shop" />
+      <StoreHeader highlight="/shop/order" />
       <main className="mx-auto max-w-2xl p-4 sm:p-6">
         <h1 className="text-2xl font-semibold">Order status</h1>
 
@@ -81,9 +81,10 @@ export default function StoreOrderPage() {
             Thank you — payment received. We will process your order shortly.
           </p>
         )}
-        {manualBanner && (
-          <p className="mt-4 border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
-            Order placed. Complete payment using the instructions we sent or contact support with your order number.
+        {codBanner && (
+          <p className="mt-4 border border-lab-cyan/40 bg-lab-cyan/10 px-3 py-2 text-sm text-lab-cyan">
+            Order placed. Pay in cash when your package is delivered. We will contact you to confirm
+            shipping.
           </p>
         )}
 
@@ -124,14 +125,12 @@ export default function StoreOrderPage() {
             <p className="mt-2 text-sm">
               Status: <span className="text-lab-cyan">{STATUS_LABEL[order.status] || order.status}</span>
               {' · '}
-              Payment: <span className={order.payment_status === 'paid' ? 'text-lab-green' : ''}>{order.payment_status}</span>
+              Payment:{' '}
+              <span className={order.payment_status === 'paid' ? 'text-lab-green' : ''}>
+                {order.payment_status}
+              </span>
             </p>
-            <p className="mt-2 text-sm font-semibold">
-              {formatStoreTotal(Number(order.total_usd), Number(order.total_dzd), useDzd)}
-            </p>
-            <p className="mt-1 text-xs text-dark-muted">
-              Also shown as {formatUsd(order.total_usd)} / {formatDzd(order.total_dzd)}
-            </p>
+            <p className="mt-2 text-sm font-semibold">{formatDzd(Number(order.total_dzd))}</p>
 
             <ul className="mt-4 space-y-2 border-t border-dark-border pt-4 text-sm">
               {order.items?.map((line) => (
@@ -139,19 +138,32 @@ export default function StoreOrderPage() {
                   <span>
                     {line.product_name} × {line.quantity}
                   </span>
-                  <span>
-                    {useDzd
-                      ? formatDzd(Number(line.unit_price_dzd) * line.quantity)
-                      : formatUsd(Number(line.unit_price_usd) * line.quantity)}
-                  </span>
+                  <span>{formatDzd(Number(line.unit_price_dzd) * line.quantity)}</span>
                 </li>
               ))}
             </ul>
 
             {order.payment_status === 'pending' && order.status !== 'cancelled' && (
-              <button type="button" onClick={retryPay} disabled={paying} className="btn-primary mt-4 w-full">
-                {paying ? 'Starting payment…' : 'Pay now'}
-              </button>
+              <div className="mt-4 flex flex-col gap-2">
+                {chargily && (
+                  <button
+                    type="button"
+                    onClick={() => retryPay('chargily')}
+                    disabled={paying}
+                    className="btn-primary w-full"
+                  >
+                    {paying ? 'Starting…' : 'Pay now with card (Chargily)'}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => retryPay('cod')}
+                  disabled={paying}
+                  className="w-full rounded border border-dark-border px-4 py-2 text-sm hover:border-lab-cyan"
+                >
+                  Confirm pay on delivery
+                </button>
+              </div>
             )}
           </section>
         )}

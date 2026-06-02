@@ -3,19 +3,13 @@ import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import NavAccount from './NavAccount.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
+import { NAV_LAB } from '../config/siteNav.js'
 
 const SECTIONS = [
   { id: 'home', label: 'Home' },
   { id: 'enterprise', label: 'Enterprise' },
   { id: 'services', label: 'Services' },
   { id: 'contact', label: 'Contact' },
-]
-
-const PAGE_LINKS = [
-  { to: '/projects', label: 'Projects' },
-  { to: '/subscriptions', label: 'Subscriptions' },
-  { to: '/command', label: 'Submit command' },
-  { to: '/track', label: 'Track command' },
 ]
 
 export default function LandingNav() {
@@ -67,8 +61,8 @@ export default function LandingNav() {
               {s.label}
             </button>
           ))}
-          <span className="mx-1 h-4 w-px bg-dark-border" aria-hidden />
-          {PAGE_LINKS.map(({ to, label }) => (
+          <span className="site-nav-divider" aria-hidden />
+          {NAV_LAB.map(({ to, label }) => (
             <Link key={to} to={to} className="site-nav-link">
               {label}
             </Link>
@@ -76,6 +70,9 @@ export default function LandingNav() {
         </nav>
 
         <div className="site-header-actions">
+          <Link to="/shop" className="store-entry-btn">
+            Store
+          </Link>
           <ThemeToggle compact />
           <NavAccount />
           <div className="site-nav-mobile">
@@ -115,7 +112,7 @@ export default function LandingNav() {
               </button>
             ))}
             <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">Lab</p>
-            {PAGE_LINKS.map(({ to, label }) => (
+            {NAV_LAB.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
@@ -125,6 +122,14 @@ export default function LandingNav() {
                 {label}
               </Link>
             ))}
+            <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">Store</p>
+            <Link
+              to="/shop"
+              onClick={() => setMenuOpen(false)}
+              className="site-nav-drawer-link site-nav-drawer-link--store mb-1 block rounded-md px-3 py-2.5 text-sm"
+            >
+              Open store
+            </Link>
             <Link
               to="/account"
               onClick={() => setMenuOpen(false)}

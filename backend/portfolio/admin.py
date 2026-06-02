@@ -18,6 +18,7 @@ from .models import (
     StoreOrder,
     StoreOrderItem,
     StoreProduct,
+    StoreProductImage,
     UserSocialAuth,
     UserSubscription,
 )
@@ -273,6 +274,12 @@ class StoreCategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+class StoreProductImageInline(admin.TabularInline):
+    model = StoreProductImage
+    extra = 1
+    fields = ('image', 'alt_text', 'sort_order')
+
+
 @admin.register(StoreProduct)
 class StoreProductAdmin(admin.ModelAdmin):
     list_display = (
@@ -290,6 +297,7 @@ class StoreProductAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created_at', 'updated_at')
     autocomplete_fields = ('category',)
     prepopulated_fields = {'slug': ('name',)}
+    inlines = [StoreProductImageInline]
 
 
 class StoreOrderItemInline(admin.TabularInline):

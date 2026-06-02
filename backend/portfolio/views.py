@@ -128,6 +128,12 @@ class StoreCategoryListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = StoreCategoryPublicSerializer
 
+    def initial(self, request, *args, **kwargs):
+        from .store_region import require_algeria_store
+
+        super().initial(request, *args, **kwargs)
+        require_algeria_store(request)
+
     def get_queryset(self):
         return (
             StoreCategory.objects.filter(is_active=True)
@@ -140,9 +146,16 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     serializer_class = StoreProductPublicSerializer
     lookup_field = 'id'
+    lookup_url_kwarg = 'id'
+
+    def initial(self, request, *args, **kwargs):
+        from .store_region import require_algeria_store
+
+        super().initial(request, *args, **kwargs)
+        require_algeria_store(request)
 
     def get_queryset(self):
-        qs = StoreProduct.objects.select_related('category').filter(
+        qs = StoreProduct.objects.select_related('category').prefetch_related('gallery').filter(
             is_active=True,
             category__is_active=True,
         )
@@ -154,8 +167,29 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         if featured and featured.lower() in ('1', 'true', 'yes'):
             qs = qs.filter(is_featured=True)
         if q:
-            qs = qs.filter(name__icontains=q)
+            from django.db.models import Q
+
+            qs = qs.filter(
+                Q(name__icontains=q)
+                | Q(short_description__icontains=q)
+                | Q(description__icontains=q),
+            )
         return qs.order_by('-is_featured', 'sort_order', 'name')
+
+    def get_object(self):
+        import uuid as uuid_mod
+
+        from django.shortcuts import get_object_or_404
+
+        lookup = self.kwargs[self.lookup_url_kwarg]
+        qs = self.get_queryset()
+        try:
+            uuid_mod.UUID(str(lookup))
+            return qs.get(id=lookup)
+        except ValueError:
+            return get_object_or_404(qs, slug=lookup)
+        except StoreProduct.DoesNotExist:
+            return get_object_or_404(qs, slug=lookup)
 
     @action(detail=True, methods=['get', 'post'], url_path='comments')
     def comments(self, request, id=None):
@@ -320,11 +354,53 @@ class AdminStoreCategoryViewSet(viewsets.ModelViewSet):
 
 
 class AdminStoreProductViewSet(viewsets.ModelViewSet):
-    queryset = StoreProduct.objects.select_related('category').all()
+    queryset = StoreProduct.objects.select_related('category').prefetch_related('gallery').all()
     serializer_class = AdminStoreProductSerializer
     permission_classes = [CanManageStore]
     lookup_field = 'id'
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class AdminStoreProductGalleryView(APIView):
+    """Upload extra product photos (shown in the store gallery)."""
+
+    permission_classes = [CanManageStore]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, product_id):
+        from django.shortcuts import get_object_or_404
+
+        from .models import StoreProduct, StoreProductImage
+        from .serializers import AdminStoreProductSerializer
+
+        product = get_object_or_404(StoreProduct, id=product_id)
+        files = request.FILES.getlist('images')
+        if not files:
+            return Response({'detail': 'Choose one or more image files.'}, status=400)
+        start = product.gallery.count()
+        for i, uploaded in enumerate(files):
+            StoreProductImage.objects.create(
+                product=product,
+                image=uploaded,
+                sort_order=start + i,
+            )
+        product = StoreProduct.objects.prefetch_related('gallery').get(id=product.id)
+        return Response(
+            AdminStoreProductSerializer(product, context={'request': request}).data,
+        )
+
+
+class AdminStoreProductGalleryImageView(APIView):
+    permission_classes = [CanManageStore]
+
+    def delete(self, request, product_id, image_id):
+        from django.shortcuts import get_object_or_404
+
+        from .models import StoreProductImage
+
+        image = get_object_or_404(StoreProductImage, id=image_id, product_id=product_id)
+        image.delete()
+        return Response(status=204)
 
 
 class AdminCommandViewSet(viewsets.GenericViewSet):
