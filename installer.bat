@@ -106,7 +106,7 @@ if "%ERR%"=="0" (
   echo.
   echo   ONLINE ^(Render^): git push - see RENDER.md
   echo   LOCAL prod test: run.bat production
-  echo   Admin: http://localhost:5173/admin-panel
+  echo   Admin: http://127.0.0.1:8000/admin/
   echo   Command: http://localhost:5173/command
 ) else (
   echo   FINISHED WITH ERRORS - Fix messages above and re-run.

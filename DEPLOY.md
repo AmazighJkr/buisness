@@ -11,8 +11,7 @@ Locally you run **two** processes (Vite `:5173` + Django `:8000`). On the server
 | `/` | React website (home, projects, command, track) |
 | `/api/...` | Django API (same as local) |
 | `/media/...` | Uploaded images/files |
-| `/admin-panel` | Staff admin UI (React) |
-| `/admin/` | Django built-in admin (optional) |
+| `/admin/` | Staff admin UI (Django admin) |
 
 The frontend uses **relative** API URLs (`/api/...`), so no second IP or `VITE_API_URL` is needed in production.
 
@@ -70,7 +69,7 @@ backend/media/     (entire folder)
    deploy\run_production.bat
    ```
 5. Open `http://SERVER_IP:8000` in a browser.
-6. Admin panel: `http://SERVER_IP:8000/admin-panel`  
+6. Admin panel: `http://SERVER_IP:8000/admin/`  
    Default admin (if seeded): `admin` / `admin_lab_2026` — change after login.
 
 ### Linux server

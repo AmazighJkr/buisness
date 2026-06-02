@@ -26,9 +26,9 @@ export default function Navbar() {
               {label}
             </NavLink>
           ))}
-          <Link to="/admin-panel" className="text-sm text-theme-muted hover:text-theme-fg">
+          <a href="/admin/" className="text-sm text-theme-muted hover:text-theme-fg">
             Admin
-          </Link>
+          </a>
         </nav>
       </div>
     </header>

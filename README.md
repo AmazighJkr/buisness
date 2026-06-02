@@ -1,6 +1,6 @@
 # Embedded Systems & IoT Portfolio
 
-React + Django portfolio with admin panel, project lab pages, and client command tracking.
+React + Django portfolio with Django admin, project lab pages, and client command tracking.
 
 Works in **two places** with the same codebase:
 
@@ -30,7 +30,7 @@ run.bat
 ```
 
 - **Site:** http://localhost:5173  
-- **Admin:** http://localhost:5173/admin-panel  
+- **Admin:** http://127.0.0.1:8000/admin/  
 - **API:** http://127.0.0.1:8000/api/projects/  
 
 Login: `admin` / `admin_lab_2026` (from `ensure_admin`)

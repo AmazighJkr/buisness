@@ -24,7 +24,7 @@ After deploy, in the web service → **Environment**:
 | `ADMIN_USERNAME` | `admin` (default) |
 | `ADMIN_PASSWORD` | Auto-generated — click **eye** icon to reveal |
 
-Admin panel: `https://YOUR-APP.onrender.com/admin-panel`
+Admin panel: `https://YOUR-APP.onrender.com/admin/`
 
 Change `ADMIN_PASSWORD` in Environment and redeploy (or run **Shell** → `python manage.py changepassword admin`).
 
@@ -107,7 +107,7 @@ Until Cloudinary: re-upload schematics after each deploy. Use images **under 5 M
 
 ### Customer accounts
 - Public **Register / Sign in** at `/account` (not the admin panel).
-- Admin staff still use `/admin-panel` and `ADMIN_PASSWORD`.
+- Admin staff use `/admin/` and `ADMIN_PASSWORD`.
 
 ### Command payment bills
 1. Admin → **Commands** → set status **Accepted**, enter **Quoted price**, set payment **Pending**.
@@ -224,5 +224,5 @@ Or: Dashboard → your service → **Manual Deploy** → **Deploy latest commit*
 | Build fails on `npm` | Ensure `NODE_VERSION=20.18.0` is set |
 | 400 Bad Request / DisallowedHost | `RENDER_EXTERNAL_HOSTNAME` is set automatically; add custom domain to `ALLOWED_HOSTS` env |
 | Admin login fails | Check `ADMIN_PASSWORD` in Environment; redeploy after changing it |
-| Empty site | Set `SEED_DEMO=true` and redeploy, or add projects in admin panel |
+| Empty site | Set `SEED_DEMO=true` and redeploy, or add projects in Django admin |
 | Build logs | Dashboard → **Logs** → **Build** / **Deploy** |

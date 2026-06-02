@@ -18,7 +18,7 @@ def _env_nonempty(key: str) -> str | None:
 
 
 class Command(BaseCommand):
-    help = 'Create or reset the local admin superuser for the admin panel'
+    help = 'Create or reset the local admin superuser for Django admin'
 
     def add_arguments(self, parser):
         parser.add_argument('--username', default=None)
@@ -49,11 +49,10 @@ class Command(BaseCommand):
         if render_host:
             base = f'https://{render_host}'
             self.stdout.write(f'  Site: {base}/')
-            self.stdout.write(f'  Admin panel: {base}/admin-panel')
+            self.stdout.write(f'  Admin panel: {base}/admin/')
             self.stdout.write('  Password: set via ADMIN_PASSWORD in Render (not printed)')
         else:
-            self.stdout.write('  Admin panel: http://localhost:5173/admin-panel')
-            self.stdout.write('  Django admin: http://127.0.0.1:8000/admin/')
+            self.stdout.write('  Admin panel: http://127.0.0.1:8000/admin/')
             if _env_nonempty('ADMIN_PASSWORD'):
                 self.stdout.write('  Password: from ADMIN_PASSWORD env (not printed)')
             elif options['password'] is not None:
