@@ -1,37 +1,27 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import LandingNav from '../components/LandingNav.jsx'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { submitCommand } from '../api/client.js'
 
-const PILLARS = [
-  { title: 'Sector Leader', text: 'Engineering depth across electronics, firmware, and connected products.' },
-  { title: 'Trusted Service', text: 'Clear communication, reliable delivery, and long-term technical partnership.' },
-  { title: 'Innovation First', text: 'Modern stacks—from bare-metal MCUs to cloud dashboards and mobile apps.' },
-]
-
-const SERVICES = [
-  {
-    title: 'Embedded Systems Engineering',
-    text: 'Custom firmware, PCB bring-up, sensor integration, and production-ready device logic.',
-  },
-  {
-    title: 'IoT & Connected Platforms',
-    text: 'MQTT/cloud pipelines, remote monitoring, OTA updates, and secure device-to-cloud architecture.',
-  },
-  {
-    title: 'Android & Companion Apps',
-    text: 'Mobile interfaces for configuration, live telemetry, and field diagnostics.',
-  },
-  {
-    title: 'Technical Consulting',
-    text: 'Architecture reviews, feasibility studies, maintenance planning, and team guidance.',
-  },
-]
-
 export default function LandingPage() {
+  const { t } = useTranslation()
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState('')
   const [tracking, setTracking] = useState(null)
+
+  const pillars = [
+    { title: t('landing.pillarSector'), text: t('landing.pillarSectorText') },
+    { title: t('landing.pillarTrusted'), text: t('landing.pillarTrustedText') },
+    { title: t('landing.pillarInnovation'), text: t('landing.pillarInnovationText') },
+  ]
+
+  const services = [
+    { title: t('landing.svcEmbedded'), text: t('landing.svcEmbeddedText') },
+    { title: t('landing.svcIot'), text: t('landing.svcIotText') },
+    { title: t('landing.svcAndroid'), text: t('landing.svcAndroidText') },
+    { title: t('landing.svcConsulting'), text: t('landing.svcConsultingText') },
+  ]
 
   const handleContact = async (e) => {
     e.preventDefault()
@@ -45,7 +35,7 @@ export default function LandingPage() {
         objectives: 'Contact form — website inquiry',
       })
       setTracking(result)
-      setStatus('Message sent. Save your tracking link below to follow progress.')
+      setStatus(t('landing.formSuccess'))
       setForm({ name: '', email: '', message: '' })
     } catch (err) {
       setStatus(err.message)
@@ -56,7 +46,6 @@ export default function LandingPage() {
     <div className="page-shell">
       <LandingNav />
 
-      {/* HOME */}
       <section
         id="home"
         className="hero-section relative flex min-h-screen items-center justify-center pt-16"
@@ -70,25 +59,17 @@ export default function LandingPage() {
           <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
             EmbeddedGrid
           </h1>
-          <p className="mt-4 text-base text-dark-muted sm:text-lg md:text-xl">
-            IT, Electronics, Maintenance &amp; Consulting
-          </p>
-          <p className="mx-auto mt-6 max-w-2xl text-sm text-dark-muted">
-            Informatique, Électronique, Maintenance &amp; Consulting — delivered in English and French
-            for teams who build real hardware.
-          </p>
+          <p className="mt-4 text-base text-dark-muted sm:text-lg md:text-xl">{t('landing.tagline')}</p>
+          <p className="mx-auto mt-6 max-w-2xl text-sm text-dark-muted">{t('landing.subtitle')}</p>
         </div>
       </section>
 
-      {/* ENTERPRISE */}
       <section id="enterprise" className="border-t border-dark-border py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="font-display text-2xl font-semibold">Enterprise</h2>
-          <p className="mt-2 max-w-2xl text-sm text-dark-muted">
-            Who we are — a lab focused on dependable embedded products and honest engineering.
-          </p>
+          <h2 className="font-display text-2xl font-semibold">{t('landing.enterpriseTitle')}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-dark-muted">{t('landing.enterpriseLead')}</p>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
-            {PILLARS.map((p) => (
+            {pillars.map((p) => (
               <div key={p.title} className="feature-card">
                 <h3>{p.title}</h3>
                 <p className="mt-2 text-sm text-dark-muted">{p.text}</p>
@@ -98,12 +79,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* SERVICES */}
       <section id="services" className="landing-section-alt py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="font-display text-2xl font-semibold">Services</h2>
+          <h2 className="font-display text-2xl font-semibold">{t('landing.servicesTitle')}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-dark-muted">{t('landing.servicesLead')}</p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
-            {SERVICES.map((s) => (
+            {services.map((s) => (
               <div key={s.title} className="feature-card">
                 <h3>{s.title}</h3>
                 <p className="mt-2 text-sm text-dark-muted">{s.text}</p>
@@ -113,22 +94,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CONTACT */}
       <section id="contact" className="border-t border-dark-border py-20">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-2 sm:px-6">
           <div>
-            <h2 className="font-display text-2xl font-semibold">Contact</h2>
+            <h2 className="font-display text-2xl font-semibold">{t('landing.contactTitle')}</h2>
             <p className="mt-2 text-sm text-dark-muted">
-              Quick message below, or{' '}
+              {t('landing.contactLead')}{' '}
               <Link to="/command" className="text-dark-text underline">
-                submit a full project command
-              </Link>{' '}
-              with specs, budget, and file attachments.
+                {t('nav.submitCommand')}
+              </Link>
             </p>
             <form onSubmit={handleContact} className="mt-6 space-y-4" autoComplete="off">
               <input
                 required
-                placeholder="Name"
+                placeholder={t('landing.formName')}
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 className="input-field"
@@ -136,7 +115,7 @@ export default function LandingPage() {
               <input
                 required
                 type="email"
-                placeholder="Email"
+                placeholder={t('landing.formEmail')}
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 className="input-field"
@@ -144,24 +123,24 @@ export default function LandingPage() {
               <textarea
                 required
                 rows={5}
-                placeholder="Message"
+                placeholder={t('landing.formMessage')}
                 value={form.message}
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                 className="input-field resize-y min-h-[8rem]"
               />
               <button type="submit" className="btn-primary w-full sm:w-auto">
-                Send message
+                {t('landing.formSend')}
               </button>
               {status && <p className="text-xs text-dark-muted">{status}</p>}
               {tracking?.tracking_code && (
                 <div className="mt-3 border border-dark-border bg-dark-bg p-3 text-xs">
-                  <p className="text-dark-muted">Your tracking code:</p>
+                  <p className="text-dark-muted">{t('landing.trackingLabel')}</p>
                   <p className="mt-1 font-mono text-base text-dark-text">{tracking.tracking_code}</p>
                   <Link
                     to={`/track?code=${encodeURIComponent(tracking.tracking_code)}`}
                     className="mt-2 inline-block text-dark-text underline"
                   >
-                    Open command tracker
+                    {t('landing.trackProgress')}
                   </Link>
                 </div>
               )}
@@ -169,22 +148,12 @@ export default function LandingPage() {
           </div>
 
           <div className="feature-card">
-            <h3 className="font-display text-lg font-semibold">Reach us</h3>
+            <h3 className="font-display text-lg font-semibold">EmbeddedGrid</h3>
             <ul className="mt-4 space-y-3 text-sm text-dark-muted">
               <li>
                 <span className="text-dark-text">Email</span>
                 <br />
                 lab@embeddedgrid.dev
-              </li>
-              <li>
-                <span className="text-dark-text">Discord</span>
-                <br />
-                discord.gg/embeddedgrid
-              </li>
-              <li>
-                <span className="text-dark-text">WhatsApp</span>
-                <br />
-                +00 000 000 0000
               </li>
             </ul>
           </div>

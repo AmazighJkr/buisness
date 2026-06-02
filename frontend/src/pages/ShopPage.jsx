@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { PanelLeft } from 'lucide-react'
 import StoreHeader from '../components/StoreHeader.jsx'
+import StoreSearchBar from '../components/store/StoreSearchBar.jsx'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import StoreCategorySidebar from '../components/store/StoreCategorySidebar.jsx'
 import StoreProductCard from '../components/store/StoreProductCard.jsx'
 import StoreProductDetail from '../components/store/StoreProductDetail.jsx'
@@ -12,6 +14,7 @@ import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import { useStoreSidebar } from '../hooks/useStoreSidebar.js'
 
 export default function ShopPage() {
+  const { t } = useTranslation()
   const { productSlug } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -123,8 +126,7 @@ export default function ShopPage() {
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <StoreHeader
         highlight={productSlug ? `/shop/${productSlug}` : '/shop'}
-        searchValue={queryParam}
-        onSearchChange={setQuery}
+        searchSlot={<StoreSearchBar value={queryParam} onChange={setQuery} />}
         headerStart={
           <button
             type="button"
@@ -132,10 +134,12 @@ export default function ShopPage() {
             className="theme-toggle-btn site-header-categories-btn flex shrink-0 items-center gap-1.5 !px-2.5"
             aria-expanded={sidebarOpen}
             aria-controls="store-category-sidebar"
-            aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
+            aria-label={sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
           >
             <PanelLeft className="h-5 w-5 shrink-0" />
-            <span className="hidden text-xs lg:inline">{sidebarOpen ? 'Hide' : 'Categories'}</span>
+            <span className="hidden text-xs lg:inline">
+              {sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
+            </span>
           </button>
         }
       />
@@ -147,7 +151,7 @@ export default function ShopPage() {
           className="flex w-full items-center justify-center gap-2 border-b border-dark-border bg-dark-panel px-3 py-2.5 text-sm text-dark-text lg:hidden"
         >
           <PanelLeft className="h-4 w-4 text-dark-muted" />
-          Browse categories
+          {t('nav.browseCategories')}
         </button>
       )}
 

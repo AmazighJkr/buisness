@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Send } from 'lucide-react'
 import PageHeader from '../components/PageHeader.jsx'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
 import { fetchProjects, submitCommand } from '../api/client.js'
 
 export default function CommandPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const preselectedProject = searchParams.get('project') || ''
   const { user, isLoggedIn } = useUserSession()
@@ -83,7 +85,7 @@ export default function CommandPage() {
       <PageHeader highlight="/command" />
 
       <main className="mx-auto max-w-3xl px-3 py-6 sm:px-4 sm:py-8">
-        <h1 className="text-2xl font-semibold">Submit a command</h1>
+        <h1 className="text-2xl font-semibold">{t('command.title')}</h1>
         <p className="mt-2 text-sm text-dark-muted">
           {isLoggedIn
             ? 'Your command is linked to your account. Track it anytime from the Track page — no code needed.'

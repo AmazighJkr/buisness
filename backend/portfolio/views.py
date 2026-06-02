@@ -114,13 +114,23 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         return ProjectListSerializer
 
     def get_queryset(self):
+        from django.db.models import Q
+
         qs = super().get_queryset()
         sub = self.request.query_params.get('subcategory')
         featured = self.request.query_params.get('featured')
+        q = (self.request.query_params.get('q') or '').strip()
         if sub:
             qs = qs.filter(subcategory_id=sub)
         elif featured and featured.lower() in ('1', 'true', 'yes'):
             qs = qs.filter(is_featured=True)
+        if q:
+            qs = qs.filter(
+                Q(title__icontains=q)
+                | Q(description__icontains=q)
+                | Q(subcategory__name__icontains=q)
+                | Q(subcategory__parent__name__icontains=q),
+            )
         return qs
 
 

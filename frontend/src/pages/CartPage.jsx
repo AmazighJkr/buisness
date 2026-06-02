@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom'
 import StoreHeader from '../components/StoreHeader.jsx'
 import StoreAlgeriaGate, { StoreNotAvailableInRegion } from '../components/store/StoreAlgeriaGate.jsx'
 import { useCart } from '../hooks/useCart.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import { formatDzd } from '../utils/formatMoney.js'
 
 export default function CartPage() {
+  const { t } = useTranslation()
   const { loading: regionLoading, isAlgeria } = useStoreRegion()
   const { items, itemCount, subtotalDzd, setQuantity, removeItem } = useCart()
 
@@ -18,17 +20,17 @@ export default function CartPage() {
       <div className="page-shell">
         <StoreHeader highlight="/shop/cart" />
         <main className="mx-auto max-w-3xl p-4 sm:p-6">
-          <h1 className="font-display text-2xl font-semibold">Your bag</h1>
+          <h1 className="font-display text-2xl font-semibold">{t('cart.title')}</h1>
           <p className="mt-2 text-sm text-dark-muted">
-            {itemCount} item{itemCount === 1 ? '' : 's'} · prices in DZD
+            {itemCount} · {t('cart.pricesDzd')}
           </p>
 
           {items.length === 0 ? (
             <div className="panel mt-6 p-6 text-center">
-              <p className="text-sm text-dark-muted">Your cart is empty.</p>
-              <Link to="/shop" className="btn-primary mt-4 inline-block">
-                Browse shop
-              </Link>
+            <p className="text-sm text-dark-muted">{t('cart.empty')}</p>
+            <Link to="/shop" className="btn-primary mt-4 inline-block">
+              {t('cart.browse')}
+            </Link>
             </div>
           ) : (
             <>
@@ -81,7 +83,7 @@ export default function CartPage() {
                   state={{ freshCheckout: true }}
                   className="btn-primary mt-4 block w-full text-center"
                 >
-                  Checkout
+                  {t('cart.checkout')}
                 </Link>
               </div>
             </>

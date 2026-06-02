@@ -5,12 +5,15 @@ import CategorySidebar from '../components/CategorySidebar.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
+import SearchBar from '../components/SearchBar.jsx'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
 import { useUserSession } from '../hooks/useUserSession.js'
 import { fetchCategories, fetchProject, fetchProjects } from '../api/client.js'
 import { accountUrlWithNext, subscriptionsUrlForProject } from '../utils/projectAccess.js'
 
 export default function ProjectsPage() {
+  const { t } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useProjectsSidebar()
@@ -20,6 +23,7 @@ export default function ProjectsPage() {
   const [categories, setCategories] = useState([])
   const [expanded, setExpanded] = useState({})
   const [selectedSubId, setSelectedSubId] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [projects, setProjects] = useState([])
   const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -31,21 +35,21 @@ export default function ProjectsPage() {
       .then(setCategories)
       .catch((err) => {
         setCategories([])
-        setLoadError(err.message || 'Could not load categories.')
+        setLoadError(err.message || t('projects.categoriesError'))
       })
-  }, [])
+  }, [t])
 
   useEffect(() => {
     setLoading(true)
     setLoadError('')
-    fetchProjects(selectedSubId || null)
+    fetchProjects(selectedSubId || null, { q: searchQuery.trim() })
       .then(setProjects)
       .catch((err) => {
         setProjects([])
-        setLoadError(err.message || 'Could not load projects.')
+        setLoadError(err.message || t('projects.loadError'))
       })
       .finally(() => setLoading(false))
-  }, [selectedSubId, accessKey])
+  }, [selectedSubId, searchQuery, accessKey, t])
 
   useEffect(() => {
     if (!projectId) {
@@ -109,10 +113,20 @@ export default function ProjectsPage() {
     if (window.innerWidth < 1024) closeSidebar()
   }
 
+  const searchBar = (
+    <SearchBar
+      value={searchQuery}
+      onChange={setSearchQuery}
+      placeholder={t('projects.searchPlaceholder')}
+      ariaLabel={t('projects.searchPlaceholder')}
+    />
+  )
+
   return (
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <PageHeader
         highlight="/projects"
+        searchSlot={searchBar}
         headerStart={
           <button
             type="button"
@@ -120,10 +134,12 @@ export default function ProjectsPage() {
             className="theme-toggle-btn site-header-categories-btn flex shrink-0 items-center gap-1.5 !px-2.5"
             aria-expanded={sidebarOpen}
             aria-controls="projects-category-sidebar"
-            aria-label={sidebarOpen ? 'Hide categories' : 'Show categories'}
+            aria-label={sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
           >
             <PanelLeft className="h-5 w-5 shrink-0" />
-            <span className="hidden text-xs lg:inline">{sidebarOpen ? 'Hide' : 'Categories'}</span>
+            <span className="hidden text-xs lg:inline">
+              {sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
+            </span>
           </button>
         }
       />
@@ -135,7 +151,7 @@ export default function ProjectsPage() {
           className="flex w-full items-center justify-center gap-2 border-b border-dark-border bg-dark-panel px-3 py-2.5 text-sm text-dark-text lg:hidden"
         >
           <PanelLeft className="h-4 w-4 text-dark-muted" />
-          Browse categories
+          {t('nav.browseCategories')}
         </button>
       )}
 
@@ -160,21 +176,25 @@ export default function ProjectsPage() {
               />
             </div>
           ) : projectId && (sessionLoading || project?.locked) ? (
-            <div className="p-6 text-sm text-dark-muted animate-pulse">Loading…</div>
+            <div className="p-6 text-sm text-dark-muted animate-pulse">{t('common.loading')}</div>
           ) : (
             <div className="p-3 sm:p-6">
               <div className="mb-4 sm:mb-6">
                 <h1 className="text-base font-semibold sm:text-lg">
-                  {selectedSubId ? 'Projects' : 'All projects'}
+                  {searchQuery.trim()
+                    ? `${t('projects.title')} — “${searchQuery.trim()}”`
+                    : selectedSubId
+                      ? t('projects.title')
+                      : t('projects.allProjects')}
                 </h1>
                 <p className="text-xs text-dark-muted">
-                  {selectedSubId
-                    ? 'Filtered by subcategory — free projects open without an account'
-                    : 'Featured projects appear first. Free projects need no sign-in; pack projects unlock with a subscription.'}
+                  {selectedSubId ? t('projects.filtered') : t('projects.intro')}
                 </p>
                 {hasActivePack && (
                   <p className="mt-1 text-xs text-lab-cyan">
-                    Signed in — your active pack{user.subscriptions?.length > 1 ? 's' : ''} unlock matching projects.
+                    {(user.subscriptions?.length || 0) > 1
+                      ? t('projects.signedInPacks')
+                      : t('projects.signedInPack')}
                   </p>
                 )}
               </div>
@@ -185,20 +205,20 @@ export default function ProjectsPage() {
                   {loadError.toLowerCase().includes('token') && (
                     <span>
                       {' '}
-                      Try{' '}
                       <Link to="/account" className="underline">
-                        signing in again
-                      </Link>{' '}
-                      or clear site data for this domain.
+                        {t('nav.account')}
+                      </Link>
                     </span>
                   )}
                 </p>
               )}
 
               {loading ? (
-                <p className="text-sm text-dark-muted animate-pulse">Loading...</p>
+                <p className="text-sm text-dark-muted animate-pulse">{t('common.loading')}</p>
               ) : !loadError && projects.length === 0 ? (
-                <p className="text-sm text-dark-muted">No projects here yet.</p>
+                <p className="text-sm text-dark-muted">
+                  {searchQuery.trim() ? t('projects.noResults') : t('projects.noProjects')}
+                </p>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                   {projects.map((p) => (

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import ProjectLockedPanel from './ProjectLockedPanel.jsx'
 import CodePanel from './CodePanel.jsx'
 import MaterialsTable from './MaterialsTable.jsx'
@@ -14,6 +15,7 @@ function hasMaterials(materials) {
 }
 
 export default function ProjectDetailContent({ project, onBack }) {
+  const { t } = useTranslation()
   const [schematicFailed, setSchematicFailed] = useState(false)
   const schematicSrc = resolveMediaUrl(project.schematic_url)
   const libs = project.libraries_list || []
@@ -32,7 +34,7 @@ export default function ProjectDetailContent({ project, onBack }) {
           onClick={onBack}
           className="text-sm text-dark-muted transition-colors hover:text-dark-text"
         >
-          ← Back to list
+          {t('projects.backToList')}
         </button>
         <ProjectLockedPanel project={project} />
       </div>
@@ -46,7 +48,7 @@ export default function ProjectDetailContent({ project, onBack }) {
         onClick={onBack}
         className="text-sm text-dark-muted transition-colors hover:text-dark-text"
       >
-        ← Back to list
+        {t('projects.backToList')}
       </button>
 
       <SectionBox>

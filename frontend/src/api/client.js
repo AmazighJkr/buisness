@@ -142,12 +142,14 @@ async function fetchPaginatedList(initialUrl) {
   return items
 }
 
-export async function fetchProjects(subcategoryId, { featured = false } = {}) {
+export async function fetchProjects(subcategoryId, { featured = false, q = '' } = {}) {
   const params = new URLSearchParams()
   if (subcategoryId) params.set('subcategory', subcategoryId)
   else if (featured) params.set('featured', 'true')
-  const q = params.toString()
-  const url = `${API_BASE}/api/projects/${q ? `?${q}` : ''}`
+  const query = (q || '').trim()
+  if (query) params.set('q', query)
+  const qs = params.toString()
+  const url = `${API_BASE}/api/projects/${qs ? `?${qs}` : ''}`
   return fetchPaginatedList(url)
 }
 

@@ -1,27 +1,14 @@
-import { Search, X } from 'lucide-react'
+import SearchBar from '../SearchBar.jsx'
+import { useTranslation } from '../../context/LocaleContext.jsx'
 
-export default function StoreSearchBar({ value, onChange, placeholder = 'Search products…' }) {
+export default function StoreSearchBar({ value, onChange, placeholder }) {
+  const { t } = useTranslation()
   return (
-    <div className="store-search-bar">
-      <Search className="store-search-bar__icon" aria-hidden />
-      <input
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="store-search-bar__input"
-        aria-label="Search products"
-      />
-      {value ? (
-        <button
-          type="button"
-          onClick={() => onChange('')}
-          className="store-search-bar__clear"
-          aria-label="Clear search"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      ) : null}
-    </div>
+    <SearchBar
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder || t('store.searchProducts')}
+      ariaLabel={t('store.searchProducts')}
+    />
   )
 }
