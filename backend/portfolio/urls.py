@@ -16,6 +16,13 @@ from .payment_views import (
     PaymentConfigView,
     StripeWebhookView,
 )
+from .store_views import (
+    AdminStoreOrderViewSet,
+    MyStoreOrdersListView,
+    StoreOrderCreateView,
+    StoreOrderPayView,
+    StoreOrderTrackView,
+)
 from .views import (
     AdminCategoryViewSet,
     AdminCommentDestroyView,
@@ -25,6 +32,8 @@ from .views import (
     AdminCustomerListView,
     AdminMeView,
     AdminProjectViewSet,
+    AdminStoreCategoryViewSet,
+    AdminStoreProductViewSet,
     AdminSubscriptionPackViewSet,
     AdminUserListCreateView,
     CategoryListView,
@@ -34,19 +43,30 @@ from .views import (
     MyCommandsListView,
     ProjectCommandCreateView,
     ProjectViewSet,
+    StoreCategoryListView,
+    StoreProductViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet, basename='project')
+router.register(r'store/products', StoreProductViewSet, basename='store-product')
 
 admin_router = DefaultRouter()
 admin_router.register(r'projects', AdminProjectViewSet, basename='admin-project')
 admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-category')
 admin_router.register(r'commands', AdminCommandViewSet, basename='admin-command')
 admin_router.register(r'packs', AdminSubscriptionPackViewSet, basename='admin-pack')
+admin_router.register(r'store/categories', AdminStoreCategoryViewSet, basename='admin-store-category')
+admin_router.register(r'store/products', AdminStoreProductViewSet, basename='admin-store-product')
+admin_router.register(r'store/orders', AdminStoreOrderViewSet, basename='admin-store-order')
 
 urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
+    path('store/categories/', StoreCategoryListView.as_view(), name='store-category-list'),
+    path('store/orders/', StoreOrderCreateView.as_view(), name='store-order-create'),
+    path('store/orders/track/', StoreOrderTrackView.as_view(), name='store-order-track'),
+    path('store/orders/mine/', MyStoreOrdersListView.as_view(), name='store-order-mine'),
+    path('store/orders/<uuid:order_id>/pay/', StoreOrderPayView.as_view(), name='store-order-pay'),
     path('', include(router.urls)),
     path('commands/', ProjectCommandCreateView.as_view(), name='command-create'),
     path('commands/mine/', MyCommandsListView.as_view(), name='command-mine-list'),

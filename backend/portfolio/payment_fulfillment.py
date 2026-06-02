@@ -1,6 +1,7 @@
 """Mark commands paid / activate subscriptions from payment provider metadata."""
 
 from .models import ProjectCommand, UserSubscription
+from .store_orders import fulfill_store_order
 from .subscriptions import complete_subscription_from_metadata
 
 
@@ -27,3 +28,7 @@ def fulfill_payment_metadata(meta: dict) -> None:
             complete_subscription_from_metadata(sub, meta)
         except UserSubscription.DoesNotExist:
             pass
+    elif kind == 'store_order':
+        order_id = meta.get('store_order_id')
+        if order_id:
+            fulfill_store_order(order_id)

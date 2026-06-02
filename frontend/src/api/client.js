@@ -151,6 +151,57 @@ export async function fetchProjects(subcategoryId, { featured = false } = {}) {
   return fetchPaginatedList(url)
 }
 
+export async function fetchStoreCategories() {
+  const data = await publicFetch(`${API_BASE}/api/store/categories/`)
+  return data.results ?? data
+}
+
+export async function fetchStoreProducts({ category = '', featured = false, q = '' } = {}) {
+  const params = new URLSearchParams()
+  if (category) params.set('category', category)
+  if (featured) params.set('featured', 'true')
+  if (q) params.set('q', q)
+  const qs = params.toString()
+  const data = await publicFetch(`${API_BASE}/api/store/products/${qs ? `?${qs}` : ''}`)
+  return data.results ?? data
+}
+
+export async function createStoreOrder(payload) {
+  const res = await fetch(`${API_BASE}/api/store/orders/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getUserHeaders(false) },
+    body: JSON.stringify(payload),
+  })
+  return handleResponse(res)
+}
+
+export async function payStoreOrder(orderId, body = {}, provider) {
+  const { headers, provider: p } = await paymentRequestOptions(provider)
+  const q = paymentRoutingParams(p, null)
+  const res = await fetch(`${API_BASE}/api/store/orders/${orderId}/pay/?${q}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...headers, ...getUserHeaders(false) },
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export async function trackStoreOrder(orderNumber, email) {
+  const res = await fetch(`${API_BASE}/api/store/orders/track/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      order_number: orderNumber.trim().toUpperCase(),
+      email: email.trim().toLowerCase(),
+    }),
+  })
+  return handleResponse(res)
+}
+
+export async function fetchMyStoreOrders() {
+  return userFetch(`${API_BASE}/api/store/orders/mine/`)
+}
+
 /** Featured-only grid (e.g. homepage highlights). Most pages should use fetchProjects(). */
 export async function fetchFeaturedProjects() {
   return fetchProjects(null, { featured: true })
@@ -561,6 +612,82 @@ export async function adminFetchCategories() {
   return data.results ?? data
 }
 
+export async function adminFetchStoreCategories() {
+  const res = await fetch(`${API_BASE}/api/admin/store/categories/`, { headers: getAdminHeaders() })
+  const data = await handleResponse(res)
+  return data.results ?? data
+}
+
+export async function adminCreateStoreCategory(formData) {
+  return apiFetch(`${API_BASE}/api/admin/store/categories/`, {
+    method: 'POST',
+    headers: adminHeadersMultipart(),
+    body: formData,
+  })
+}
+
+export async function adminUpdateStoreCategory(id, formData) {
+  return apiFetch(`${API_BASE}/api/admin/store/categories/${id}/`, {
+    method: 'PATCH',
+    headers: adminHeadersMultipart(),
+    body: formData,
+  })
+}
+
+export async function adminDeleteStoreCategory(id) {
+  const res = await fetch(`${API_BASE}/api/admin/store/categories/${id}/`, {
+    method: 'DELETE',
+    headers: getAdminHeaders(),
+  })
+  if (res.status === 204) return null
+  return handleResponse(res)
+}
+
+export async function adminFetchStoreProducts() {
+  const res = await fetch(`${API_BASE}/api/admin/store/products/`, { headers: getAdminHeaders() })
+  const data = await handleResponse(res)
+  return data.results ?? data
+}
+
+export async function adminCreateStoreProduct(formData) {
+  return apiFetch(`${API_BASE}/api/admin/store/products/`, {
+    method: 'POST',
+    headers: adminHeadersMultipart(),
+    body: formData,
+  })
+}
+
+export async function adminUpdateStoreProduct(id, formData) {
+  return apiFetch(`${API_BASE}/api/admin/store/products/${id}/`, {
+    method: 'PATCH',
+    headers: adminHeadersMultipart(),
+    body: formData,
+  })
+}
+
+export async function adminDeleteStoreProduct(id) {
+  const res = await fetch(`${API_BASE}/api/admin/store/products/${id}/`, {
+    method: 'DELETE',
+    headers: getAdminHeaders(),
+  })
+  if (res.status === 204) return null
+  return handleResponse(res)
+}
+
+export async function adminFetchStoreOrders() {
+  const res = await fetch(`${API_BASE}/api/admin/store/orders/`, { headers: getAdminHeaders() })
+  const data = await handleResponse(res)
+  return data.results ?? data
+}
+
+export async function adminUpdateStoreOrder(id, body) {
+  return apiFetch(`${API_BASE}/api/admin/store/orders/${id}/`, {
+    method: 'PATCH',
+    headers: getAdminHeaders(),
+    body: JSON.stringify(body),
+  })
+}
+
 export async function adminCreateCategory(body) {
   const res = await fetch(`${API_BASE}/api/admin/categories/`, {
     method: 'POST',
@@ -593,6 +720,7 @@ export const PERM_LABELS = {
   edit_project: 'Edit projects',
   manage_categories: 'Manage categories',
   manage_packs: 'Manage subscription packs',
+  manage_store: 'Manage store catalog',
   view_commands: 'View commands',
   respond_commands: 'Respond to commands',
   moderate_comment: 'Delete comments',

@@ -104,6 +104,29 @@ def create_pack_chargily_checkout(
     return _client().create_checkout(checkout)
 
 
+def create_store_chargily_checkout(order, success_url: str, failure_url: str):
+    if not chargily_enabled():
+        return None
+    amount = dzd_checkout_amount(order.total_dzd)
+    if amount <= 0:
+        return None
+    meta = _metadata_strings({
+        'type': 'store_order',
+        'store_order_id': str(order.id),
+        'order_number': order.order_number,
+    })
+    checkout = Checkout(
+        amount=amount,
+        currency='dzd',
+        success_url=success_url,
+        failure_url=failure_url,
+        description=f'EmbeddedGrid shop {order.order_number}'[:255],
+        locale='ar',
+        metadata=meta,
+    )
+    return _client().create_checkout(checkout)
+
+
 def verify_chargily_signature(signature: str, payload: bytes) -> bool:
     secret = chargily_secret_key()
     if not secret or not signature:

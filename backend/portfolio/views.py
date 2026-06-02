@@ -16,6 +16,8 @@ from .models import (
     ProjectCategory,
     ProjectCommand,
     SubscriptionPack,
+    StoreCategory,
+    StoreProduct,
     UserSubscription,
 )
 from .permissions import (
@@ -24,6 +26,7 @@ from .permissions import (
     CanManageCategories,
     CanManageCustomers,
     CanManagePacks,
+    CanManageStore,
     CanManageUsers,
     CanPostProject,
     CanRespondCommands,
@@ -36,6 +39,8 @@ from .serializers import (
     AdminProjectSerializer,
     AdminUserCreateSerializer,
     AdminUserSerializer,
+    AdminStoreCategorySerializer,
+    AdminStoreProductSerializer,
     CategoryAdminSerializer,
     CategoryTreeSerializer,
     CommentCreateSerializer,
@@ -51,6 +56,8 @@ from .serializers import (
     ProjectCommandTrackSerializer,
     ProjectDetailSerializer,
     ProjectListSerializer,
+    StoreCategoryPublicSerializer,
+    StoreProductPublicSerializer,
     PORTFOLIO_PERMS,
     SubscriptionPackAdminSerializer,
 )
@@ -115,6 +122,40 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         elif featured and featured.lower() in ('1', 'true', 'yes'):
             qs = qs.filter(is_featured=True)
         return qs
+
+
+class StoreCategoryListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = StoreCategoryPublicSerializer
+
+    def get_queryset(self):
+        return (
+            StoreCategory.objects.filter(is_active=True)
+            .annotate(product_count=Count('products'))
+            .order_by('sort_order', 'name')
+        )
+
+
+class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = StoreProductPublicSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        qs = StoreProduct.objects.select_related('category').filter(
+            is_active=True,
+            category__is_active=True,
+        )
+        category = self.request.query_params.get('category')
+        featured = self.request.query_params.get('featured')
+        q = (self.request.query_params.get('q') or '').strip()
+        if category:
+            qs = qs.filter(category__slug=category)
+        if featured and featured.lower() in ('1', 'true', 'yes'):
+            qs = qs.filter(is_featured=True)
+        if q:
+            qs = qs.filter(name__icontains=q)
+        return qs.order_by('-is_featured', 'sort_order', 'name')
 
     @action(detail=True, methods=['get', 'post'], url_path='comments')
     def comments(self, request, id=None):
@@ -268,6 +309,22 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategoryAdminSerializer
     permission_classes = [CanManageCategories]
     lookup_field = 'id'
+
+
+class AdminStoreCategoryViewSet(viewsets.ModelViewSet):
+    queryset = StoreCategory.objects.all().order_by('sort_order', 'name')
+    serializer_class = AdminStoreCategorySerializer
+    permission_classes = [CanManageStore]
+    lookup_field = 'id'
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class AdminStoreProductViewSet(viewsets.ModelViewSet):
+    queryset = StoreProduct.objects.select_related('category').all()
+    serializer_class = AdminStoreProductSerializer
+    permission_classes = [CanManageStore]
+    lookup_field = 'id'
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 
 class AdminCommandViewSet(viewsets.GenericViewSet):

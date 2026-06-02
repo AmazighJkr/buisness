@@ -14,6 +14,10 @@ from .models import (
     ProjectCategory,
     ProjectCommand,
     SubscriptionPack,
+    StoreCategory,
+    StoreOrder,
+    StoreOrderItem,
+    StoreProduct,
     UserSocialAuth,
     UserSubscription,
 )
@@ -30,6 +34,7 @@ PORTFOLIO_PERMS = (
     'respond_commands',
     'moderate_comment',
     'manage_packs',
+    'manage_store',
 )
 
 class AccountTypeFilter(admin.SimpleListFilter):
@@ -257,6 +262,66 @@ class UserSocialAuthAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'provider_uid')
     raw_id_fields = ('user',)
     readonly_fields = ('id', 'created_at')
+
+
+@admin.register(StoreCategory)
+class StoreCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'is_active', 'sort_order', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'slug', 'description')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(StoreProduct)
+class StoreProductAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'category',
+        'price_usd',
+        'price_dzd',
+        'stock_qty',
+        'is_active',
+        'is_featured',
+        'sort_order',
+    )
+    list_filter = ('is_active', 'is_featured', 'category')
+    search_fields = ('name', 'slug', 'short_description', 'description')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+    autocomplete_fields = ('category',)
+    prepopulated_fields = {'slug': ('name',)}
+
+
+class StoreOrderItemInline(admin.TabularInline):
+    model = StoreOrderItem
+    extra = 0
+    readonly_fields = (
+        'product_name',
+        'product_slug',
+        'quantity',
+        'unit_price_usd',
+        'unit_price_dzd',
+    )
+    autocomplete_fields = ('product',)
+
+
+@admin.register(StoreOrder)
+class StoreOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        'order_number',
+        'customer_name',
+        'customer_email',
+        'status',
+        'payment_status',
+        'total_usd',
+        'total_dzd',
+        'created_at',
+    )
+    list_filter = ('status', 'payment_status', 'created_at')
+    search_fields = ('order_number', 'customer_name', 'customer_email', 'customer_phone')
+    readonly_fields = ('id', 'order_number', 'paid_at', 'created_at', 'updated_at')
+    inlines = [StoreOrderItemInline]
+    autocomplete_fields = ('user',)
 
 
 class CustomerSubscriptionInline(admin.TabularInline):

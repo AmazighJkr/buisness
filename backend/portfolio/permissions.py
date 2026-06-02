@@ -73,3 +73,12 @@ class CanManagePacks(BasePermission):
         return request.user.has_perm('portfolio.manage_packs') or request.user.has_perm(
             'portfolio.edit_project',
         )
+
+
+class CanManageStore(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return request.user.has_perm('portfolio.manage_store')

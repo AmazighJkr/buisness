@@ -6,6 +6,10 @@ import CommandPage from './pages/CommandPage.jsx'
 import AccountPage from './pages/AccountPage.jsx'
 import SubscriptionsPage from './pages/SubscriptionsPage.jsx'
 import AdminPanelPage from './pages/AdminPanelPage.jsx'
+import ShopPage from './pages/ShopPage.jsx'
+import CartPage from './pages/CartPage.jsx'
+import CheckoutPage from './pages/CheckoutPage.jsx'
+import StoreOrderPage from './pages/StoreOrderPage.jsx'
 
 function AdminRedirect() {
   if (typeof window !== 'undefined') {
@@ -24,6 +28,10 @@ export default function App() {
       <Route index element={<LandingPage />} />
       <Route path="projects" element={<ProjectsPage />} />
       <Route path="projects/:projectId" element={<ProjectsPage />} />
+      <Route path="shop" element={<ShopPage />} />
+      <Route path="shop/cart" element={<CartPage />} />
+      <Route path="shop/checkout" element={<CheckoutPage />} />
+      <Route path="shop/order" element={<StoreOrderPage />} />
       <Route path="command" element={<CommandPage />} />
       <Route path="track" element={<CommandTrackPage />} />
       <Route path="account" element={<AccountPage />} />

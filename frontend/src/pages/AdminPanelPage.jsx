@@ -26,6 +26,8 @@ import {
 import AdminCategories from '../components/AdminCategories.jsx'
 import AdminCustomers from '../components/AdminCustomers.jsx'
 import AdminPacks from '../components/AdminPacks.jsx'
+import AdminStore from '../components/AdminStore.jsx'
+import AdminStoreOrders from '../components/AdminStoreOrders.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
 import CommandComposer from '../components/CommandComposer.jsx'
@@ -151,6 +153,7 @@ export default function AdminPanelPage() {
       await loadData(me)
       if (hasPerm(me, 'post_project')) setTab('post')
       else if (hasPerm(me, 'view_commands')) setTab('commands')
+      else if (hasPerm(me, 'manage_store')) setTab('store')
       else if (me.is_superuser) setTab('users')
     }
     setLoading(false)
@@ -391,6 +394,10 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
   if (hasPerm(user, 'edit_project') || user.is_superuser) tabs.push(['packs', 'Packs'])
+  if (hasPerm(user, 'manage_store') || user.is_superuser) {
+    tabs.push(['store', 'Store'])
+    tabs.push(['store-orders', 'Orders'])
+  }
   if (user.is_superuser) tabs.push(['clients', 'Clients'])
   if (user.is_superuser) tabs.push(['users', 'Staff'])
 
@@ -627,6 +634,10 @@ export default function AdminPanelPage() {
       {tab === 'categories' && hasPerm(user, 'manage_categories') && <AdminCategories />}
 
       {tab === 'packs' && (hasPerm(user, 'edit_project') || user.is_superuser) && <AdminPacks />}
+      {tab === 'store' && (hasPerm(user, 'manage_store') || user.is_superuser) && <AdminStore />}
+      {tab === 'store-orders' && (hasPerm(user, 'manage_store') || user.is_superuser) && (
+        <AdminStoreOrders />
+      )}
 
       {tab === 'clients' && user.is_superuser && <AdminCustomers />}
 

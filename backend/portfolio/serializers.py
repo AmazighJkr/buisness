@@ -1,5 +1,6 @@
 import json
 import os
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count
@@ -15,6 +16,10 @@ from .models import (
     ProjectCategory,
     ProjectCommand,
     SubscriptionPack,
+    StoreCategory,
+    StoreOrder,
+    StoreOrderItem,
+    StoreProduct,
     UserSubscription,
 )
 from .access import project_access, required_packs_for, user_can_view_project
@@ -30,6 +35,7 @@ PORTFOLIO_PERMS = [
     'respond_commands',
     'moderate_comment',
     'manage_packs',
+    'manage_store',
 ]
 
 
@@ -110,6 +116,47 @@ class CategoryTreeSerializer(serializers.ModelSerializer):
             'sort_order', 'name',
         )
         return CategoryChildSerializer(kids, many=True).data
+
+
+class StoreCategoryPublicSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    product_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = StoreCategory
+        fields = ['id', 'name', 'slug', 'description', 'image_url', 'product_count', 'sort_order']
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
+
+class StoreProductPublicSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    category_slug = serializers.CharField(source='category.slug', read_only=True)
+
+    class Meta:
+        model = StoreProduct
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'short_description',
+            'description',
+            'image_url',
+            'price_usd',
+            'price_dzd',
+            'stock_qty',
+            'is_featured',
+            'category',
+            'category_name',
+            'category_slug',
+            'sort_order',
+            'created_at',
+        ]
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
@@ -319,6 +366,192 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
         if self.instance and parent and parent.id == self.instance.id:
             raise serializers.ValidationError({'parent': 'A category cannot be its own parent.'})
         return attrs
+
+
+class AdminStoreCategorySerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField(read_only=True)
+    product_count = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = StoreCategory
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'description',
+            'image',
+            'image_url',
+            'is_active',
+            'sort_order',
+            'product_count',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+
+    def validate_image(self, value):
+        if value:
+            validate_upload_extension(value)
+            if value.size > 5 * 1024 * 1024:
+                raise serializers.ValidationError('Category image must be 5 MB or smaller.')
+        return value
+
+
+class AdminStoreProductSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField(read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+
+    class Meta:
+        model = StoreProduct
+        fields = [
+            'id',
+            'category',
+            'category_name',
+            'name',
+            'slug',
+            'short_description',
+            'description',
+            'image',
+            'image_url',
+            'price_usd',
+            'price_dzd',
+            'stock_qty',
+            'is_active',
+            'is_featured',
+            'sort_order',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
+    def validate_image(self, value):
+        if value:
+            validate_upload_extension(value)
+            if value.size > 5 * 1024 * 1024:
+                raise serializers.ValidationError('Product image must be 5 MB or smaller.')
+        return value
+
+
+class StoreOrderItemSerializer(serializers.ModelSerializer):
+    line_total_usd = serializers.SerializerMethodField()
+    line_total_dzd = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StoreOrderItem
+        fields = [
+            'id',
+            'product',
+            'product_name',
+            'product_slug',
+            'quantity',
+            'unit_price_usd',
+            'unit_price_dzd',
+            'line_total_usd',
+            'line_total_dzd',
+        ]
+
+    def get_line_total_usd(self, obj):
+        return str(Decimal(obj.unit_price_usd) * obj.quantity)
+
+    def get_line_total_dzd(self, obj):
+        return str(Decimal(obj.unit_price_dzd) * obj.quantity)
+
+
+class StoreOrderPublicSerializer(serializers.ModelSerializer):
+    items = StoreOrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StoreOrder
+        fields = [
+            'id',
+            'order_number',
+            'customer_name',
+            'customer_email',
+            'customer_phone',
+            'shipping_address',
+            'status',
+            'payment_status',
+            'total_usd',
+            'total_dzd',
+            'notes',
+            'paid_at',
+            'created_at',
+            'items',
+        ]
+
+
+class StoreOrderCreateSerializer(serializers.Serializer):
+    customer_name = serializers.CharField(max_length=120)
+    customer_email = serializers.EmailField()
+    customer_phone = serializers.CharField(max_length=40, required=False, allow_blank=True)
+    shipping_address = serializers.CharField()
+    notes = serializers.CharField(required=False, allow_blank=True)
+    items = serializers.ListField(
+        child=serializers.DictField(),
+        allow_empty=False,
+    )
+
+
+class AdminStoreOrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreOrderItem
+        fields = [
+            'id',
+            'product',
+            'product_name',
+            'product_slug',
+            'quantity',
+            'unit_price_usd',
+            'unit_price_dzd',
+        ]
+
+
+class AdminStoreOrderSerializer(serializers.ModelSerializer):
+    items = AdminStoreOrderItemSerializer(many=True, read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True, default=None)
+
+    class Meta:
+        model = StoreOrder
+        fields = [
+            'id',
+            'order_number',
+            'user',
+            'username',
+            'customer_name',
+            'customer_email',
+            'customer_phone',
+            'shipping_address',
+            'status',
+            'payment_status',
+            'total_usd',
+            'total_dzd',
+            'notes',
+            'admin_notes',
+            'paid_at',
+            'created_at',
+            'updated_at',
+            'items',
+        ]
+        read_only_fields = [
+            'id',
+            'order_number',
+            'user',
+            'total_usd',
+            'total_dzd',
+            'paid_at',
+            'created_at',
+            'updated_at',
+            'items',
+        ]
 
 
 class AdminProjectSerializer(serializers.ModelSerializer):

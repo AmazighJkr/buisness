@@ -27,3 +27,7 @@ export function formatCommandBill(command, useDzd) {
   }
   return formatUsd(command.quoted_price)
 }
+
+export function formatStoreTotal(usd, dzd, useDzd) {
+  return useDzd ? formatDzd(dzd) : formatUsd(usd)
+}

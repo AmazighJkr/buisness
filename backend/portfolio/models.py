@@ -277,6 +277,131 @@ class SubscriptionPack(models.Model):
         return self.name
 
 
+class StoreCategory(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=120, unique=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='store/categories/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+        permissions = [
+            ('manage_store', 'Can manage store catalog'),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class StoreProduct(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    category = models.ForeignKey(
+        StoreCategory,
+        on_delete=models.PROTECT,
+        related_name='products',
+    )
+    name = models.CharField(max_length=160)
+    slug = models.SlugField(max_length=180, unique=True)
+    short_description = models.CharField(max_length=220, blank=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='store/products/', blank=True, null=True)
+    price_usd = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    price_dzd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    stock_qty = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_featured', 'sort_order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+class StoreOrder(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        PROCESSING = 'processing', 'Processing'
+        SHIPPED = 'shipped', 'Shipped'
+        DELIVERED = 'delivered', 'Delivered'
+        CANCELLED = 'cancelled', 'Cancelled'
+
+    class PaymentStatus(models.TextChoices):
+        NONE = 'none', 'None'
+        PENDING = 'pending', 'Pending payment'
+        PAID = 'paid', 'Paid'
+        FAILED = 'failed', 'Failed'
+        WAIVED = 'waived', 'Waived'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order_number = models.CharField(max_length=20, unique=True, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='store_orders',
+    )
+    customer_name = models.CharField(max_length=120)
+    customer_email = models.EmailField()
+    customer_phone = models.CharField(max_length=40, blank=True)
+    shipping_address = models.TextField()
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    payment_status = models.CharField(
+        max_length=12,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.PENDING,
+    )
+    total_usd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_dzd = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    notes = models.TextField(blank=True)
+    admin_notes = models.TextField(blank=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.order_number
+
+
+class StoreOrderItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order = models.ForeignKey(
+        StoreOrder,
+        on_delete=models.CASCADE,
+        related_name='items',
+    )
+    product = models.ForeignKey(
+        StoreProduct,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='order_items',
+    )
+    product_name = models.CharField(max_length=160)
+    product_slug = models.SlugField(max_length=180, blank=True)
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price_usd = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    unit_price_dzd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    class Meta:
+        ordering = ['product_name']
+
+    def __str__(self):
+        return f'{self.product_name} x{self.quantity}'
+
+
 class UserSubscription(models.Model):
     class Status(models.TextChoices):
         PENDING = 'pending', 'Pending payment'

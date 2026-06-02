@@ -128,6 +128,40 @@ def create_pack_checkout_session(
     )
 
 
+def create_store_checkout_session(order, success_url: str, cancel_url: str):
+    if not stripe_enabled():
+        return None
+    if not order.total_usd or order.total_usd <= 0:
+        return None
+    stripe = _stripe()
+    line_items = []
+    for line in order.items.all():
+        line_items.append({
+            'quantity': line.quantity,
+            'price_data': {
+                'currency': os.getenv('PAYMENT_CURRENCY', 'usd'),
+                'unit_amount': _money(line.unit_price_usd),
+                'product_data': {
+                    'name': line.product_name[:120],
+                },
+            },
+        })
+    if not line_items:
+        return None
+    return stripe.checkout.Session.create(
+        mode='payment',
+        success_url=success_url,
+        cancel_url=cancel_url,
+        client_reference_id=str(order.id),
+        metadata={
+            'type': 'store_order',
+            'store_order_id': str(order.id),
+            'order_number': order.order_number,
+        },
+        line_items=line_items,
+    )
+
+
 def site_base_url(request):
     host = request.build_absolute_uri('/').rstrip('/')
     if getattr(settings, 'SERVE_FRONTEND', False):

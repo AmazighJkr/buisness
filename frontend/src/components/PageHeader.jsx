@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import NavAccount from './NavAccount.jsx'
+import NavCart from './NavCart.jsx'
 import { SiteNavDesktop, SiteNavMobile, SiteNavProvider } from './SiteNav.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 
@@ -20,6 +21,7 @@ export default function PageHeader({ highlight = '', headerStart = null, beforeL
 
           <div className="site-header-actions">
             <ThemeToggle compact />
+            <NavCart />
             <NavAccount />
             <SiteNavMobile />
           </div>
