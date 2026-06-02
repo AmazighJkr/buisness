@@ -4,8 +4,6 @@ import os
 import re
 
 from django.contrib.auth import get_user_model
-from google.auth.transport import requests as google_requests
-from google.oauth2 import id_token
 
 from .models import UserSocialAuth
 
@@ -25,6 +23,13 @@ def verify_google_credential(credential: str) -> dict:
     client_id = google_client_id()
     if not client_id:
         raise ValueError('Google sign-in is not configured on this server.')
+    try:
+        from google.auth.transport import requests as google_requests
+        from google.oauth2 import id_token
+    except Exception as exc:
+        raise ValueError(
+            'Google sign-in dependency is missing on this server. Install backend requirements and restart.',
+        ) from exc
     try:
         return id_token.verify_oauth2_token(
             credential,

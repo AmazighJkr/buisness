@@ -3,6 +3,7 @@ from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group, Permission
+from django import forms
 from django.utils import timezone
 from django.utils.html import format_html
 
@@ -18,6 +19,9 @@ from .models import (
 )
 
 User = get_user_model()
+admin.site.site_header = 'EmbeddedGrid Administration'
+admin.site.site_title = 'EmbeddedGrid Admin'
+admin.site.index_title = 'Operations'
 PORTFOLIO_PERMS = (
     'post_project',
     'edit_project',
@@ -27,6 +31,23 @@ PORTFOLIO_PERMS = (
     'moderate_comment',
     'manage_packs',
 )
+
+class AccountTypeFilter(admin.SimpleListFilter):
+    title = 'account type'
+    parameter_name = 'account_type'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('staff', 'Staff'),
+            ('client', 'Client'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'staff':
+            return queryset.filter(is_staff=True)
+        if self.value() == 'client':
+            return queryset.filter(is_staff=False)
+        return queryset
 
 
 @admin.register(ProjectCategory)
@@ -44,8 +65,28 @@ class ProjectCommentInline(admin.TabularInline):
     readonly_fields = ('timestamp',)
 
 
+class ProjectAdminForm(forms.ModelForm):
+    pack_memberships = forms.ModelMultipleChoiceField(
+        queryset=SubscriptionPack.objects.all(),
+        required=False,
+        help_text='Assign this project to one or more subscription packs.',
+        widget=admin.widgets.FilteredSelectMultiple('Packs', is_stacked=False),
+    )
+
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pack_memberships'].queryset = SubscriptionPack.objects.order_by('sort_order', 'name')
+        if self.instance and self.instance.pk:
+            self.fields['pack_memberships'].initial = self.instance.packs.all()
+
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
+    form = ProjectAdminForm
     list_display = (
         'title',
         'subcategory',
@@ -61,11 +102,17 @@ class ProjectAdmin(admin.ModelAdmin):
     inlines = [ProjectCommentInline]
     fieldsets = (
         ('Identity', {'fields': ('id', 'subcategory', 'title', 'description')}),
-        ('Visibility & Access', {'fields': ('is_featured', 'featured_order', 'is_free')}),
+        ('Visibility & Access', {'fields': ('is_featured', 'featured_order', 'is_free', 'pack_memberships')}),
         ('Content', {'fields': ('materials', 'wiring', 'libraries', 'simulation_url', 'video_url')}),
         ('Code & Files', {'fields': ('schematic_image', 'source_code', 'code_files')}),
         ('Audit', {'fields': ('created_at', 'updated_at')}),
     )
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        packs = form.cleaned_data.get('pack_memberships')
+        if packs is not None:
+            form.instance.packs.set(packs)
 
 
 class CommandMessageInline(admin.TabularInline):
@@ -152,6 +199,19 @@ class ProjectCommandAdmin(admin.ModelAdmin):
         updated = queryset.update(status=ProjectCommand.Status.ACCEPTED)
         queryset.filter(accepted_at__isnull=True).update(accepted_at=now)
         self.message_user(request, f'Accepted {updated} command(s).', messages.SUCCESS)
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for obj in instances:
+            if isinstance(obj, CommandMessage) and not obj.pk:
+                # Mirror React admin chat behavior: new admin messages are staff authored.
+                obj.role = CommandMessage.AuthorRole.STAFF
+                if not obj.author_name:
+                    obj.author_name = 'EmbeddedGrid'
+                if not obj.staff_user_id:
+                    obj.staff_user = request.user
+            obj.save()
+        formset.save_m2m()
 
 
 @admin.register(CommandMessage)
@@ -267,7 +327,7 @@ class PortfolioUserAdmin(DjangoUserAdmin):
         'commands_count',
         'last_login',
     )
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+    list_filter = (AccountTypeFilter, 'is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('-date_joined',)
     filter_horizontal = ('groups', 'user_permissions')

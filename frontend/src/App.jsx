@@ -5,6 +5,18 @@ import CommandTrackPage from './pages/CommandTrackPage.jsx'
 import CommandPage from './pages/CommandPage.jsx'
 import AccountPage from './pages/AccountPage.jsx'
 import SubscriptionsPage from './pages/SubscriptionsPage.jsx'
+import AdminPanelPage from './pages/AdminPanelPage.jsx'
+
+function AdminRedirect() {
+  if (typeof window !== 'undefined') {
+    const isDev = import.meta.env.DEV
+    const adminUrl = isDev
+      ? `http://${window.location.hostname}:8000/admin/`
+      : '/admin/'
+    window.location.replace(adminUrl)
+  }
+  return null
+}
 
 export default function App() {
   return (
@@ -16,6 +28,10 @@ export default function App() {
       <Route path="track" element={<CommandTrackPage />} />
       <Route path="account" element={<AccountPage />} />
       <Route path="subscriptions" element={<SubscriptionsPage />} />
+      <Route path="admin" element={<AdminRedirect />} />
+      <Route path="admin/" element={<AdminRedirect />} />
+      <Route path="admin-panel" element={<AdminPanelPage />} />
+      <Route path="admin-panel/" element={<AdminPanelPage />} />
     </Routes>
   )
 }
