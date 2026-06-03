@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { PanelLeft } from 'lucide-react'
 import StoreHeader from '../components/StoreHeader.jsx'
+import SidebarRail from '../components/SidebarRail.jsx'
 import StoreSearchBar from '../components/store/StoreSearchBar.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import StoreCategorySidebar from '../components/store/StoreCategorySidebar.jsx'
@@ -126,36 +126,14 @@ export default function ShopPage() {
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <StoreHeader
         highlight={productSlug ? `/shop/${productSlug}` : '/shop'}
-        searchSlot={<StoreSearchBar value={queryParam} onChange={setQuery} />}
-        headerStart={
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((o) => !o)}
-            className="theme-toggle-btn site-header-categories-btn flex shrink-0 items-center gap-1.5 !px-2.5"
-            aria-expanded={sidebarOpen}
-            aria-controls="store-category-sidebar"
-            aria-label={sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
-          >
-            <PanelLeft className="h-5 w-5 shrink-0" />
-            <span className="hidden text-xs lg:inline">
-              {sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
-            </span>
-          </button>
-        }
+        subheader={<StoreSearchBar value={queryParam} onChange={setQuery} />}
       />
 
-      {!sidebarOpen && (
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-          className="flex w-full items-center justify-center gap-2 border-b border-dark-border bg-dark-panel px-3 py-2.5 text-sm text-dark-text lg:hidden"
-        >
-          <PanelLeft className="h-4 w-4 text-dark-muted" />
-          {t('nav.browseCategories')}
-        </button>
-      )}
-
       <div className="flex min-h-0 flex-1">
+        {!sidebarOpen && (
+          <SidebarRail onOpen={() => setSidebarOpen(true)} controlsId="store-category-sidebar" />
+        )}
+
         <StoreCategorySidebar
           id="store-category-sidebar"
           categories={categories}

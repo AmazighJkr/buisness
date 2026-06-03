@@ -25,7 +25,9 @@ export const translations = {
       theme: 'Theme',
       categories: 'Categories',
       hideCategories: 'Hide',
+      showCategories: 'Show categories',
       browseCategories: 'Browse categories',
+      allProjects: 'All projects',
       openMenu: 'Open menu',
       closeMenu: 'Close menu',
     },
@@ -117,6 +119,10 @@ export const translations = {
     subscriptions: {
       title: 'Subscriptions',
     },
+    admin: {
+      searchProjects: 'Search projects…',
+      noProjectsMatch: 'No projects match your search.',
+    },
   },
   fr: {
     lang: { en: 'Anglais', fr: 'Français', switch: 'Langue' },
@@ -140,7 +146,10 @@ export const translations = {
       theme: 'Thème',
       categories: 'Catégories',
       hideCategories: 'Masquer',
+      showCategories: 'Afficher les catégories',
       browseCategories: 'Parcourir les catégories',
+      allProjects: 'Tous les projets',
+      allProducts: 'Tous les produits',
       openMenu: 'Ouvrir le menu',
       closeMenu: 'Fermer le menu',
     },
@@ -237,6 +246,10 @@ export const translations = {
     },
     subscriptions: {
       title: 'Abonnements',
+    },
+    admin: {
+      searchProjects: 'Rechercher des projets…',
+      noProjectsMatch: 'Aucun projet ne correspond.',
     },
   },
 }

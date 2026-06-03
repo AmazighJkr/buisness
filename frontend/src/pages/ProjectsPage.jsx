@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { PanelLeft } from 'lucide-react'
 import CategorySidebar from '../components/CategorySidebar.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
 import SearchBar from '../components/SearchBar.jsx'
+import SidebarRail from '../components/SidebarRail.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
 import { useUserSession } from '../hooks/useUserSession.js'
@@ -89,13 +89,10 @@ export default function ProjectsPage() {
     setExpanded((e) => ({ ...e, [catId]: !e[catId] }))
   }
 
-  const closeSidebar = () => setSidebarOpen(false)
-  const openSidebar = () => setSidebarOpen(true)
-
   const selectSub = (subId) => {
     setSelectedSubId(subId)
     navigate('/projects')
-    if (window.innerWidth < 1024) closeSidebar()
+    if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
   const openProject = (id) => {
@@ -106,56 +103,32 @@ export default function ProjectsPage() {
       } else {
         navigate(subscriptionsUrlForProject(p, id))
       }
-      if (window.innerWidth < 1024) closeSidebar()
+      if (window.innerWidth < 1024) setSidebarOpen(false)
       return
     }
     navigate(`/projects/${id}`)
-    if (window.innerWidth < 1024) closeSidebar()
+    if (window.innerWidth < 1024) setSidebarOpen(false)
   }
-
-  const searchBar = (
-    <SearchBar
-      value={searchQuery}
-      onChange={setSearchQuery}
-      placeholder={t('projects.searchPlaceholder')}
-      ariaLabel={t('projects.searchPlaceholder')}
-    />
-  )
 
   return (
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <PageHeader
         highlight="/projects"
-        searchSlot={searchBar}
-        headerStart={
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((o) => !o)}
-            className="theme-toggle-btn site-header-categories-btn flex shrink-0 items-center gap-1.5 !px-2.5"
-            aria-expanded={sidebarOpen}
-            aria-controls="projects-category-sidebar"
-            aria-label={sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
-          >
-            <PanelLeft className="h-5 w-5 shrink-0" />
-            <span className="hidden text-xs lg:inline">
-              {sidebarOpen ? t('nav.hideCategories') : t('nav.categories')}
-            </span>
-          </button>
+        subheader={
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={t('projects.searchPlaceholder')}
+            ariaLabel={t('projects.searchPlaceholder')}
+          />
         }
       />
 
-      {!sidebarOpen && (
-        <button
-          type="button"
-          onClick={openSidebar}
-          className="flex w-full items-center justify-center gap-2 border-b border-dark-border bg-dark-panel px-3 py-2.5 text-sm text-dark-text lg:hidden"
-        >
-          <PanelLeft className="h-4 w-4 text-dark-muted" />
-          {t('nav.browseCategories')}
-        </button>
-      )}
-
       <div className="flex min-h-0 flex-1">
+        {!sidebarOpen && (
+          <SidebarRail onOpen={() => setSidebarOpen(true)} controlsId="projects-category-sidebar" />
+        )}
+
         <CategorySidebar
           id="projects-category-sidebar"
           categories={categories}
@@ -164,16 +137,13 @@ export default function ProjectsPage() {
           selectedSubId={selectedSubId}
           onSelectSub={selectSub}
           open={sidebarOpen}
-          onClose={closeSidebar}
+          onClose={() => setSidebarOpen(false)}
         />
 
         <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
           {projectId && project && !project.locked ? (
             <div className="px-3 py-4 sm:px-6 lg:px-8">
-              <ProjectDetailContent
-                project={project}
-                onBack={() => navigate('/projects')}
-              />
+              <ProjectDetailContent project={project} onBack={() => navigate('/projects')} />
             </div>
           ) : projectId && (sessionLoading || project?.locked) ? (
             <div className="p-6 text-sm text-dark-muted animate-pulse">{t('common.loading')}</div>
@@ -202,14 +172,6 @@ export default function ProjectsPage() {
               {loadError && (
                 <p className="mb-4 border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
                   {loadError}
-                  {loadError.toLowerCase().includes('token') && (
-                    <span>
-                      {' '}
-                      <Link to="/account" className="underline">
-                        {t('nav.account')}
-                      </Link>
-                    </span>
-                  )}
                 </p>
               )}
 

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Cpu, LogOut, Plus, Users } from 'lucide-react'
+import { Cpu, LogOut, Plus, Search, Users } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import {
   PERM_LABELS,
@@ -83,6 +83,7 @@ export default function AdminPanelPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const [projects, setProjects] = useState([])
+  const [projectSearch, setProjectSearch] = useState('')
   const [commands, setCommands] = useState([])
   const [comments, setComments] = useState([])
   const [staffUsers, setStaffUsers] = useState([])
@@ -389,6 +390,12 @@ export default function AdminPanelPage() {
 
   const tabs = []
   if (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) tabs.push(['post', 'Post / Edit'])
+  const filteredProjects = useMemo(() => {
+    const q = projectSearch.trim().toLowerCase()
+    if (!q) return projects
+    return projects.filter((p) => (p.title || '').toLowerCase().includes(q))
+  }, [projects, projectSearch])
+
   if (hasPerm(user, 'edit_project') || hasPerm(user, 'post_project')) tabs.push(['projects', 'Projects'])
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
@@ -642,8 +649,23 @@ export default function AdminPanelPage() {
       {tab === 'clients' && user.is_superuser && <AdminCustomers />}
 
       {tab === 'projects' && (
-        <ul className="space-y-2 max-w-3xl">
-          {projects.map((p) => (
+        <div className="max-w-3xl space-y-3">
+          <div className="store-search-bar max-w-md">
+            <Search className="store-search-bar__icon h-4 w-4" aria-hidden />
+            <input
+              type="search"
+              value={projectSearch}
+              onChange={(e) => setProjectSearch(e.target.value)}
+              placeholder="Search projects…"
+              className="store-search-bar__input"
+              aria-label="Search projects"
+            />
+          </div>
+          <ul className="space-y-2">
+          {filteredProjects.length === 0 && projectSearch.trim() ? (
+            <li className="text-sm text-dark-muted">No projects match your search.</li>
+          ) : null}
+          {filteredProjects.map((p) => (
             <li key={p.id} className="flex flex-wrap justify-between gap-2 border border-lab-border bg-lab-surface px-4 py-3 text-sm">
               <span>{p.title}</span>
               <div className="flex gap-2">
@@ -662,7 +684,8 @@ export default function AdminPanelPage() {
               </div>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       )}
 
       {tab === 'commands' && hasPerm(user, 'view_commands') && (

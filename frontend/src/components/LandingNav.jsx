@@ -49,12 +49,6 @@ export default function LandingNav() {
   return (
     <header className="site-header fixed top-0 left-0 right-0 z-50">
       <div className="site-header-inner max-w-6xl landing-nav__inner">
-        <div className="site-header-home">
-          <button type="button" onClick={() => scrollTo('home')} className="site-header-home-link">
-            {t('nav.home')}
-          </button>
-        </div>
-
         <button type="button" onClick={() => scrollTo('home')} className="site-logo shrink-0 site-header-brand">
           Embedded<span>Grid</span>
         </button>
