@@ -4,6 +4,7 @@ import { Check, Mail, MessageSquare, ShoppingBag, Truck } from 'lucide-react'
 import ProductImageGallery from './ProductImageGallery.jsx'
 import StoreProductCard from './StoreProductCard.jsx'
 import { fetchStoreProducts } from '../../api/client.js'
+import { useTranslation } from '../../context/LocaleContext.jsx'
 import { formatDzd } from '../../utils/formatMoney.js'
 
 export default function StoreProductDetail({
@@ -14,6 +15,7 @@ export default function StoreProductDetail({
   searchQuery = '',
   categorySlug = '',
 }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [related, setRelated] = useState([])
 
@@ -44,7 +46,7 @@ export default function StoreProductDetail({
   return (
     <article className="amazon-product">
       <nav className="amazon-breadcrumb" aria-label="Breadcrumb">
-        <Link to="/shop">Store</Link>
+        <Link to="/shop">{t('store.title')}</Link>
         <span aria-hidden>/</span>
         {product.category_slug ? (
           <>
@@ -65,11 +67,11 @@ export default function StoreProductDetail({
         <div className="amazon-product__info-col">
           <h1 className="amazon-product__title">{product.name}</h1>
           <p className="amazon-product__brand">
-            Visit the{' '}
+            {t('store.visitCollection')}{' '}
             <Link to={`/shop?category=${encodeURIComponent(product.category_slug || '')}`}>
               {product.category_name}
             </Link>{' '}
-            collection
+            {t('store.collection')}
           </p>
 
           {product.short_description && (
@@ -108,7 +110,7 @@ export default function StoreProductDetail({
 
             <p className="amazon-buybox__ship">
               <Truck className="h-4 w-4 shrink-0 text-lab-cyan" aria-hidden />
-              Algeria delivery · pay on arrival or card (Chargily)
+              {t('store.deliveryAlgeria')}
             </p>
 
             <button
@@ -118,7 +120,7 @@ export default function StoreProductDetail({
               className={`amazon-buybox__cart-btn ${added ? 'amazon-buybox__cart-btn--added' : ''}`}
             >
               <ShoppingBag className="h-5 w-5" aria-hidden />
-              {!inStock ? 'Unavailable' : added ? 'Added to bag' : 'Add to bag'}
+              {!inStock ? t('store.unavailable') : added ? t('store.inBag') : t('store.addToBag')}
             </button>
 
             <button
@@ -130,7 +132,7 @@ export default function StoreProductDetail({
               }}
               className="amazon-buybox__checkout-btn"
             >
-              Buy now
+              {t('store.buyNow')}
             </button>
           </div>
         </div>
@@ -150,7 +152,7 @@ export default function StoreProductDetail({
 
         {related.length > 0 && (
           <section className="amazon-related-section mt-8">
-            <h2 className="amazon-related-section__title">Related products</h2>
+            <h2 className="amazon-related-section__title">{t('store.related')}</h2>
             <div className="amazon-related-scroll">
               {related.map((p) => (
                 <div key={p.id} className="amazon-related-scroll__item">

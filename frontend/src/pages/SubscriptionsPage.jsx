@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { fetchPaymentConfig, fetchPacks, fetchUserMe, subscribeToPack } from '../api/client.js'
 import { detectClientCountry } from '../utils/paymentRegion.js'
 import { formatDzd, formatPackPrice, formatUsd, useDzdPricing } from '../utils/formatMoney.js'
 
 export default function SubscriptionsPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const highlightPackId = searchParams.get('pack')
   const highlightProjectId = searchParams.get('project')
@@ -50,7 +52,7 @@ export default function SubscriptionsPage() {
 
   const handleSubscribe = async (packId) => {
     if (!user) {
-      setMsg('Sign in first to subscribe.')
+      setMsg(t('subscriptions.signInFirst'))
       return
     }
     setMsg('')
@@ -61,10 +63,10 @@ export default function SubscriptionsPage() {
         return
       }
       if (result.mode === 'manual') {
-        setMsg(result.instructions || 'Subscription pending — complete payment to activate.')
+        setMsg(result.instructions || t('subscriptions.pendingManual'))
         return
       }
-      setMsg(result.is_upgrade ? 'Upgrade complete!' : 'Subscription activated!')
+      setMsg(result.is_upgrade ? t('subscriptions.upgradeComplete') : t('subscriptions.activated'))
       await load()
     } catch (err) {
       setMsg(err.message)
@@ -74,10 +76,10 @@ export default function SubscriptionsPage() {
   const packAction = (pack) => {
     const state = pack.access_state || 'available'
     if (state === 'active') {
-      return <p className="mt-4 text-sm text-lab-green">Your current plan</p>
+      return <p className="mt-4 text-sm text-lab-green">{t('subscriptions.currentPlan')}</p>
     }
     if (state === 'included') {
-      return <p className="mt-4 text-sm text-lab-green">Included in your plan</p>
+      return <p className="mt-4 text-sm text-lab-green">{t('subscriptions.includedInPlan')}</p>
     }
     if (state === 'upgrade') {
       const due = useDzd
@@ -89,10 +91,8 @@ export default function SubscriptionsPage() {
           onClick={() => handleSubscribe(pack.id)}
           className="btn-primary mt-4 w-full"
         >
-          Upgrade — {useDzd ? formatDzd(due) : formatUsd(due)}
-          <span className="block text-[10px] font-normal opacity-80">
-            Pay difference only · same expiry date
-          </span>
+          {t('subscriptions.upgrade')} — {useDzd ? formatDzd(due) : formatUsd(due)}
+          <span className="block text-[10px] font-normal opacity-80">{t('subscriptions.upgradeHint')}</span>
         </button>
       )
     }
@@ -102,7 +102,7 @@ export default function SubscriptionsPage() {
         onClick={() => handleSubscribe(pack.id)}
         className="btn-primary mt-4 w-full"
       >
-        Subscribe
+        {t('subscriptions.subscribe')}
       </button>
     )
   }
@@ -133,25 +133,17 @@ export default function SubscriptionsPage() {
 
       <main className="page-main mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="font-display text-xl font-semibold">Subscription packs</h1>
-          <p className="mt-2 text-sm text-dark-muted">
-            Higher packs include all projects from lower tiers. Upgrade anytime and pay only
-            the price difference — your expiry date stays the same.
-          </p>
-          {useDzd && (
-            <p className="mt-2 text-sm text-lab-cyan">
-              Prices in Algerian dinar (DZD). Payment via Chargily (Edahabia / CIB).
-            </p>
-          )}
+          <h1 className="font-display text-xl font-semibold">{t('subscriptions.heading')}</h1>
+          <p className="mt-2 text-sm text-dark-muted">{t('subscriptions.intro')}</p>
+          {useDzd && <p className="mt-2 text-sm text-lab-cyan">{t('subscriptions.pricesDzd')}</p>}
           {!useDzd && paymentProvider === 'stripe' && (
-            <p className="mt-2 text-sm text-dark-muted">Prices in US dollars (USD). Card payment via Stripe.</p>
+            <p className="mt-2 text-sm text-dark-muted">{t('subscriptions.pricesUsd')}</p>
           )}
           {!user && (
             <p className="mt-2 text-sm">
               <Link to="/account" className="underline">
-                Sign in or register
-              </Link>{' '}
-              to subscribe.
+                {t('subscriptions.signInToSubscribe')}
+              </Link>
             </p>
           )}
         </div>
@@ -160,12 +152,12 @@ export default function SubscriptionsPage() {
 
         {highlightProjectId && (
           <p className="rounded border border-lab-cyan/40 bg-lab-cyan/10 px-3 py-2 text-sm text-dark-text">
-            Subscribe to unlock the project you selected. The recommended pack is highlighted below.
+            {t('subscriptions.unlockProject')}
           </p>
         )}
 
         {loading ? (
-          <p className="text-sm text-dark-muted animate-pulse">Loading packs…</p>
+          <p className="text-sm text-dark-muted animate-pulse">{t('subscriptions.loadingPacks')}</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {packs.map((pack) => (
@@ -186,12 +178,14 @@ export default function SubscriptionsPage() {
                   {priceLabel(pack)}
                   <span className="text-sm font-normal text-dark-muted">
                     {' '}
-                    / {pack.duration_days} days
+                    / {pack.duration_days} {t('subscriptions.days')}
                   </span>
                 </p>
                 <p className="mt-1 text-xs text-dark-muted">
-                  {pack.project_count} project{pack.project_count === 1 ? '' : 's'} in this tier
-                  {pack.sort_order > 1 && ' · includes lower tiers'}
+                  {pack.project_count === 1
+                    ? t('subscriptions.projectCount', { count: pack.project_count })
+                    : t('subscriptions.projectCountPlural', { count: pack.project_count })}
+                  {pack.sort_order > 1 && t('subscriptions.includesLower')}
                 </p>
                 {packAction(pack)}
               </article>

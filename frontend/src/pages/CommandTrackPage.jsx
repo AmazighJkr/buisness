@@ -6,6 +6,7 @@ import CommandChat from '../components/CommandChat.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import SectionBox from '../components/SectionBox.jsx'
 import { statusLabel } from '../constants/commandStatus.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
 import {
   fetchCommandTrackByCode,
@@ -17,31 +18,36 @@ import {
 } from '../api/client.js'
 
 function CommandDetail({ command, onBack, onSend, onCommandUpdated, sending, useAccountApi }) {
+  const { t } = useTranslation()
+  const title = command.client_name
+    ? t('command.commandOf', { name: command.client_name })
+    : t('command.yourCommand')
+
   return (
     <>
       <div className="flex items-center justify-between text-xs text-dark-muted">
         <span className="font-mono">{command.tracking_code}</span>
         <button type="button" onClick={onBack} className="hover:text-dark-text">
-          {useAccountApi ? 'All commands' : 'Track another'}
+          {useAccountApi ? t('command.allCommands') : t('command.trackAnother')}
         </button>
       </div>
 
       <SectionBox>
-        <h1 className="text-xl font-semibold">
-          {command.client_name ? `${command.client_name}'s command` : 'Your command'}
-        </h1>
+        <h1 className="text-xl font-semibold">{title}</h1>
         {command.project_title && (
-          <p className="mt-1 text-xs text-dark-muted">Project: {command.project_title}</p>
+          <p className="mt-1 text-xs text-dark-muted">
+            {t('command.projectLabel')}: {command.project_title}
+          </p>
         )}
         <p className="mt-4 whitespace-pre-wrap text-sm text-dark-muted">{command.idea_description}</p>
       </SectionBox>
 
-      <SectionBox title="Development status">
+      <SectionBox title={t('command.devStatus')}>
         <CommandStatusBar status={command.status} />
       </SectionBox>
 
       {(command.quoted_price > 0 || command.status === 'Accepted') && (
-        <SectionBox title="Payment">
+        <SectionBox title={t('command.payment')}>
           <CommandPaymentBill
             command={command}
             useAccountApi={useAccountApi}
@@ -50,15 +56,13 @@ function CommandDetail({ command, onBack, onSend, onCommandUpdated, sending, use
         </SectionBox>
       )}
 
-      <SectionBox title="Private chat">
-        <p className="mb-3 text-xs text-dark-muted">
-          Only you and our team can see this conversation.
-        </p>
+      <SectionBox title={t('command.privateChat')}>
+        <p className="mb-3 text-xs text-dark-muted">{t('command.chatLead')}</p>
         <CommandChat
           messages={command.messages || []}
           onSend={onSend}
           sending={sending}
-          placeholder="Message the team…"
+          placeholder={t('command.chatPlaceholder')}
         />
       </SectionBox>
     </>
@@ -66,6 +70,7 @@ function CommandDetail({ command, onBack, onSend, onCommandUpdated, sending, use
 }
 
 export default function CommandTrackPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user, loading: sessionLoading, isLoggedIn } = useUserSession()
@@ -120,7 +125,7 @@ export default function CommandTrackPage() {
   const loadByCode = async (code) => {
     const normalized = code.trim().toUpperCase()
     if (!normalized) {
-      setError('Enter your tracking code.')
+      setError(t('command.enterCode'))
       return
     }
     setLoading(true)
@@ -144,7 +149,7 @@ export default function CommandTrackPage() {
     e.preventDefault()
     const normalized = email.trim().toLowerCase()
     if (!normalized) {
-      setError('Enter your email.')
+      setError(t('command.enterEmail'))
       return
     }
     setLoading(true)
@@ -234,15 +239,13 @@ export default function CommandTrackPage() {
 
       <main className="mx-auto max-w-3xl space-y-4 px-3 py-6 sm:px-4 sm:py-8">
         {!command && isLoggedIn && myCommands && (
-          <SectionBox title="Your commands">
-            <p className="mb-4 text-sm text-dark-muted">
-              Commands you submitted while signed in appear here. No tracking code needed.
-            </p>
+          <SectionBox title={t('command.yourCommands')}>
+            <p className="mb-4 text-sm text-dark-muted">{t('command.yourCommandsLead')}</p>
             {myCommands.length === 0 ? (
               <p className="text-sm text-dark-muted">
-                You have no commands yet.{' '}
+                {t('command.noCommandsYet')}{' '}
                 <Link to="/command" className="underline">
-                  Submit a command
+                  {t('command.submitCommandLink')}
                 </Link>
               </p>
             ) : (
@@ -255,7 +258,7 @@ export default function CommandTrackPage() {
                       className="w-full border border-dark-border px-3 py-2 text-left text-xs panel-hover"
                     >
                       <span className="font-mono text-dark-text">{c.tracking_code}</span>
-                      <span className="ml-2 text-dark-muted">{statusLabel(c.status)}</span>
+                      <span className="ml-2 text-dark-muted">{statusLabel(c.status, t)}</span>
                       <p className="mt-1 text-dark-muted">{c.idea_preview}</p>
                     </button>
                   </li>
@@ -263,7 +266,7 @@ export default function CommandTrackPage() {
               </ul>
             )}
             <p className="mt-4 border-t border-dark-border pt-4 text-xs text-dark-muted">
-              Submitted before you had an account?{' '}
+              {t('command.guestLookup')}{' '}
               <button
                 type="button"
                 className="underline"
@@ -272,22 +275,20 @@ export default function CommandTrackPage() {
                   setMode('code')
                 }}
               >
-                Look up by tracking code
+                {t('command.lookupByCode')}
               </button>
             </p>
           </SectionBox>
         )}
 
         {!command && isLoggedIn && myCommands === null && mode === 'code' && (
-          <SectionBox title="Look up by tracking code">
+          <SectionBox title={t('command.lookupByCodeTitle')}>
             <form onSubmit={handleCodeSubmit} className="space-y-3">
-              <p className="text-sm text-dark-muted">
-                Use this if you submitted a command as a guest before creating an account.
-              </p>
+              <p className="text-sm text-dark-muted">{t('command.lookupByCodeLead')}</p>
               <input
                 value={trackingCode}
                 onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                placeholder="Tracking code"
+                placeholder={t('command.trackingCode')}
                 className="w-full border border-dark-border bg-dark-bg px-3 py-2 font-mono text-sm uppercase"
               />
               <div className="flex flex-wrap gap-2">
@@ -296,7 +297,7 @@ export default function CommandTrackPage() {
                   disabled={loading}
                   className="border border-dark-border px-4 py-2 text-sm panel-hover disabled:opacity-50"
                 >
-                  {loading ? 'Loading…' : 'Open'}
+                  {loading ? t('common.loading') : t('command.open')}
                 </button>
                 <button
                   type="button"
@@ -306,7 +307,7 @@ export default function CommandTrackPage() {
                   }}
                   className="border border-dark-border px-4 py-2 text-sm text-dark-muted panel-hover"
                 >
-                  Back to my commands
+                  {t('command.backToMyCommands')}
                 </button>
               </div>
             </form>
@@ -314,12 +315,12 @@ export default function CommandTrackPage() {
         )}
 
         {!command && !isLoggedIn && (
-          <SectionBox title="Track your command">
+          <SectionBox title={t('command.trackTitle')}>
             <p className="mb-4 text-sm text-dark-muted">
               <Link to="/account" className="underline">
-                Sign in
+                {t('common.signIn')}
               </Link>{' '}
-              to see all commands linked to your account — no code required.
+              {t('command.signInToSee')}
             </p>
             <div className="mb-4 flex gap-2">
               <button
@@ -331,7 +332,7 @@ export default function CommandTrackPage() {
                 }}
                 className={`border px-3 py-1 text-xs ${mode === 'code' ? 'border-dark-text text-dark-text' : 'border-dark-border text-dark-muted'}`}
               >
-                By tracking code
+                {t('command.byCode')}
               </button>
               <button
                 type="button"
@@ -342,19 +343,17 @@ export default function CommandTrackPage() {
                 }}
                 className={`border px-3 py-1 text-xs ${mode === 'email' ? 'border-dark-text text-dark-text' : 'border-dark-border text-dark-muted'}`}
               >
-                By email
+                {t('command.byEmail')}
               </button>
             </div>
 
             {mode === 'code' ? (
               <form onSubmit={handleCodeSubmit} className="space-y-3">
-                <p className="text-sm text-dark-muted">
-                  Enter the tracking code you received after submitting your command (e.g. EG-A1B2C3).
-                </p>
+                <p className="text-sm text-dark-muted">{t('command.codeHelp')}</p>
                 <input
                   value={trackingCode}
                   onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                  placeholder="Tracking code"
+                  placeholder={t('command.trackingCode')}
                   className="w-full border border-dark-border bg-dark-bg px-3 py-2 font-mono text-sm uppercase"
                 />
                 <button
@@ -362,19 +361,17 @@ export default function CommandTrackPage() {
                   disabled={loading}
                   className="border border-dark-border px-4 py-2 text-sm panel-hover disabled:opacity-50"
                 >
-                  {loading ? 'Loading…' : 'Open tracker'}
+                  {loading ? t('common.loading') : t('command.openTrackerBtn')}
                 </button>
               </form>
             ) : (
               <form onSubmit={loadByEmail} className="space-y-3">
-                <p className="text-sm text-dark-muted">
-                  Enter the email you used when submitting your command (guest submissions only).
-                </p>
+                <p className="text-sm text-dark-muted">{t('command.emailHelp')}</p>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
+                  placeholder={t('landing.formEmail')}
                   className="w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
                 />
                 <button
@@ -382,7 +379,7 @@ export default function CommandTrackPage() {
                   disabled={loading}
                   className="border border-dark-border px-4 py-2 text-sm panel-hover disabled:opacity-50"
                 >
-                  {loading ? 'Loading…' : 'Find my commands'}
+                  {loading ? t('common.loading') : t('command.findCommands')}
                 </button>
               </form>
             )}
@@ -397,7 +394,7 @@ export default function CommandTrackPage() {
                       className="w-full border border-dark-border px-3 py-2 text-left text-xs panel-hover"
                     >
                       <span className="font-mono text-dark-text">{c.tracking_code}</span>
-                      <span className="ml-2 text-dark-muted">{statusLabel(c.status)}</span>
+                      <span className="ml-2 text-dark-muted">{statusLabel(c.status, t)}</span>
                       <p className="mt-1 text-dark-muted">{c.idea_preview}</p>
                     </button>
                   </li>

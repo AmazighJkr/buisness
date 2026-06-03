@@ -29,7 +29,18 @@ export function LocaleProvider({ children }) {
     document.documentElement.lang = value
   }, [])
 
-  const t = useCallback((key) => resolveMessage(locale, key), [locale])
+  const t = useCallback(
+    (key, params) => {
+      let msg = resolveMessage(locale, key)
+      if (params && typeof msg === 'string') {
+        for (const [k, v] of Object.entries(params)) {
+          msg = msg.replaceAll(`{${k}}`, String(v))
+        }
+      }
+      return msg
+    },
+    [locale],
+  )
 
   const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t])
 

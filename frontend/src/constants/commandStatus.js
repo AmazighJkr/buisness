@@ -14,10 +14,20 @@ export const PAYMENT_STATUSES = [
   { value: 'waived', label: 'Waived' },
 ]
 
-export function statusLabel(value) {
+export function statusLabel(value, t) {
+  if (t) {
+    const key = `command.status.${value}`
+    const translated = t(key)
+    if (translated !== key) return translated
+  }
   return COMMAND_STATUSES.find((s) => s.value === value)?.label || value
 }
 
-export function paymentStatusLabel(value) {
+export function paymentStatusLabel(value, t) {
+  if (t) {
+    const key = `command.paymentStatus.${value}`
+    const translated = t(key)
+    if (translated !== key) return translated
+  }
   return PAYMENT_STATUSES.find((s) => s.value === value)?.label || value
 }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import ProjectLockedPanel from './ProjectLockedPanel.jsx'
 import CodePanel from './CodePanel.jsx'
-import MaterialsTable from './MaterialsTable.jsx'
+import ProjectMaterialsSection from './ProjectMaterialsSection.jsx'
 import ProjectComments from './ProjectComments.jsx'
 import SectionBox from './SectionBox.jsx'
 import EmbeddableMedia from './EmbeddableMedia.jsx'
@@ -59,7 +59,7 @@ export default function ProjectDetailContent({ project, onBack }) {
       </SectionBox>
 
       {hasDescription && (
-        <SectionBox title="Description">
+        <SectionBox title={t('materials.description')}>
           <p className="text-sm leading-relaxed text-dark-muted whitespace-pre-wrap">
             {project.description}
           </p>
@@ -67,7 +67,7 @@ export default function ProjectDetailContent({ project, onBack }) {
       )}
 
       {libs.length > 0 && (
-        <SectionBox title="Libraries">
+        <SectionBox title={t('materials.libraries')}>
           <ul className="flex flex-wrap gap-1.5">
             {libs.map((lib) => (
               <li key={lib} className="lab-chip">
@@ -79,19 +79,19 @@ export default function ProjectDetailContent({ project, onBack }) {
       )}
 
       {codeFiles.length > 0 && (
-        <SectionBox title="Code" noPadding>
+        <SectionBox title={t('materials.code')} noPadding>
           <CodePanel files={codeFiles} />
         </SectionBox>
       )}
 
       {simulationConfig && (
-        <SectionBox title="Simulation" noPadding>
+        <SectionBox title={t('materials.simulation')} noPadding>
           <EmbeddableMedia config={simulationConfig} />
         </SectionBox>
       )}
 
       {(schematicSrc || project.schematic_file_missing) && (
-        <SectionBox title="Schematic">
+        <SectionBox title={t('materials.schematic')}>
           <img
             src={
               schematicFailed || !schematicSrc || project.schematic_file_missing
@@ -112,21 +112,19 @@ export default function ProjectDetailContent({ project, onBack }) {
       )}
 
       {videoConfig && (
-        <SectionBox title="Video" noPadding>
+        <SectionBox title={t('materials.video')} noPadding>
           <EmbeddableMedia config={videoConfig} />
         </SectionBox>
       )}
 
       {hasMaterials(project.materials) && (
-        <SectionBox title="Materials">
-          <div className="overflow-x-auto">
-            <MaterialsTable materials={project.materials} />
-          </div>
+        <SectionBox title={t('materials.title')}>
+          <ProjectMaterialsSection materials={project.materials} />
         </SectionBox>
       )}
 
       {project.wiring?.length > 0 && (
-        <SectionBox title="Wiring">
+        <SectionBox title={t('materials.wiring')}>
           <div className="overflow-x-auto">
             <WiringTable wiring={project.wiring} />
           </div>

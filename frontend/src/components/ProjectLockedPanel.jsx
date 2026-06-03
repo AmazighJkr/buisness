@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Lock } from 'lucide-react'
 import { fetchPaymentConfig } from '../api/client.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
 import { accountUrlWithNext, subscriptionsUrlForProject } from '../utils/projectAccess.js'
 import { detectClientCountry } from '../utils/paymentRegion.js'
 import { formatDzd, formatUsd, useDzdPricing } from '../utils/formatMoney.js'
 
 export default function ProjectLockedPanel({ project, projectId }) {
+  const { t } = useTranslation()
   const packs = project.required_packs || []
   const { isLoggedIn } = useUserSession()
   const [useDzd, setUseDzd] = useState(false)
@@ -23,11 +25,8 @@ export default function ProjectLockedPanel({ project, projectId }) {
   return (
     <div className="rounded border border-dark-border bg-dark-panel p-6 text-center">
       <Lock className="mx-auto h-10 w-10 text-dark-muted" />
-      <h3 className="mt-3 text-lg font-medium">Subscription pack required</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm text-dark-muted">
-        Free projects open without an account. This project is part of a paid pack — subscribe
-        to unlock schematics, code, and simulations.
-      </p>
+      <h3 className="mt-3 text-lg font-medium">{t('subscriptions.packRequired')}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm text-dark-muted">{t('subscriptions.packRequiredLead')}</p>
       {packs.length > 0 && (
         <ul className="mx-auto mt-4 max-w-sm space-y-2 text-left text-sm">
           {packs.map((p) => (
@@ -43,7 +42,7 @@ export default function ProjectLockedPanel({ project, projectId }) {
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         {isLoggedIn ? (
           <Link to={subsUrl} className="border border-lab-cyan px-4 py-2 text-sm text-lab-cyan panel-hover">
-            Subscribe to unlock
+            {t('subscriptions.subscribeToUnlock')}
           </Link>
         ) : (
           <>
@@ -51,10 +50,10 @@ export default function ProjectLockedPanel({ project, projectId }) {
               to={accountUrlWithNext(`/projects/${pid}`)}
               className="border border-lab-cyan px-4 py-2 text-sm text-lab-cyan panel-hover"
             >
-              Sign in or create account
+              {t('subscriptions.signInOrRegister')}
             </Link>
             <Link to={subsUrl} className="border border-dark-border px-4 py-2 text-sm panel-hover">
-              View packs
+              {t('subscriptions.viewPacks')}
             </Link>
           </>
         )}

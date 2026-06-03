@@ -46,7 +46,7 @@ export default function ShopPage() {
       .then(setProducts)
       .catch((err) => {
         setProducts([])
-        setError(err.message || 'Could not load products.')
+        setError(err.message || t('store.loadError'))
       })
       .finally(() => setLoadingList(false))
   }, [isAlgeria, productSlug, categoryParam, queryParam])
@@ -62,7 +62,7 @@ export default function ShopPage() {
       .then(setProduct)
       .catch(() => {
         setProduct(null)
-        setError('Product not found.')
+        setError(t('store.notFound'))
       })
       .finally(() => setLoadingProduct(false))
   }, [isAlgeria, productSlug])
@@ -147,7 +147,7 @@ export default function ShopPage() {
           <div className="px-3 py-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
             {productSlug ? (
               loadingProduct ? (
-                <p className="text-sm text-dark-muted animate-pulse">Loading product…</p>
+                <p className="text-sm text-dark-muted animate-pulse">{t('store.loadingProduct')}</p>
               ) : product ? (
                 <StoreProductDetail
                   product={product}
@@ -159,22 +159,22 @@ export default function ShopPage() {
                 />
               ) : (
                 <div className="panel p-6 text-center">
-                  <p className="text-sm text-dark-muted">{error || 'Product not found.'}</p>
+                  <p className="text-sm text-dark-muted">{error || t('store.notFound')}</p>
                   <button type="button" onClick={backToList} className="btn-primary mt-4">
-                    Back to store
+                    {t('store.backToStore')}
                   </button>
                 </div>
               )
             ) : (
               <>
                 <div className="mb-4">
-                  <h1 className="font-display text-xl font-semibold sm:text-2xl">Store</h1>
+                  <h1 className="font-display text-xl font-semibold sm:text-2xl">{t('store.title')}</h1>
                   <p className="mt-1 text-sm text-dark-muted">
                     {activeCategory
                       ? activeCategory.name
                       : queryParam
-                        ? `Results for “${queryParam}”`
-                        : 'Hardware and modules ready to ship'}
+                        ? t('store.resultsFor', { q: queryParam })
+                        : t('store.defaultSubtitle')}
                   </p>
                 </div>
 
@@ -188,7 +188,7 @@ export default function ShopPage() {
                   </div>
                 ) : products.length === 0 ? (
                   <div className="panel p-8 text-center">
-                    <p className="text-sm text-dark-muted">No products match your filters.</p>
+                    <p className="text-sm text-dark-muted">{t('store.noProducts')}</p>
                   </div>
                 ) : (
                   <div className="store-grid">

@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
+import { useTranslation } from '../../context/LocaleContext.jsx'
 import { formatDzd } from '../../utils/formatMoney.js'
 
 export default function StoreProductCard({ product, added, onAdd, linkTo }) {
+  const { t } = useTranslation()
   const inStock = product.stock_qty > 0
   const priceMain = formatDzd(Number(product.price_dzd || 0))
   const href = linkTo || `/shop/${product.slug}`
@@ -16,8 +18,10 @@ export default function StoreProductCard({ product, added, onAdd, linkTo }) {
           <div className="store-product-card__media-empty" aria-hidden />
         )}
         <div className="store-product-card__badges">
-          {product.is_featured && <span className="store-badge store-badge--featured">Featured</span>}
-          {!inStock && <span className="store-badge store-badge--sold">Sold out</span>}
+          {product.is_featured && (
+            <span className="store-badge store-badge--featured">{t('store.featured')}</span>
+          )}
+          {!inStock && <span className="store-badge store-badge--sold">{t('store.soldOut')}</span>}
         </div>
       </Link>
 
@@ -46,7 +50,9 @@ export default function StoreProductCard({ product, added, onAdd, linkTo }) {
             className={`store-product-card__cta ${added ? 'store-product-card__cta--added' : ''}`}
           >
             <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden />
-            <span>{!inStock ? 'Unavailable' : added ? 'In bag' : 'Add'}</span>
+            <span>
+              {!inStock ? t('store.unavailable') : added ? t('store.inBag') : t('store.add')}
+            </span>
           </button>
         </div>
       </div>

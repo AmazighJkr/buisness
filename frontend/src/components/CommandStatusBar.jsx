@@ -1,12 +1,15 @@
 import { COMMAND_STATUSES, statusLabel } from '../constants/commandStatus.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
 
 export default function CommandStatusBar({ status }) {
+  const { t } = useTranslation()
   const currentIndex = COMMAND_STATUSES.findIndex((s) => s.value === status)
 
   return (
     <div>
       <p className="mb-3 text-sm text-dark-muted">
-        Current stage: <span className="text-dark-text">{statusLabel(status)}</span>
+        {t('command.devStatus')}:{' '}
+        <span className="text-dark-text">{statusLabel(status, t)}</span>
       </p>
       <ol className="flex flex-wrap gap-2">
         {COMMAND_STATUSES.map((step, i) => {
@@ -23,7 +26,7 @@ export default function CommandStatusBar({ status }) {
                     : 'border-dark-border text-dark-muted'
               }`}
             >
-              {step.label}
+              {statusLabel(step.value, t)}
             </li>
           )
         })}

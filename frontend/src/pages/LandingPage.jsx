@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Mail, MessageCircle } from 'lucide-react'
 import LandingNav from '../components/LandingNav.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
+import { CONTACT } from '../config/contact.js'
 import { submitCommand } from '../api/client.js'
 
 export default function LandingPage() {
@@ -149,13 +151,36 @@ export default function LandingPage() {
 
           <div className="feature-card">
             <h3 className="font-display text-lg font-semibold">EmbeddedGrid</h3>
-            <ul className="mt-4 space-y-3 text-sm text-dark-muted">
-              <li>
-                <span className="text-dark-text">Email</span>
-                <br />
-                lab@embeddedgrid.dev
-              </li>
-            </ul>
+            <p className="mt-2 text-sm text-dark-muted">{CONTACT.email}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href={CONTACT.emailHref}
+                className="inline-flex items-center gap-2 border border-dark-border px-3 py-2 text-xs panel-hover"
+              >
+                <Mail className="h-4 w-4 shrink-0" aria-hidden />
+                {t('landing.contactEmail')}
+              </a>
+              <a
+                href={CONTACT.discordHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-dark-border px-3 py-2 text-xs panel-hover"
+              >
+                <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
+                {t('landing.contactDiscord')}
+              </a>
+              <a
+                href={CONTACT.whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-dark-border px-3 py-2 text-xs panel-hover"
+              >
+                <span className="text-base leading-none" aria-hidden>
+                  💬
+                </span>
+                {t('landing.contactWhatsapp')}
+              </a>
+            </div>
           </div>
         </div>
       </section>

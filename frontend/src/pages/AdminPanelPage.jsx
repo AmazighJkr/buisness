@@ -33,10 +33,11 @@ import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
 import CommandComposer from '../components/CommandComposer.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import EditableRows from '../components/EditableRows.jsx'
+import ProjectMaterialsEditor, { EMPTY_MATERIAL_ROW } from '../components/admin/ProjectMaterialsEditor.jsx'
 import { COMMAND_STATUSES, PAYMENT_STATUSES } from '../constants/commandStatus.js'
 
 const ALL_PERMS = Object.keys(PERM_LABELS)
-const EMPTY_MAT = { component: '', quantity: '', notes: '' }
+const EMPTY_MAT = { ...EMPTY_MATERIAL_ROW }
 const EMPTY_WIRE = { from_pin: '', to_pin: '', notes: '' }
 const EMPTY_CODE = { title: '', code: '' }
 
@@ -250,7 +251,17 @@ export default function AdminPanelPage() {
       featured_order: p.featured_order || 0,
     })
     setSelectedPackIds(p.pack_ids || [])
-    setMaterials(p.materials?.length ? p.materials : [{ ...EMPTY_MAT }])
+    setMaterials(
+      p.materials?.length
+        ? p.materials.map((r) => ({
+            component: r.component || r.part || '',
+            quantity: String(r.quantity ?? r.qty ?? '1'),
+            notes: r.notes || '',
+            store_product_id: r.store_product_id || '',
+            amazon_url: r.amazon_url || '',
+          }))
+        : [{ ...EMPTY_MAT }],
+    )
     setWiring(p.wiring || [])
     setCodeFiles(
       p.code_files?.length
@@ -503,19 +514,7 @@ export default function AdminPanelPage() {
       <textarea required rows={4} placeholder="Description *" value={form.description} onChange={update('description')}
         className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
-      <div>
-        <p className="mb-2 text-xs text-lab-cyan">Materials table</p>
-        <EditableRows
-          columns={[
-            { key: 'component', label: 'Component' },
-            { key: 'quantity', label: 'Qty' },
-            { key: 'notes', label: 'Notes' },
-          ]}
-          rows={materials}
-          onChange={setMaterials}
-          emptyRow={EMPTY_MAT}
-        />
-      </div>
+      <ProjectMaterialsEditor rows={materials} onChange={setMaterials} />
 
       <div>
         <p className="mb-2 text-xs text-dark-muted">Wiring (optional)</p>

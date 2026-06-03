@@ -59,9 +59,7 @@ export default function CommandPage() {
       setTracking(result)
       setStatus({
         type: 'success',
-        message: isLoggedIn
-          ? 'Command submitted. View progress on the Track page.'
-          : 'Command submitted. Save your tracking link below to follow progress and chat with us.',
+        message: isLoggedIn ? t('command.successLoggedIn') : t('command.successGuest'),
       })
       setForm({
         client_name: isLoggedIn ? user?.first_name || user?.username || '' : '',
@@ -87,14 +85,12 @@ export default function CommandPage() {
       <main className="mx-auto max-w-3xl px-3 py-6 sm:px-4 sm:py-8">
         <h1 className="text-2xl font-semibold">{t('command.title')}</h1>
         <p className="mt-2 text-sm text-dark-muted">
-          {isLoggedIn
-            ? 'Your command is linked to your account. Track it anytime from the Track page — no code needed.'
-            : 'Describe your embedded or IoT project. No account required — or sign in to manage commands in one place.'}
+          {isLoggedIn ? t('command.introLoggedIn') : t('command.introGuest')}
         </p>
         {isLoggedIn && (
           <p className="mt-2 text-sm">
             <Link to="/track" className="text-lab-cyan underline">
-              View your commands
+              {t('command.viewCommands')}
             </Link>
           </p>
         )}
@@ -102,17 +98,17 @@ export default function CommandPage() {
         <form onSubmit={handleSubmit} autoComplete="off" className="panel mt-6 space-y-5 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-xs text-dark-muted">
-              Your name
+              {t('command.yourName')}
               <input
                 type="text"
                 value={form.client_name}
                 onChange={update('client_name')}
                 className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
-                placeholder="Optional"
+                placeholder={t('command.optional')}
               />
             </label>
             <label className="block text-xs text-dark-muted">
-              Email {!isLoggedIn && '*'}
+              {t('command.email')} {!isLoggedIn && '*'}
               <input
                 type="email"
                 required={!isLoggedIn}
@@ -120,19 +116,19 @@ export default function CommandPage() {
                 onChange={update('client_email')}
                 disabled={isLoggedIn && Boolean(user?.email)}
                 className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text disabled:opacity-70"
-                placeholder={isLoggedIn ? 'From your account' : 'Used for guest tracking'}
+                placeholder={isLoggedIn ? t('command.emailFromAccount') : t('command.emailGuestHint')}
               />
             </label>
           </div>
 
           <label className="block text-xs text-dark-muted">
-            Related project (optional)
+            {t('command.relatedProject')}
             <select
               value={form.associated_project}
               onChange={update('associated_project')}
               className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
             >
-              <option value="">— New custom build —</option>
+              <option value="">{t('command.newCustomBuild')}</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
@@ -142,48 +138,48 @@ export default function CommandPage() {
           </label>
 
           <label className="block text-xs text-dark-muted">
-            Project idea *
+            {t('command.projectIdea')} *
             <textarea
               required
               rows={4}
               value={form.idea_description}
               onChange={update('idea_description')}
-              placeholder="What do you want to build? Sensors, connectivity, enclosure..."
+              placeholder={t('command.projectIdeaPlaceholder')}
               className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
             />
           </label>
 
           <label className="block text-xs text-dark-muted">
-            Price limit (budget cap)
+            {t('command.priceLimit')}
             <input
               type="number"
               min="0"
               step="0.01"
               value={form.price_limit}
               onChange={update('price_limit')}
-              placeholder="e.g. 500.00"
+              placeholder={t('command.priceLimitPlaceholder')}
               className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
             />
           </label>
 
           <label className="block text-xs text-dark-muted">
-            Objectives & deliverables
+            {t('command.objectives')}
             <textarea
               rows={3}
               value={form.objectives}
               onChange={update('objectives')}
-              placeholder="Milestones, timeline, production quantity..."
+              placeholder={t('command.objectivesPlaceholder')}
               className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
             />
           </label>
 
           <label className="block text-xs text-dark-muted">
-            Problems & constraints
+            {t('command.problems')}
             <textarea
               rows={3}
               value={form.problems}
               onChange={update('problems')}
-              placeholder="Technical blockers, environment, power limits..."
+              placeholder={t('command.problemsPlaceholder')}
               className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
             />
           </label>
@@ -195,7 +191,7 @@ export default function CommandPage() {
               accept=".pdf,.png,.jpg,.jpeg,.gif,.zip,.txt,.csv"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
-            {file ? file.name : 'Attach schematics / datasheets (optional, max 5MB)'}
+            {file ? file.name : t('command.attachFile')}
           </label>
 
           {status.message && (
@@ -208,14 +204,14 @@ export default function CommandPage() {
             <div className="border border-dark-border bg-dark-bg p-3 text-xs">
               {isLoggedIn ? (
                 <>
-                  <p className="text-dark-muted">Command saved to your account.</p>
+                  <p className="text-dark-muted">{t('command.savedToAccount')}</p>
                   <Link to="/track" className="mt-3 inline-block text-dark-text underline">
-                    Open Track — your commands
+                    {t('command.openTrack')}
                   </Link>
                 </>
               ) : (
                 <>
-                  <p className="text-dark-muted">Your tracking code — save it to follow progress:</p>
+                  <p className="text-dark-muted">{t('command.trackingCodeLabel')}</p>
                   <p className="mt-2 font-mono text-lg tracking-wide text-dark-text">
                     {tracking.tracking_code}
                   </p>
@@ -223,14 +219,14 @@ export default function CommandPage() {
                     to={`/track?code=${encodeURIComponent(tracking.tracking_code)}`}
                     className="mt-3 inline-block text-dark-text underline"
                   >
-                    Open command tracker
+                    {t('command.openTracker')}
                   </Link>
                   <p className="mt-2 text-dark-muted">
-                    You can also track using the email you provided, or{' '}
+                    {t('command.trackHintBefore')}{' '}
                     <Link to="/account" className="underline">
-                      create an account
+                      {t('command.createAccount')}
                     </Link>{' '}
-                    for easier access next time.
+                    {t('command.trackHintAfter')}
                   </p>
                 </>
               )}
@@ -243,7 +239,7 @@ export default function CommandPage() {
             className="flex w-full items-center justify-center gap-2 border border-dark-border py-3 text-sm font-medium panel-hover disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
-            {submitting ? 'Submitting…' : 'Submit command'}
+            {submitting ? t('command.submitting') : t('command.submit')}
           </button>
         </form>
       </main>
