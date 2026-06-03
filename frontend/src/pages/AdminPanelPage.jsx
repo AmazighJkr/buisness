@@ -352,6 +352,12 @@ export default function AdminPanelPage() {
     setMsg({ type: 'success', text: 'Tracking link copied.' })
   }
 
+  const filteredProjects = useMemo(() => {
+    const q = projectSearch.trim().toLowerCase()
+    if (!q) return projects
+    return projects.filter((p) => (p.title || '').toLowerCase().includes(q))
+  }, [projects, projectSearch])
+
   if (loading) {
     return <p className="text-sm text-gray-500 animate-pulse p-8">Loading admin panel...</p>
   }
@@ -390,12 +396,6 @@ export default function AdminPanelPage() {
 
   const tabs = []
   if (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) tabs.push(['post', 'Post / Edit'])
-  const filteredProjects = useMemo(() => {
-    const q = projectSearch.trim().toLowerCase()
-    if (!q) return projects
-    return projects.filter((p) => (p.title || '').toLowerCase().includes(q))
-  }, [projects, projectSearch])
-
   if (hasPerm(user, 'edit_project') || hasPerm(user, 'post_project')) tabs.push(['projects', 'Projects'])
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
