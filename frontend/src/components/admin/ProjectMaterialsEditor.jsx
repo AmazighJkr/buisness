@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ExternalLink, Search } from 'lucide-react'
 import { adminFetchStoreProducts } from '../../api/client.js'
 import AmazonProductPickerModal from './AmazonProductPickerModal.jsx'
+import StoreProductCombobox from './StoreProductCombobox.jsx'
 
 export const EMPTY_MATERIAL_ROW = {
   component: '',
@@ -91,19 +92,12 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
                   />
                 </td>
                 <td className="p-1">
-                  <select
+                  <StoreProductCombobox
+                    products={storeProducts}
                     value={row.store_product_id || ''}
-                    onChange={(e) => onStorePick(ri, e.target.value)}
-                    className="w-full border border-lab-border bg-lab-bg px-2 py-1"
-                  >
-                    <option value="">— None —</option>
-                    {storeProducts.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                        {p.stock_qty <= 0 ? ' (out of stock)' : ''}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(productId) => onStorePick(ri, productId)}
+                    placeholder="Search EmbeddedGrid store…"
+                  />
                 </td>
                 <td className="p-1">
                   <div className="flex flex-col gap-1">
