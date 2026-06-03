@@ -510,6 +510,14 @@ export async function fetchAdminMe() {
   return handleResponse(res)
 }
 
+export async function adminSearchAmazon(q, domain = 'amazon.com') {
+  const params = new URLSearchParams({ q, domain })
+  const res = await fetch(`${API_BASE}/api/admin/amazon/search/?${params}`, {
+    headers: getAdminHeaders(),
+  })
+  return handleResponse(res)
+}
+
 function adminHeadersMultipart() {
   const headers = {}
   const token = localStorage.getItem(ADMIN_TOKEN_KEY)

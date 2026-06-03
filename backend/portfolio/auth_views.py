@@ -61,14 +61,9 @@ class CustomerLoginView(APIView):
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             return Response({'detail': 'Invalid credentials.'}, status=401)
-        if user.is_staff:
-            return Response({'detail': 'Use the admin panel to sign in as staff.'}, status=403)
+        if user.is_staff or not user.check_password(password):
+            return Response({'detail': 'Invalid credentials.'}, status=401)
         if not user.has_usable_password():
-            return Response(
-                {'detail': 'This account uses Google sign-in. Continue with Google below.'},
-                status=400,
-            )
-        if not user.check_password(password):
             return Response({'detail': 'Invalid credentials.'}, status=401)
         return Response({
             **issue_tokens(user),
@@ -100,7 +95,10 @@ class GoogleLoginView(APIView):
             claims = verify_google_credential(credential)
             user = get_or_create_user_from_google(claims)
         except ValueError as exc:
-            return Response({'detail': str(exc)}, status=400)
+            msg = str(exc)
+            if msg == 'Invalid credentials.':
+                return Response({'detail': msg}, status=401)
+            return Response({'detail': msg}, status=400)
         return Response({
             **issue_tokens(user),
             'user': CustomerMeSerializer(user).data,

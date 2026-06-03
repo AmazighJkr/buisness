@@ -65,7 +65,7 @@ def get_or_create_user_from_google(claims: dict) -> User:
     if link:
         user = link.user
         if user.is_staff:
-            raise ValueError('Use the admin panel to sign in as staff.')
+            raise ValueError('Invalid credentials.')
         return user
 
     user = None
@@ -74,7 +74,7 @@ def get_or_create_user_from_google(claims: dict) -> User:
 
     if user:
         if user.is_staff:
-            raise ValueError('Use the admin panel to sign in as staff.')
+            raise ValueError('Invalid credentials.')
         UserSocialAuth.objects.get_or_create(
             user=user,
             provider=UserSocialAuth.Provider.GOOGLE,

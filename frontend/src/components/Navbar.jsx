@@ -7,8 +7,6 @@ const links = [
 ]
 
 export default function Navbar() {
-  const adminHref = '/admin-panel'
-
   return (
     <header className="sticky top-0 z-50 border-b border-theme-border bg-theme-bg">
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -28,9 +26,6 @@ export default function Navbar() {
               {label}
             </NavLink>
           ))}
-          <a href={adminHref} className="text-sm text-theme-muted hover:text-theme-fg">
-            Admin
-          </a>
         </nav>
       </div>
     </header>

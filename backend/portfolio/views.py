@@ -62,6 +62,7 @@ from .serializers import (
     SubscriptionPackAdminSerializer,
 )
 
+from .amazon_search import search_amazon_products
 from .enterprise import enterprise_display_name
 from .tracking import (
     commands_for_user,
@@ -581,6 +582,23 @@ class AdminMeView(APIView):
             'is_superuser': user.is_superuser,
             'permissions': perms,
         })
+
+
+class AdminAmazonSearchView(APIView):
+    """Staff-only Amazon product search for project BOM linking."""
+
+    permission_classes = [IsStaffUser]
+
+    def get(self, request):
+        query = (request.query_params.get('q') or '').strip()
+        if len(query) < 2:
+            return Response({'detail': 'Enter at least 2 characters to search.'}, status=400)
+        domain = (request.query_params.get('domain') or 'amazon.com').strip().lower()
+        try:
+            results = search_amazon_products(query, domain=domain, limit=10)
+        except RuntimeError as exc:
+            return Response({'detail': str(exc)}, status=502)
+        return Response({'results': results})
 
 
 class AdminSubscriptionPackViewSet(viewsets.ModelViewSet):

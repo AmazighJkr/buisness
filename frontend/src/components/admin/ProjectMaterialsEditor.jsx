@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { ExternalLink, Search } from 'lucide-react'
 import { adminFetchStoreProducts } from '../../api/client.js'
+import AmazonProductPickerModal from './AmazonProductPickerModal.jsx'
 
 export const EMPTY_MATERIAL_ROW = {
   component: '',
@@ -11,6 +13,7 @@ export const EMPTY_MATERIAL_ROW = {
 
 export default function ProjectMaterialsEditor({ rows, onChange }) {
   const [storeProducts, setStoreProducts] = useState([])
+  const [amazonPickerRow, setAmazonPickerRow] = useState(null)
 
   useEffect(() => {
     adminFetchStoreProducts()
@@ -33,11 +36,20 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
     })
   }
 
+  const onAmazonPick = (item) => {
+    if (amazonPickerRow === null) return
+    updateRow(amazonPickerRow, {
+      amazon_url: item.url || '',
+      component: rows[amazonPickerRow]?.component?.trim() || item.title || '',
+    })
+    setAmazonPickerRow(null)
+  }
+
   return (
     <div className="space-y-2">
       <p className="text-xs text-lab-cyan">Materials table</p>
       <p className="text-[10px] text-dark-muted">
-        Link store products (Algeria checkout) and/or Amazon URLs (international visitors).
+        Link store products (Algeria) or pick Amazon listings for international visitors.
       </p>
       <div className="overflow-x-auto border border-lab-border">
         <table className="w-full text-xs">
@@ -47,7 +59,7 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
               <th className="px-2 py-2 text-left font-normal w-16">Qty</th>
               <th className="px-2 py-2 text-left font-normal">Notes</th>
               <th className="px-2 py-2 text-left font-normal min-w-[10rem]">Store product</th>
-              <th className="px-2 py-2 text-left font-normal min-w-[8rem]">Amazon URL</th>
+              <th className="px-2 py-2 text-left font-normal min-w-[9rem]">Amazon</th>
               <th className="w-8" />
             </tr>
           </thead>
@@ -94,12 +106,39 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
                   </select>
                 </td>
                 <td className="p-1">
-                  <input
-                    value={row.amazon_url || ''}
-                    onChange={(e) => updateRow(ri, { amazon_url: e.target.value })}
-                    className="w-full border border-lab-border bg-lab-bg px-2 py-1"
-                    placeholder="https://amazon…"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setAmazonPickerRow(ri)}
+                      className="inline-flex items-center justify-center gap-1 border border-lab-border px-2 py-1 text-lab-cyan hover:border-lab-cyan"
+                    >
+                      <Search className="h-3 w-3" aria-hidden />
+                      Find on Amazon
+                    </button>
+                    {row.amazon_url ? (
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={row.amazon_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-w-0 flex-1 items-center gap-1 truncate text-[10px] text-dark-muted hover:text-lab-cyan"
+                          title={row.amazon_url}
+                        >
+                          <ExternalLink className="h-3 w-3 shrink-0" aria-hidden />
+                          <span className="truncate">Linked</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => updateRow(ri, { amazon_url: '' })}
+                          className="text-[10px] text-red-400 hover:text-red-300"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-dark-muted">No link</span>
+                    )}
+                  </div>
                 </td>
                 <td className="p-1 text-center">
                   <button
@@ -123,6 +162,13 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
       >
         + Add row
       </button>
+
+      <AmazonProductPickerModal
+        open={amazonPickerRow !== null}
+        initialQuery={amazonPickerRow !== null ? rows[amazonPickerRow]?.component || '' : ''}
+        onClose={() => setAmazonPickerRow(null)}
+        onSelect={onAmazonPick}
+      />
     </div>
   )
 }

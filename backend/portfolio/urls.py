@@ -25,6 +25,7 @@ from .store_views import (
     StoreOrderTrackView,
 )
 from .views import (
+    AdminAmazonSearchView,
     AdminCategoryViewSet,
     AdminCommentDestroyView,
     AdminCommentListView,
@@ -90,6 +91,7 @@ urlpatterns = [
     path('webhooks/chargily/', ChargilyWebhookView.as_view(), name='chargily-webhook'),
     path('admin/', include(admin_router.urls)),
     path('admin/me/', AdminMeView.as_view(), name='admin-me'),
+    path('admin/amazon/search/', AdminAmazonSearchView.as_view(), name='admin-amazon-search'),
     path('admin/users/', AdminUserListCreateView.as_view(), name='admin-users'),
     path('admin/customers/', AdminCustomerListView.as_view(), name='admin-customers'),
     path('admin/customers/<int:id>/', AdminCustomerDetailView.as_view(), name='admin-customer-detail'),
