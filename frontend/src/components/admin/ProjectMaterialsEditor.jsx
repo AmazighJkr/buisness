@@ -48,10 +48,16 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-lab-cyan">Materials table</p>
+      <p className="text-xs text-lab-cyan">Materials — Post / Edit project</p>
       <p className="text-[10px] text-dark-muted">
-        Link store products (Algeria) or pick Amazon listings for international visitors.
+        In the <strong className="font-normal text-dark-text">EmbeddedGrid store</strong> column, type a product
+        name to search and pick from your catalog (Algeria). Use Amazon for international parts.
       </p>
+      {storeProducts.length === 0 && (
+        <p className="text-[10px] text-amber-400/90">
+          No store products loaded — add products in the Store tab first, then link them here.
+        </p>
+      )}
       <div className="overflow-x-auto border border-lab-border">
         <table className="w-full text-xs">
           <thead className="border-b border-lab-border bg-dark-panel text-dark-muted">
@@ -59,7 +65,7 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
               <th className="px-2 py-2 text-left font-normal">Component</th>
               <th className="px-2 py-2 text-left font-normal w-16">Qty</th>
               <th className="px-2 py-2 text-left font-normal">Notes</th>
-              <th className="px-2 py-2 text-left font-normal min-w-[10rem]">Store product</th>
+              <th className="px-2 py-2 text-left font-normal min-w-[12rem]">EmbeddedGrid store</th>
               <th className="px-2 py-2 text-left font-normal min-w-[9rem]">Amazon</th>
               <th className="w-8" />
             </tr>
@@ -96,7 +102,7 @@ export default function ProjectMaterialsEditor({ rows, onChange }) {
                     products={storeProducts}
                     value={row.store_product_id || ''}
                     onChange={(productId) => onStorePick(ri, productId)}
-                    placeholder="Search EmbeddedGrid store…"
+                    placeholder="Type product name…"
                   />
                 </td>
                 <td className="p-1">
