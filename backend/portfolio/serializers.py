@@ -12,6 +12,7 @@ from rest_framework import serializers
 from .embed_utils import normalize_code_files, resolve_simulation_embed_url
 from .models import (
     Comment,
+    CommandLayer,
     CommandMessage,
     Project,
     ProjectCategory,
@@ -25,6 +26,7 @@ from .models import (
     UserSubscription,
 )
 from .access import project_access, required_packs_for, user_can_view_project
+from .command_layers import build_command_layers_snapshot, parse_layer_ids
 from .validators import validate_upload_extension
 
 User = get_user_model()
@@ -778,9 +780,53 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class CommandLayerPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommandLayer
+        fields = [
+            'id',
+            'slug',
+            'name',
+            'description',
+            'group',
+            'price_usd',
+            'price_dzd',
+            'is_required',
+            'sort_order',
+        ]
+
+
+class AdminCommandLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommandLayer
+        fields = [
+            'id',
+            'slug',
+            'name',
+            'description',
+            'group',
+            'price_usd',
+            'price_dzd',
+            'is_required',
+            'is_active',
+            'sort_order',
+        ]
+
+    def validate_slug(self, value):
+        slug = slugify((value or '').strip()) or 'layer'
+        return slug
+
+    def validate(self, attrs):
+        name = (attrs.get('name') or '').strip()
+        if not attrs.get('slug') and name:
+            attrs['slug'] = slugify(name) or 'layer'
+        return attrs
+
+
 class ProjectCommandCreateSerializer(serializers.ModelSerializer):
     tracking_code = serializers.CharField(read_only=True)
     client_email = serializers.EmailField(required=False, allow_blank=True)
+    layer_ids_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = ProjectCommand
@@ -795,8 +841,18 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
             'objectives',
             'problems',
             'attachment',
+            'layer_ids_json',
+            'selected_layers',
+            'estimated_total_usd',
+            'estimated_total_dzd',
         ]
-        read_only_fields = ['id', 'tracking_code']
+        read_only_fields = [
+            'id',
+            'tracking_code',
+            'selected_layers',
+            'estimated_total_usd',
+            'estimated_total_dzd',
+        ]
 
     def validate(self, attrs):
         request = self.context.get('request')
@@ -812,7 +868,34 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'client_email': 'Email is required.'})
         else:
             attrs['client_email'] = email.lower()
+        raw_layers = attrs.pop('layer_ids_json', None)
+        if raw_layers is None and 'layer_ids_json' in self.initial_data:
+            raw_layers = self.initial_data.get('layer_ids_json')
+        try:
+            layer_ids = parse_layer_ids(raw_layers)
+        except ValueError as exc:
+            raise serializers.ValidationError({'layer_ids_json': str(exc)}) from exc
+        rows, total_usd, total_dzd = build_command_layers_snapshot(layer_ids)
+        if not rows:
+            raise serializers.ValidationError(
+                {'layer_ids_json': 'Select at least one project layer.'},
+            )
+        attrs['_layer_rows'] = rows
+        attrs['_layer_total_usd'] = total_usd
+        attrs['_layer_total_dzd'] = total_dzd
         return attrs
+
+    def create(self, validated_data):
+        rows = validated_data.pop('_layer_rows', [])
+        total_usd = validated_data.pop('_layer_total_usd', None)
+        total_dzd = validated_data.pop('_layer_total_dzd', None)
+        validated_data.pop('layer_ids_json', None)
+        return ProjectCommand.objects.create(
+            selected_layers=rows,
+            estimated_total_usd=total_usd,
+            estimated_total_dzd=total_dzd,
+            **validated_data,
+        )
 
     def validate_attachment(self, value):
         if value:
@@ -902,6 +985,9 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
             'idea_description',
             'objectives',
             'problems',
+            'selected_layers',
+            'estimated_total_usd',
+            'estimated_total_dzd',
             'project_title',
             'quoted_price',
             'quoted_price_dzd',
@@ -971,6 +1057,9 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
             'price_limit',
             'objectives',
             'problems',
+            'selected_layers',
+            'estimated_total_usd',
+            'estimated_total_dzd',
             'attachment',
             'status',
             'quoted_price',

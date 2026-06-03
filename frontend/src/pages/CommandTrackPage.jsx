@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
+import CommandLayersSummary from '../components/CommandLayersSummary.jsx'
 import CommandPaymentBill from '../components/CommandPaymentBill.jsx'
 import CommandChat from '../components/CommandChat.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
@@ -41,6 +42,16 @@ function CommandDetail({ command, onBack, onSend, onCommandUpdated, sending, use
         )}
         <p className="mt-4 whitespace-pre-wrap text-sm text-dark-muted">{command.idea_description}</p>
       </SectionBox>
+
+      {command.selected_layers?.length > 0 && (
+        <SectionBox title={t('commandLayers.selectedTitle')}>
+          <CommandLayersSummary
+            layers={command.selected_layers}
+            totalUsd={command.estimated_total_usd}
+            totalDzd={command.estimated_total_dzd}
+          />
+        </SectionBox>
+      )}
 
       <SectionBox title={t('command.devStatus')}>
         <CommandStatusBar status={command.status} />

@@ -159,6 +159,23 @@ class ProjectCommand(models.Model):
         related_name='command_responses',
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    selected_layers = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Snapshot of chosen command layers [{id, slug, name, price_usd, price_dzd}]',
+    )
+    estimated_total_usd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    estimated_total_dzd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ['-created_at']
@@ -178,6 +195,40 @@ class ProjectCommand(models.Model):
             from .tracking import generate_tracking_code
             self.tracking_code = generate_tracking_code()
         super().save(*args, **kwargs)
+
+
+class CommandLayer(models.Model):
+    """Add-on scope clients pick when submitting a custom command (priced building blocks)."""
+
+    class Group(models.TextChoices):
+        FIRMWARE = 'firmware', 'Firmware & embedded'
+        MOBILE = 'mobile', 'Mobile apps'
+        CLOUD = 'cloud', 'Server & web'
+        WIRELESS = 'wireless', 'Wireless & connectivity'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    slug = models.SlugField(max_length=80, unique=True)
+    name = models.CharField(max_length=160)
+    description = models.TextField(blank=True)
+    group = models.CharField(
+        max_length=20,
+        choices=Group.choices,
+        default=Group.FIRMWARE,
+    )
+    price_usd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    price_dzd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    is_required = models.BooleanField(
+        default=False,
+        help_text='Always included in every new command (e.g. basic firmware).',
+    )
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+
+    def __str__(self):
+        return self.name
 
 
 class CommandMessage(models.Model):

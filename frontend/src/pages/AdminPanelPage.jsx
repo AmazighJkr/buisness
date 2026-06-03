@@ -24,6 +24,7 @@ import {
   validateUploadFile,
 } from '../api/client.js'
 import AdminCategories from '../components/AdminCategories.jsx'
+import AdminCommandLayers from '../components/AdminCommandLayers.jsx'
 import AdminCustomers from '../components/AdminCustomers.jsx'
 import AdminPacks from '../components/AdminPacks.jsx'
 import AdminStore from '../components/AdminStore.jsx'
@@ -31,6 +32,7 @@ import AdminStoreOrders from '../components/AdminStoreOrders.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
 import CommandComposer from '../components/CommandComposer.jsx'
+import CommandLayersSummary from '../components/CommandLayersSummary.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import EditableRows from '../components/EditableRows.jsx'
 import ProjectMaterialsEditor, { EMPTY_MATERIAL_ROW } from '../components/admin/ProjectMaterialsEditor.jsx'
@@ -409,6 +411,7 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) tabs.push(['post', 'Post / Edit'])
   if (hasPerm(user, 'edit_project') || hasPerm(user, 'post_project')) tabs.push(['projects', 'Projects'])
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
+  if (hasPerm(user, 'respond_commands')) tabs.push(['command-layers', 'Layers'])
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
   if (hasPerm(user, 'edit_project') || user.is_superuser) tabs.push(['packs', 'Packs'])
@@ -687,6 +690,8 @@ export default function AdminPanelPage() {
         </div>
       )}
 
+      {tab === 'command-layers' && hasPerm(user, 'respond_commands') && <AdminCommandLayers />}
+
       {tab === 'commands' && hasPerm(user, 'view_commands') && (
         <div className="grid gap-6 lg:grid-cols-2 max-w-5xl">
           <ul className="space-y-2">
@@ -723,6 +728,14 @@ export default function AdminPanelPage() {
                 </button>
               </div>
               <p className="text-dark-text whitespace-pre-wrap">{selectedCommand.idea_description}</p>
+
+              {selectedCommand.selected_layers?.length > 0 && (
+                <CommandLayersSummary
+                  layers={selectedCommand.selected_layers}
+                  totalUsd={selectedCommand.estimated_total_usd}
+                  totalDzd={selectedCommand.estimated_total_dzd}
+                />
+              )}
 
               {selectedCommand.tracking_code && (
                 <div className="border border-lab-border bg-lab-bg p-3 space-y-2">

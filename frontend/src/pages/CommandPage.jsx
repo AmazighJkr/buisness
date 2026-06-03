@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Send } from 'lucide-react'
 import PageHeader from '../components/PageHeader.jsx'
+import CommandLayerPicker from '../components/CommandLayerPicker.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
 import { fetchProjects, submitCommand } from '../api/client.js'
@@ -13,12 +14,12 @@ export default function CommandPage() {
   const { user, isLoggedIn } = useUserSession()
 
   const [projects, setProjects] = useState([])
+  const [layerIds, setLayerIds] = useState([])
   const [form, setForm] = useState({
     client_name: '',
     client_email: '',
     associated_project: preselectedProject,
     idea_description: '',
-    price_limit: '',
     objectives: '',
     problems: '',
   })
@@ -51,11 +52,15 @@ export default function CommandPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!layerIds.length) {
+      setStatus({ type: 'error', message: t('commandLayers.pickOne') })
+      return
+    }
     setSubmitting(true)
     setStatus({ type: '', message: '' })
     setTracking(null)
     try {
-      const result = await submitCommand({ ...form, attachment: file })
+      const result = await submitCommand({ ...form, layer_ids: layerIds, attachment: file })
       setTracking(result)
       setStatus({
         type: 'success',
@@ -66,10 +71,10 @@ export default function CommandPage() {
         client_email: isLoggedIn ? user?.email || '' : '',
         associated_project: preselectedProject,
         idea_description: '',
-        price_limit: '',
         objectives: '',
         problems: '',
       })
+      setLayerIds([])
       setFile(null)
     } catch (err) {
       setStatus({ type: 'error', message: err.message })
@@ -149,18 +154,7 @@ export default function CommandPage() {
             />
           </label>
 
-          <label className="block text-xs text-dark-muted">
-            {t('command.priceLimit')}
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.price_limit}
-              onChange={update('price_limit')}
-              placeholder={t('command.priceLimitPlaceholder')}
-              className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm outline-none focus:border-dark-text"
-            />
-          </label>
+          <CommandLayerPicker selectedIds={layerIds} onChange={setLayerIds} />
 
           <label className="block text-xs text-dark-muted">
             {t('command.objectives')}

@@ -257,13 +257,22 @@ export async function postComment(projectId, body) {
   return handleResponse(res)
 }
 
+export async function fetchCommandLayers() {
+  const data = await publicFetch(`${API_BASE}/api/commands/layers/`)
+  return Array.isArray(data) ? data : data.results ?? data
+}
+
 export async function submitCommand(fields) {
   const form = new FormData()
   Object.entries(fields).forEach(([key, value]) => {
+    if (key === 'layer_ids') return
     if (value !== undefined && value !== null && value !== '') {
       form.append(key, value)
     }
   })
+  if (fields.layer_ids?.length) {
+    form.append('layer_ids_json', JSON.stringify(fields.layer_ids))
+  }
   const res = await fetch(`${API_BASE}/api/commands/`, {
     method: 'POST',
     body: form,
@@ -515,6 +524,39 @@ export async function adminSearchAmazon(q, domain = 'amazon.com') {
   const res = await fetch(`${API_BASE}/api/admin/amazon/search/?${params}`, {
     headers: getAdminHeaders(),
   })
+  return handleResponse(res)
+}
+
+export async function adminFetchCommandLayers() {
+  const res = await fetch(`${API_BASE}/api/admin/command-layers/`, { headers: getAdminHeaders() })
+  const data = await handleResponse(res)
+  return data.results ?? data
+}
+
+export async function adminCreateCommandLayer(body) {
+  const res = await fetch(`${API_BASE}/api/admin/command-layers/`, {
+    method: 'POST',
+    headers: getAdminHeaders(),
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export async function adminUpdateCommandLayer(id, body) {
+  const res = await fetch(`${API_BASE}/api/admin/command-layers/${id}/`, {
+    method: 'PATCH',
+    headers: getAdminHeaders(),
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export async function adminDeleteCommandLayer(id) {
+  const res = await fetch(`${API_BASE}/api/admin/command-layers/${id}/`, {
+    method: 'DELETE',
+    headers: getAdminHeaders(),
+  })
+  if (res.status === 204) return null
   return handleResponse(res)
 }
 

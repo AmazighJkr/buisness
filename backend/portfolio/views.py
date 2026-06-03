@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from .models import (
     Comment,
+    CommandLayer,
     CommandMessage,
     Project,
     ProjectCategory,
@@ -35,6 +36,7 @@ from .permissions import (
     IsStaffUser,
 )
 from .serializers import (
+    AdminCommandLayerSerializer,
     AdminCustomerSerializer,
     AdminProjectSerializer,
     AdminUserCreateSerializer,
@@ -45,6 +47,7 @@ from .serializers import (
     CategoryTreeSerializer,
     CommentCreateSerializer,
     CommentSerializer,
+    CommandLayerPublicSerializer,
     CommandMessageAdminCreateSerializer,
     CommandMessageAdminSerializer,
     CommandMessageCreateSerializer,
@@ -215,6 +218,17 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
             text=serializer.validated_data['text'],
         )
         return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
+
+
+class CommandLayerListView(generics.ListAPIView):
+    """Public catalog of command scope layers (priced add-ons)."""
+
+    permission_classes = [AllowAny]
+    serializer_class = CommandLayerPublicSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return CommandLayer.objects.filter(is_active=True).order_by('sort_order', 'name')
 
 
 class ProjectCommandCreateView(generics.CreateAPIView):
@@ -582,6 +596,13 @@ class AdminMeView(APIView):
             'is_superuser': user.is_superuser,
             'permissions': perms,
         })
+
+
+class AdminCommandLayerViewSet(viewsets.ModelViewSet):
+    queryset = CommandLayer.objects.all().order_by('sort_order', 'name')
+    serializer_class = AdminCommandLayerSerializer
+    permission_classes = [CanRespondCommands]
+    lookup_field = 'id'
 
 
 class AdminAmazonSearchView(APIView):

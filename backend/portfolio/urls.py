@@ -26,6 +26,7 @@ from .store_views import (
 )
 from .views import (
     AdminAmazonSearchView,
+    AdminCommandLayerViewSet,
     AdminCategoryViewSet,
     AdminCommentDestroyView,
     AdminCommentListView,
@@ -41,6 +42,7 @@ from .views import (
     AdminSubscriptionPackViewSet,
     AdminUserListCreateView,
     CategoryListView,
+    CommandLayerListView,
     CommandTrackMessageView,
     CommandTrackView,
     MyCommandDetailView,
@@ -56,6 +58,7 @@ router.register(r'projects', ProjectViewSet, basename='project')
 router.register(r'store/products', StoreProductViewSet, basename='store-product')
 
 admin_router = DefaultRouter()
+admin_router.register(r'command-layers', AdminCommandLayerViewSet, basename='admin-command-layer')
 admin_router.register(r'projects', AdminProjectViewSet, basename='admin-project')
 admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-category')
 admin_router.register(r'commands', AdminCommandViewSet, basename='admin-command')
@@ -73,6 +76,7 @@ urlpatterns = [
     path('store/orders/<uuid:order_id>/resume/', StoreOrderResumeView.as_view(), name='store-order-resume'),
     path('store/orders/<uuid:order_id>/pay/', StoreOrderPayView.as_view(), name='store-order-pay'),
     path('', include(router.urls)),
+    path('commands/layers/', CommandLayerListView.as_view(), name='command-layer-list'),
     path('commands/', ProjectCommandCreateView.as_view(), name='command-create'),
     path('commands/mine/', MyCommandsListView.as_view(), name='command-mine-list'),
     path('commands/mine/<uuid:command_id>/', MyCommandDetailView.as_view(), name='command-mine-detail'),
