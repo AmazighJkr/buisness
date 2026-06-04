@@ -121,6 +121,8 @@ class PaymentConfigView(APIView):
         country = client_country(request)
         provider = payment_provider_for_request(request)
         is_dz = is_algeria_request(request)
+        from .checkout_recaptcha import recaptcha_configured, recaptcha_site_key
+
         return Response({
             'stripe': stripe_enabled(),
             'chargily': chargily_enabled(),
@@ -131,6 +133,8 @@ class PaymentConfigView(APIView):
             'provider': provider,
             'currency': 'dzd' if provider == 'chargily' else 'usd',
             'chargily_public_key': chargily_public_key() if chargily_enabled() else '',
+            'recaptcha_site_key': recaptcha_site_key(),
+            'recaptcha_enabled': recaptcha_configured(),
         })
 
 

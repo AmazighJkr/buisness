@@ -182,9 +182,9 @@ export default function ProjectsPage() {
                   {searchQuery.trim() ? t('projects.noResults') : t('projects.noProjects')}
                 </p>
               ) : (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+                <div className="projects-grid">
                   {projects.map((p) => (
-                    <div key={p.id} onClick={() => openProject(p.id)} className="cursor-pointer">
+                    <div key={p.id} onClick={() => openProject(p.id)} className="projects-grid__item cursor-pointer">
                       <ProjectCard project={p} />
                     </div>
                   ))}

@@ -96,11 +96,15 @@ export default function BrowsePage() {
       )}
 
       {isLeaf && (
-        <div className="space-y-4">
+        <div className="projects-grid">
           {projects.length === 0 ? (
-            <p className="text-sm text-theme-muted">No projects in this subcategory yet.</p>
+            <p className="col-span-full text-sm text-theme-muted">No projects in this subcategory yet.</p>
           ) : (
-            projects.map((p) => <ProjectCard key={p.id} project={p} />)
+            projects.map((p) => (
+              <div key={p.id} className="projects-grid__item">
+                <ProjectCard project={p} />
+              </div>
+            ))
           )}
         </div>
       )}

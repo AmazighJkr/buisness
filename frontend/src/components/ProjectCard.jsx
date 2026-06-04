@@ -9,12 +9,12 @@ export default function ProjectCard({ project }) {
   const locked = project.locked
 
   return (
-    <article className={`panel panel-hover overflow-hidden ${locked ? 'opacity-90' : ''}`}>
-      <div className="relative">
+    <article className={`project-card panel panel-hover ${locked ? 'opacity-90' : ''}`}>
+      <div className="project-card__media relative">
         <img
           src={showPlaceholder ? SCHEMATIC_PLACEHOLDER : src}
           alt=""
-          className="h-32 w-full border-b border-dark-border object-cover bg-dark-bg"
+          className="project-card__img"
           onError={() => setImgFailed(true)}
         />
         {locked && (
@@ -29,12 +29,14 @@ export default function ProjectCard({ project }) {
           </span>
         )}
       </div>
-      <div className="flex items-start justify-between gap-2 p-3">
-        <div className="min-w-0">
-          <h3 className="truncate text-sm font-medium">{project.title}</h3>
-          <p className="mt-1 line-clamp-2 text-xs text-dark-muted">{project.description}</p>
+      <div className="project-card__body flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h3 className="project-card__title truncate text-sm font-medium">{project.title}</h3>
+          <p className="project-card__desc mt-1 line-clamp-2 text-xs text-dark-muted">
+            {project.description}
+          </p>
         </div>
-        <ChevronRight className="h-4 w-4 shrink-0 text-dark-muted" />
+        <ChevronRight className="h-4 w-4 shrink-0 text-dark-muted" aria-hidden />
       </div>
     </article>
   )

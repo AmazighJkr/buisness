@@ -634,6 +634,24 @@ class UserSubscription(models.Model):
         return f'{self.user.username} → {self.pack.name} ({self.status})'
 
 
+class LegalPage(models.Model):
+    """Editable CGV / privacy policy (JSON per locale: en, fr)."""
+
+    class Slug(models.TextChoices):
+        TERMS = 'terms', 'Terms (CGV)'
+        PRIVACY = 'privacy', 'Privacy policy'
+
+    slug = models.CharField(max_length=32, choices=Slug.choices, unique=True)
+    content = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['slug']
+
+    def __str__(self):
+        return self.get_slug_display()
+
+
 class UserSocialAuth(models.Model):
     """Links a customer account to Google (or other providers later)."""
 

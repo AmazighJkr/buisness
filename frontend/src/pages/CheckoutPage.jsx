@@ -4,6 +4,7 @@ import StoreHeader from '../components/StoreHeader.jsx'
 import StoreAlgeriaGate, { StoreNotAvailableInRegion } from '../components/store/StoreAlgeriaGate.jsx'
 import {
   createStoreOrder,
+  fetchPaymentConfig,
   fetchShippingQuote,
   fetchStoreOrderResume,
   fetchUserMe,
@@ -13,7 +14,7 @@ import {
 import { useCart } from '../hooks/useCart.js'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import ShippingLocationCombobox from '../components/store/ShippingLocationCombobox.jsx'
-import CheckoutCaptcha from '../components/checkout/CheckoutCaptcha.jsx'
+import CheckoutRecaptcha from '../components/checkout/CheckoutRecaptcha.jsx'
 import CheckoutLegalConsent from '../components/checkout/CheckoutLegalConsent.jsx'
 import { validateCheckoutForm, firstCheckoutError } from '../utils/checkoutValidation.js'
 import {
@@ -49,8 +50,8 @@ export default function CheckoutPage() {
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [shippingQuote, setShippingQuote] = useState(null)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState('')
-  const [captchaAnswer, setCaptchaAnswer] = useState('')
+  const [recaptchaSiteKey, setRecaptchaSiteKey] = useState('')
+  const [recaptchaToken, setRecaptchaToken] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [form, setForm] = useState({
     first_name: '',
@@ -77,6 +78,17 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (chargily) setPaymentMethod((m) => (m === 'cod' ? m : 'chargily'))
   }, [chargily])
+
+  useEffect(() => {
+    const envKey = (import.meta.env.VITE_RECAPTCHA_SITE_KEY || '').trim()
+    if (envKey) {
+      setRecaptchaSiteKey(envKey)
+      return
+    }
+    fetchPaymentConfig()
+      .then((cfg) => setRecaptchaSiteKey(cfg.recaptcha_site_key || ''))
+      .catch(() => setRecaptchaSiteKey(''))
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -249,10 +261,10 @@ export default function CheckoutPage() {
     const errors = validateCheckoutForm(form, {
       shippingQuote,
       acceptedTerms,
-      captchaAnswer,
+      recaptchaToken,
       t,
     })
-    if (!captchaToken) errors.captcha = t('checkout.captchaLoadFailed')
+    if (!recaptchaToken) errors.captcha = t('checkout.errCaptcha')
     setFieldErrors(errors)
     const firstErr = firstCheckoutError(errors)
     if (firstErr) {
@@ -274,8 +286,7 @@ export default function CheckoutPage() {
         delivery_type: form.delivery_type,
         notes: form.notes,
         accepted_terms: true,
-        captcha_token: captchaToken,
-        captcha_answer: String(captchaAnswer).trim(),
+        recaptcha_response: recaptchaToken,
         reservation_id: getCartReservationId() || cartSnapshot?.reservation_id || '',
         items: displayItems.map((row) => ({
           product_id: row.productId,
@@ -634,12 +645,10 @@ export default function CheckoutPage() {
                   }}
                   error={fieldErrors.terms}
                 />
-                <CheckoutCaptcha
-                  token={captchaToken}
-                  answer={captchaAnswer}
-                  onTokenChange={setCaptchaToken}
-                  onAnswerChange={(v) => {
-                    setCaptchaAnswer(v)
+                <CheckoutRecaptcha
+                  siteKey={recaptchaSiteKey}
+                  onChange={(v) => {
+                    setRecaptchaToken(v)
                     setFieldErrors((fe) => ({ ...fe, captcha: undefined }))
                   }}
                   error={fieldErrors.captcha}
@@ -720,8 +729,7 @@ export default function CheckoutPage() {
                     !shippingQuote ||
                     Boolean(cartRefreshError) ||
                     !acceptedTerms ||
-                    !captchaToken ||
-                    !String(captchaAnswer).trim()
+                    !recaptchaToken
                   }
                   className="btn-primary mt-4 w-full"
                 >

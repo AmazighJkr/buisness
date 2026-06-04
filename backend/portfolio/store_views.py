@@ -25,13 +25,12 @@ class StoreOrderCreateView(APIView):
 
     def post(self, request):
         require_algeria_store(request)
-        ser = StoreOrderCreateSerializer(data=request.data)
+        ser = StoreOrderCreateSerializer(data=request.data, context={'request': request})
         ser.is_valid(raise_exception=True)
         vd = dict(ser.validated_data)
         items_data = vd.pop('items')
         vd.pop('accepted_terms', None)
-        vd.pop('captcha_token', None)
-        vd.pop('captcha_answer', None)
+        vd.pop('recaptcha_response', None)
         user = request.user if request.user.is_authenticated else None
         order = create_store_order(
             user=user,

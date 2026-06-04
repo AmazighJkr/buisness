@@ -229,6 +229,9 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587') or 587)
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() in ('true', '1', 'yes')
+
+RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '').strip()
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '').strip()
 if EMAIL_HOST and DEFAULT_FROM_EMAIL:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

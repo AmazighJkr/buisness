@@ -381,12 +381,22 @@ export async function fetchShippingQuote(postalCode, deliveryType) {
   return handleResponse(res)
 }
 
-export async function fetchCheckoutCaptcha() {
-  await detectClientCountry()
-  const res = await fetch(`${API_BASE}/api/store/checkout/captcha/`, {
-    headers: paymentCountryHeaders(),
-  })
+export async function fetchLegalPage(slug, lang = 'fr') {
+  const params = new URLSearchParams({ lang })
+  const res = await fetch(`${API_BASE}/api/legal/${slug}/?${params}`)
   return handleResponse(res)
+}
+
+export async function adminFetchLegalPage(slug) {
+  return adminRequest(`${API_BASE}/api/admin/legal/${slug}/`)
+}
+
+export async function adminUpdateLegalPage(slug, content) {
+  return adminRequest(`${API_BASE}/api/admin/legal/${slug}/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  })
 }
 
 export async function createStoreOrder(payload) {

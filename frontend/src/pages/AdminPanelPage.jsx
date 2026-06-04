@@ -28,6 +28,7 @@ import AdminCommandLayers from '../components/AdminCommandLayers.jsx'
 import AdminCustomers from '../components/AdminCustomers.jsx'
 import AdminPacks from '../components/AdminPacks.jsx'
 import AdminStore from '../components/AdminStore.jsx'
+import AdminLegal from '../components/admin/AdminLegal.jsx'
 import AdminStoreOrders from '../components/AdminStoreOrders.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
@@ -434,6 +435,7 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'manage_store') || user.is_superuser) {
     tabs.push(['store', 'Store'])
     tabs.push(['store-orders', 'Orders'])
+    tabs.push(['legal', 'Legal'])
   }
   if (user.is_superuser) tabs.push(['clients', 'Clients'])
   if (user.is_superuser) tabs.push(['users', 'Staff'])
@@ -660,6 +662,8 @@ export default function AdminPanelPage() {
 
       {tab === 'packs' && (hasPerm(user, 'edit_project') || user.is_superuser) && <AdminPacks />}
       {tab === 'store' && (hasPerm(user, 'manage_store') || user.is_superuser) && <AdminStore />}
+      {tab === 'legal' && (hasPerm(user, 'manage_store') || user.is_superuser) && <AdminLegal />}
+
       {tab === 'store-orders' && (hasPerm(user, 'manage_store') || user.is_superuser) && (
         <AdminStoreOrders />
       )}

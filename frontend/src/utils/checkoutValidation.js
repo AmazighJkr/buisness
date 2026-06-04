@@ -7,7 +7,7 @@ export function isAlgeriaPhone(raw) {
   return digits.length === 9 && /^[567]/.test(digits)
 }
 
-export function validateCheckoutForm(form, { shippingQuote, acceptedTerms, captchaAnswer, t }) {
+export function validateCheckoutForm(form, { shippingQuote, acceptedTerms, recaptchaToken, t }) {
   const errors = {}
 
   if (!form.first_name?.trim()) errors.first_name = t('checkout.errFirstName')
@@ -21,7 +21,7 @@ export function validateCheckoutForm(form, { shippingQuote, acceptedTerms, captc
   if (!form.postal_code?.trim()) errors.postal_code = t('checkout.errPostal')
   if (!shippingQuote) errors.shipping = t('checkout.selectShipping')
   if (!acceptedTerms) errors.terms = t('checkout.errTerms')
-  if (!String(captchaAnswer ?? '').trim()) errors.captcha = t('checkout.errCaptcha')
+  if (!String(recaptchaToken ?? '').trim()) errors.captcha = t('checkout.errCaptcha')
 
   return errors
 }

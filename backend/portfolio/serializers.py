@@ -661,8 +661,7 @@ class StoreOrderCreateSerializer(serializers.Serializer):
     reservation_id = serializers.CharField(required=False, allow_blank=True, max_length=64)
     items = serializers.ListField(child=serializers.DictField(), allow_empty=False)
     accepted_terms = serializers.BooleanField()
-    captcha_token = serializers.CharField(max_length=512)
-    captcha_answer = serializers.CharField(max_length=16)
+    recaptcha_response = serializers.CharField(max_length=4096, required=False, allow_blank=True)
     # Legacy fields (ignored when structured address is sent)
     customer_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
     shipping_address = serializers.CharField(required=False, allow_blank=True)
@@ -680,9 +679,13 @@ class StoreOrderCreateSerializer(serializers.Serializer):
         return normalize_algeria_phone(value)
 
     def validate(self, attrs):
-        from .checkout_captcha import verify_captcha
+        from .checkout_recaptcha import verify_recaptcha
 
-        verify_captcha(attrs.get('captcha_token', ''), attrs.get('captcha_answer', ''))
+        request = self.context.get('request')
+        ip = None
+        if request:
+            ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get('REMOTE_ADDR')
+        verify_recaptcha(attrs.get('recaptcha_response', ''), ip)
         return attrs
 
 
