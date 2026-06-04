@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import AdminCommandLayerBundles from './AdminCommandLayerBundles.jsx'
 import {
   adminCreateCommandLayer,
   adminDeleteCommandLayer,
@@ -26,6 +27,7 @@ const EMPTY = {
 }
 
 export default function AdminCommandLayers() {
+  const [subTab, setSubTab] = useState('layers')
   const [layers, setLayers] = useState([])
   const [form, setForm] = useState({ ...EMPTY })
   const [editId, setEditId] = useState(null)
@@ -87,8 +89,32 @@ export default function AdminCommandLayers() {
         <p className="mt-1 text-xs text-dark-muted">
           Priced building blocks clients combine on Submit command. Required layers are always included.
         </p>
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            onClick={() => setSubTab('layers')}
+            className={`rounded border px-3 py-1 text-xs ${
+              subTab === 'layers' ? 'border-lab-cyan text-lab-cyan' : 'border-dark-border'
+            }`}
+          >
+            Layers
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubTab('bundles')}
+            className={`rounded border px-3 py-1 text-xs ${
+              subTab === 'bundles' ? 'border-lab-cyan text-lab-cyan' : 'border-dark-border'
+            }`}
+          >
+            Recommended bundles
+          </button>
+        </div>
       </div>
 
+      {subTab === 'bundles' && <AdminCommandLayerBundles />}
+
+      {subTab === 'layers' && (
+        <>
       {msg.text && (
         <p className={`text-xs ${msg.type === 'error' ? 'text-red-400' : 'text-lab-green'}`}>{msg.text}</p>
       )}
@@ -221,6 +247,8 @@ export default function AdminCommandLayers() {
           </li>
         ))}
       </ul>
+        </>
+      )}
     </div>
   )
 }

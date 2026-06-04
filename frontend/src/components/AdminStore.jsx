@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
 import { adminFetchStoreCategories, adminFetchStoreProducts } from '../api/client.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
+import AdminShippingPostal from './admin/AdminShippingPostal.jsx'
 import AdminStoreCategories from './admin/AdminStoreCategories.jsx'
 import AdminStoreManageProducts from './admin/AdminStoreManageProducts.jsx'
 import AdminStorePostProduct from './admin/AdminStorePostProduct.jsx'
 
-const STORE_VIEWS = [
-  { id: 'categories', label: 'Categories' },
-  { id: 'add', label: 'Add product' },
-  { id: 'manage', label: 'Manage products' },
-]
-
 export default function AdminStore() {
+  const { t } = useTranslation()
+  const STORE_VIEWS = [
+    { id: 'categories', label: t('adminStore.categories') },
+    { id: 'add', label: t('adminStore.addProduct') },
+    { id: 'manage', label: t('adminStore.manageProducts') },
+    { id: 'shipping', label: t('adminStore.shippingPostal') },
+  ]
   const [view, setView] = useState('categories')
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
@@ -37,10 +40,8 @@ export default function AdminStore() {
   return (
     <div className="space-y-4 max-w-5xl">
       <div>
-        <h2 className="font-display text-lg font-semibold">Store</h2>
-        <p className="mt-1 text-sm text-dark-muted">
-          Three areas: categories, posting new products, and updating existing stock and prices.
-        </p>
+        <h2 className="font-display text-lg font-semibold">{t('adminStore.title')}</h2>
+        <p className="mt-1 text-sm text-dark-muted">{t('adminStore.lead')}</p>
       </div>
 
       <div className="flex flex-wrap gap-2 border-b border-dark-border pb-3">
@@ -77,7 +78,7 @@ export default function AdminStore() {
       )}
 
       {loading ? (
-        <p className="text-sm text-dark-muted animate-pulse">Loading store…</p>
+        <p className="text-sm text-dark-muted animate-pulse">{t('adminStore.loading')}</p>
       ) : (
         <>
           {view === 'categories' && (
@@ -99,6 +100,7 @@ export default function AdminStore() {
               onMessage={onMessage}
             />
           )}
+          {view === 'shipping' && <AdminShippingPostal onMessage={onMessage} />}
         </>
       )}
     </div>

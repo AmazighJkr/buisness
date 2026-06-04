@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from .models import (
     Comment,
     CommandLayer,
+    CommandLayerBundle,
     CommandMessage,
     Project,
     ProjectCategory,
@@ -36,7 +37,9 @@ from .permissions import (
     IsStaffUser,
 )
 from .serializers import (
+    AdminCommandLayerBundleSerializer,
     AdminCommandLayerSerializer,
+    CommandLayerBundlePublicSerializer,
     AdminCustomerSerializer,
     AdminProjectSerializer,
     AdminUserCreateSerializer,
@@ -231,6 +234,14 @@ class CommandLayerListView(generics.ListAPIView):
         return CommandLayer.objects.filter(is_active=True).order_by('sort_order', 'name')
 
 
+class CommandLayerBundleListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = CommandLayerBundlePublicSerializer
+
+    def get_queryset(self):
+        return CommandLayerBundle.objects.filter(is_active=True).order_by('sort_order', 'name')
+
+
 class ProjectCommandCreateView(generics.CreateAPIView):
     queryset = ProjectCommand.objects.all()
     serializer_class = ProjectCommandCreateSerializer
@@ -240,9 +251,12 @@ class ProjectCommandCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         if user.is_authenticated and not user.is_staff:
-            serializer.save(user=user)
+            command = serializer.save(user=user)
         else:
-            serializer.save()
+            command = serializer.save()
+        from .notifications import notify_command_created
+
+        notify_command_created(command)
 
 
 class MyCommandsListView(APIView):
@@ -601,6 +615,13 @@ class AdminMeView(APIView):
 class AdminCommandLayerViewSet(viewsets.ModelViewSet):
     queryset = CommandLayer.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminCommandLayerSerializer
+    permission_classes = [CanRespondCommands]
+    lookup_field = 'id'
+
+
+class AdminCommandLayerBundleViewSet(viewsets.ModelViewSet):
+    queryset = CommandLayerBundle.objects.all().order_by('sort_order', 'name')
+    serializer_class = AdminCommandLayerBundleSerializer
     permission_classes = [CanRespondCommands]
     lookup_field = 'id'
 

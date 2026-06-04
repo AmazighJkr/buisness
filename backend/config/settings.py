@@ -29,6 +29,8 @@ SECRET_KEY = os.getenv(
 )
 
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+if _on_render:
+    DEBUG = os.getenv('DEBUG', 'false').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
     h.strip()
@@ -216,6 +218,29 @@ ALLOWED_UPLOAD_EXTENSIONS = {'.pdf', '.png', '.jpg', '.jpeg', '.gif', '.zip', '.
 
 # Shown to clients on staff command messages (never the admin username).
 ENTERPRISE_DISPLAY_NAME = os.getenv('ENTERPRISE_DISPLAY_NAME', 'EmbeddedGrid')
+
+STORE_CART_RESERVATION_TTL_MINUTES = int(os.getenv('STORE_CART_RESERVATION_TTL_MINUTES', '15'))
+STORE_ORDER_RESERVATION_TTL_MINUTES = int(os.getenv('STORE_ORDER_RESERVATION_TTL_MINUTES', '60'))
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '').strip() or None
+COMMAND_NOTIFY_EMAIL = os.getenv('COMMAND_NOTIFY_EMAIL', '').strip() or None
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587') or 587)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() in ('true', '1', 'yes')
+if EMAIL_HOST and DEFAULT_FROM_EMAIL:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+_DEV_SECRET = 'dev-only-change-me-before-production-embedded-iot-lab'
+if _on_render and SECRET_KEY == _DEV_SECRET:
+    raise RuntimeError(
+        'Set DJANGO_SECRET_KEY in Render environment (do not use the dev default).',
+    )
+if _on_render and DEBUG:
+    import warnings
+
+    warnings.warn('DEBUG=True on Render — set DEBUG=false in environment.', stacklevel=1)
 
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [

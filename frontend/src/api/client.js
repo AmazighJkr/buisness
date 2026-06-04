@@ -9,7 +9,11 @@ import {
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const ADMIN_TOKEN_KEY = 'admin_access_token'
+const ADMIN_REFRESH_KEY = 'admin_refresh_token'
 const USER_TOKEN_KEY = 'user_access_token'
+const USER_REFRESH_KEY = 'user_refresh_token'
+let adminRefreshInFlight = null
+let userRefreshInFlight = null
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 async function apiFetch(url, options = {}) {
@@ -24,11 +28,17 @@ async function apiFetch(url, options = {}) {
   return handleResponse(res)
 }
 
+function clearUserTokens() {
+  if (typeof window === 'undefined') return
+  localStorage.removeItem(USER_TOKEN_KEY)
+  localStorage.removeItem(USER_REFRESH_KEY)
+  window.dispatchEvent(new Event('user-session-changed'))
+}
+
 function clearUserToken() {
   if (typeof window === 'undefined') return
   if (!localStorage.getItem(USER_TOKEN_KEY)) return
-  localStorage.removeItem(USER_TOKEN_KEY)
-  window.dispatchEvent(new Event('user-session-changed'))
+  clearUserTokens()
 }
 
 function getUserHeaders(includeJson = true) {
@@ -39,8 +49,34 @@ function getUserHeaders(includeJson = true) {
   return headers
 }
 
-/** Public API reads: optional JWT for pack access; drop invalid tokens and retry. */
-async function publicFetch(url, options = {}) {
+async function refreshUserAccessToken() {
+  const refresh = localStorage.getItem(USER_REFRESH_KEY)
+  if (!refresh) return false
+  if (!userRefreshInFlight) {
+    userRefreshInFlight = (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/token/refresh/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh }),
+        })
+        if (!res.ok) return false
+        const data = await res.json()
+        if (data.access) localStorage.setItem(USER_TOKEN_KEY, data.access)
+        if (data.refresh) localStorage.setItem(USER_REFRESH_KEY, data.refresh)
+        return Boolean(data.access)
+      } catch {
+        return false
+      } finally {
+        userRefreshInFlight = null
+      }
+    })()
+  }
+  return userRefreshInFlight
+}
+
+/** Public API reads: optional JWT; refresh on 401 before dropping auth. */
+async function publicFetch(url, options = {}, retried = false) {
   const token = localStorage.getItem(USER_TOKEN_KEY)
   const extra = options.headers || {}
 
@@ -51,8 +87,13 @@ async function publicFetch(url, options = {}) {
   }
 
   let res = await doFetch(Boolean(token))
-  if (res.status === 401 && token) {
-    clearUserToken()
+  if (res.status === 401 && token && !retried) {
+    const ok = await refreshUserAccessToken()
+    if (ok) return publicFetch(url, options, true)
+    clearUserTokens()
+    res = await doFetch(false)
+  } else if (res.status === 401 && token) {
+    clearUserTokens()
     res = await doFetch(false)
   }
   return handleResponse(res)
@@ -64,8 +105,38 @@ function authHeaders(includeJson = true) {
   return getAdminHeaders(includeJson)
 }
 
+/** Authenticated fetch with JWT refresh (optional token — guests skip refresh). */
+async function authFetch(url, options = {}, retried = false) {
+  const headers = { ...(options.headers || {}) }
+  const token = localStorage.getItem(USER_TOKEN_KEY)
+  if (token) headers.Authorization = `Bearer ${token}`
+  const method = (options.method || 'GET').toUpperCase()
+  if (
+    !headers['Content-Type'] &&
+    options.body &&
+    !(options.body instanceof FormData) &&
+    ['POST', 'PATCH', 'PUT'].includes(method)
+  ) {
+    headers['Content-Type'] = 'application/json'
+  }
+
+  let res
+  try {
+    res = await fetch(url, { ...options, headers })
+  } catch {
+    throw new Error('Network error — check your connection or sign in again.')
+  }
+  if (res.status === 401 && token && !retried) {
+    const ok = await refreshUserAccessToken()
+    if (ok) return authFetch(url, options, true)
+    clearUserTokens()
+    throw new Error('Session expired. Please sign in again.')
+  }
+  return handleResponse(res)
+}
+
 async function userFetch(url, options = {}) {
-  return apiFetch(url, {
+  return authFetch(url, {
     ...options,
     headers: { ...getUserHeaders(), ...(options.headers || {}) },
   })
@@ -77,6 +148,63 @@ function getAdminHeaders(includeJson = true) {
   const token = localStorage.getItem(ADMIN_TOKEN_KEY)
   if (token) headers['Authorization'] = `Bearer ${token}`
   return headers
+}
+
+async function refreshAdminAccessToken() {
+  const refresh = localStorage.getItem(ADMIN_REFRESH_KEY)
+  if (!refresh) return false
+  if (!adminRefreshInFlight) {
+    adminRefreshInFlight = (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/token/refresh/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh }),
+        })
+        if (!res.ok) return false
+        const data = await res.json()
+        if (data.access) localStorage.setItem(ADMIN_TOKEN_KEY, data.access)
+        if (data.refresh) localStorage.setItem(ADMIN_REFRESH_KEY, data.refresh)
+        return Boolean(data.access)
+      } catch {
+        return false
+      } finally {
+        adminRefreshInFlight = null
+      }
+    })()
+  }
+  return adminRefreshInFlight
+}
+
+/** Admin API with JWT refresh on 401. */
+export async function adminRequest(url, options = {}, retried = false) {
+  const isForm = options.body instanceof FormData
+  const headers = { ...(options.headers || {}) }
+  const method = (options.method || 'GET').toUpperCase()
+  if (!isForm && !headers['Content-Type'] && ['POST', 'PATCH', 'PUT'].includes(method)) {
+    headers['Content-Type'] = 'application/json'
+  }
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY)
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  let res
+  try {
+    res = await fetch(url, { ...options, headers })
+  } catch {
+    throw new Error('Network error — check your connection or log in again.')
+  }
+
+  if (res.status === 401 && !retried) {
+    const ok = await refreshAdminAccessToken()
+    if (ok) return adminRequest(url, options, true)
+    adminLogout()
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('admin-session-expired'))
+    }
+    throw new Error('Admin session expired. Please log in again.')
+  }
+  if (res.status === 204) return null
+  return handleResponse(res)
 }
 
 async function handleResponse(res) {
@@ -180,18 +308,66 @@ export async function fetchStoreProduct(idOrSlug) {
   return data
 }
 
-export async function createStoreOrder(payload) {
+export async function validateStoreCart(items, reservationId = null) {
   await detectClientCountry()
-  const res = await fetch(`${API_BASE}/api/store/orders/`, {
+  const body = {
+    items: items.map((row) => ({
+      product_id: row.productId || row.product_id,
+      quantity: row.quantity,
+    })),
+  }
+  if (reservationId) body.reservation_id = reservationId
+  const res = await fetch(`${API_BASE}/api/store/cart/validate/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...paymentCountryHeaders(),
-      ...getUserHeaders(false),
+    },
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
+export async function fetchShippingWilayas() {
+  await detectClientCountry()
+  const res = await fetch(`${API_BASE}/api/store/shipping/wilayas/`, {
+    headers: paymentCountryHeaders(),
+  })
+  return handleResponse(res)
+}
+
+export async function fetchShippingPostalCodes(wilayaId) {
+  await detectClientCountry()
+  const q = new URLSearchParams({ wilaya: wilayaId })
+  const res = await fetch(`${API_BASE}/api/store/shipping/postal-codes/?${q}`, {
+    headers: paymentCountryHeaders(),
+  })
+  return handleResponse(res)
+}
+
+export async function fetchShippingQuote(postalCode, deliveryType) {
+  await detectClientCountry()
+  const res = await fetch(`${API_BASE}/api/store/shipping/quote/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...paymentCountryHeaders(),
+    },
+    body: JSON.stringify({ postal_code: postalCode, delivery_type: deliveryType }),
+  })
+  return handleResponse(res)
+}
+
+export async function createStoreOrder(payload) {
+  await detectClientCountry()
+  return authFetch(`${API_BASE}/api/store/orders/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...paymentCountryHeaders(),
     },
     body: JSON.stringify(payload),
   })
-  return handleResponse(res)
 }
 
 export async function fetchStoreOrderResume(orderId) {
@@ -204,18 +380,15 @@ export async function fetchStoreOrderResume(orderId) {
 
 export async function payStoreOrder(orderId, body = {}) {
   await detectClientCountry()
-  const headers = {
-    'Content-Type': 'application/json',
-    ...paymentCountryHeaders(),
-    ...getUserHeaders(false),
-  }
   const q = paymentRoutingParams('chargily', null)
-  const res = await fetch(`${API_BASE}/api/store/orders/${orderId}/pay/?${q}`, {
+  return authFetch(`${API_BASE}/api/store/orders/${orderId}/pay/?${q}`, {
     method: 'POST',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...paymentCountryHeaders(),
+    },
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function trackStoreOrder(orderNumber, email) {
@@ -262,6 +435,11 @@ export async function fetchCommandLayers() {
   return Array.isArray(data) ? data : data.results ?? data
 }
 
+export async function fetchCommandLayerBundles() {
+  const data = await publicFetch(`${API_BASE}/api/commands/layer-bundles/`)
+  return Array.isArray(data) ? data : data.results ?? data
+}
+
 export async function submitCommand(fields) {
   const form = new FormData()
   Object.entries(fields).forEach(([key, value]) => {
@@ -273,12 +451,10 @@ export async function submitCommand(fields) {
   if (fields.layer_ids?.length) {
     form.append('layer_ids_json', JSON.stringify(fields.layer_ids))
   }
-  const res = await fetch(`${API_BASE}/api/commands/`, {
+  return authFetch(`${API_BASE}/api/commands/`, {
     method: 'POST',
     body: form,
-    headers: getUserHeaders(false),
   })
-  return handleResponse(res)
 }
 
 export async function fetchMyCommands() {
@@ -349,8 +525,7 @@ export async function payMyCommand(commandId, body = {}, provider) {
 }
 
 export function userLogout() {
-  localStorage.removeItem(USER_TOKEN_KEY)
-  localStorage.removeItem('user_refresh_token')
+  clearUserTokens()
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('user-session-changed'))
   }
@@ -363,6 +538,7 @@ export async function userRegister(body) {
     body: JSON.stringify(body),
   })
   localStorage.setItem(USER_TOKEN_KEY, data.access)
+  if (data.refresh) localStorage.setItem(USER_REFRESH_KEY, data.refresh)
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('user-session-changed'))
   }
@@ -381,6 +557,7 @@ export async function userGoogleLogin(credential) {
     body: JSON.stringify({ credential }),
   })
   localStorage.setItem(USER_TOKEN_KEY, data.access)
+  if (data.refresh) localStorage.setItem(USER_REFRESH_KEY, data.refresh)
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('user-session-changed'))
   }
@@ -394,6 +571,7 @@ export async function userLogin(username, password) {
     body: JSON.stringify({ username, password }),
   })
   localStorage.setItem(USER_TOKEN_KEY, data.access)
+  if (data.refresh) localStorage.setItem(USER_REFRESH_KEY, data.refresh)
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('user-session-changed'))
   }
@@ -403,12 +581,11 @@ export async function userLogin(username, password) {
 export async function fetchUserMe() {
   const token = localStorage.getItem(USER_TOKEN_KEY)
   if (!token) return null
-  const res = await fetch(`${API_BASE}/api/auth/me/`, { headers: getUserHeaders() })
-  if (res.status === 401 || res.status === 403) {
-    clearUserToken()
+  try {
+    return await authFetch(`${API_BASE}/api/auth/me/`)
+  } catch {
     return null
   }
-  return handleResponse(res)
 }
 
 export async function fetchPacks() {
@@ -431,36 +608,26 @@ export async function subscribeToPack(packId, provider) {
 }
 
 export async function adminFetchPacks() {
-  const res = await fetch(`${API_BASE}/api/admin/packs/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/packs/`)
   return data.results ?? data
 }
 
 export async function adminCreatePack(body) {
-  const res = await fetch(`${API_BASE}/api/admin/packs/`, {
+  return adminRequest(`${API_BASE}/api/admin/packs/`, {
     method: 'POST',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminUpdatePack(id, body) {
-  const res = await fetch(`${API_BASE}/api/admin/packs/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/packs/${id}/`, {
     method: 'PATCH',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminDeletePack(id) {
-  const res = await fetch(`${API_BASE}/api/admin/packs/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
-  })
-  if (res.status === 204) return null
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/packs/${id}/`, { method: 'DELETE' })
 }
 
 export async function postCommandMessage(code, payload) {
@@ -491,7 +658,7 @@ export async function postMyCommandMessage(commandId, payload) {
     headers['Content-Type'] = 'application/json'
     body = JSON.stringify(payload)
   }
-  return apiFetch(`${API_BASE}/api/commands/messages/?${q}`, {
+  return authFetch(`${API_BASE}/api/commands/messages/?${q}`, {
     method: 'POST',
     headers,
     body,
@@ -505,82 +672,81 @@ export async function adminLogin(username, password) {
     body: JSON.stringify({ username, password }),
   })
   localStorage.setItem(ADMIN_TOKEN_KEY, data.access)
+  if (data.refresh) localStorage.setItem(ADMIN_REFRESH_KEY, data.refresh)
   return data
 }
 
 export function adminLogout() {
   localStorage.removeItem(ADMIN_TOKEN_KEY)
-  localStorage.removeItem('admin_refresh_token')
+  localStorage.removeItem(ADMIN_REFRESH_KEY)
 }
 
 export async function fetchAdminMe() {
-  const res = await fetch(`${API_BASE}/api/admin/me/`, { headers: getAdminHeaders() })
-  if (res.status === 401 || res.status === 403) return null
-  return handleResponse(res)
+  try {
+    return await adminRequest(`${API_BASE}/api/admin/me/`)
+  } catch (err) {
+    if (err.message?.includes('expired') || err.message?.includes('credentials')) return null
+    throw err
+  }
 }
 
 export async function adminSearchAmazon(q, domain = 'amazon.com') {
   const params = new URLSearchParams({ q, domain })
-  const res = await fetch(`${API_BASE}/api/admin/amazon/search/?${params}`, {
-    headers: getAdminHeaders(),
-  })
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/amazon/search/?${params}`)
 }
 
 export async function adminFetchCommandLayers() {
-  const res = await fetch(`${API_BASE}/api/admin/command-layers/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/command-layers/`)
   return data.results ?? data
 }
 
 export async function adminCreateCommandLayer(body) {
-  const res = await fetch(`${API_BASE}/api/admin/command-layers/`, {
+  return adminRequest(`${API_BASE}/api/admin/command-layers/`, {
     method: 'POST',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminUpdateCommandLayer(id, body) {
-  const res = await fetch(`${API_BASE}/api/admin/command-layers/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/command-layers/${id}/`, {
     method: 'PATCH',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminDeleteCommandLayer(id) {
-  const res = await fetch(`${API_BASE}/api/admin/command-layers/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
-  })
-  if (res.status === 204) return null
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/command-layers/${id}/`, { method: 'DELETE' })
 }
 
-function adminHeadersMultipart() {
-  const headers = {}
-  const token = localStorage.getItem(ADMIN_TOKEN_KEY)
-  if (token) headers['Authorization'] = `Bearer ${token}`
-  return headers
+export async function adminFetchCommandLayerBundles() {
+  const data = await adminRequest(`${API_BASE}/api/admin/command-layer-bundles/`)
+  return data.results ?? data
+}
+
+export async function adminCreateCommandLayerBundle(body) {
+  return adminRequest(`${API_BASE}/api/admin/command-layer-bundles/`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function adminUpdateCommandLayerBundle(id, body) {
+  return adminRequest(`${API_BASE}/api/admin/command-layer-bundles/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function adminDeleteCommandLayerBundle(id) {
+  return adminRequest(`${API_BASE}/api/admin/command-layer-bundles/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminCreateProject(formData) {
-  return apiFetch(`${API_BASE}/api/admin/projects/`, {
-    method: 'POST',
-    headers: adminHeadersMultipart(),
-    body: formData,
-  })
+  return adminRequest(`${API_BASE}/api/admin/projects/`, { method: 'POST', body: formData })
 }
 
 export async function adminUpdateProject(id, formData) {
-  return apiFetch(`${API_BASE}/api/admin/projects/${id}/`, {
-    method: 'PATCH',
-    headers: adminHeadersMultipart(),
-    body: formData,
-  })
+  return adminRequest(`${API_BASE}/api/admin/projects/${id}/`, { method: 'PATCH', body: formData })
 }
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set([
@@ -606,29 +772,21 @@ export function validateUploadFile(file, label = 'File') {
 }
 
 export async function adminDeleteProject(id) {
-  const res = await fetch(`${API_BASE}/api/admin/projects/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
-  })
-  if (res.status === 204) return null
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/projects/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminFetchProjects() {
-  const res = await fetch(`${API_BASE}/api/admin/projects/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/projects/`)
   return data.results ?? data
 }
 
 export async function adminFetchCommands() {
-  const res = await fetch(`${API_BASE}/api/admin/commands/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/commands/`)
   return data.results ?? data
 }
 
 export async function adminFetchCommand(id) {
-  const res = await fetch(`${API_BASE}/api/admin/commands/${id}/`, { headers: getAdminHeaders() })
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/commands/${id}/`)
 }
 
 export async function adminSendCommandMessage(id, { text, link_url, image }) {
@@ -636,40 +794,30 @@ export async function adminSendCommandMessage(id, { text, link_url, image }) {
   if (text) fd.append('text', text)
   if (link_url) fd.append('link_url', link_url)
   if (image) fd.append('image', image)
-  const res = await fetch(`${API_BASE}/api/admin/commands/${id}/messages/`, {
-    method: 'POST',
-    headers: adminHeadersMultipart(),
-    body: fd,
-  })
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/commands/${id}/messages/`, { method: 'POST', body: fd })
 }
 
 export async function adminRespondCommand(id, body) {
-  const res = await fetch(`${API_BASE}/api/admin/commands/${id}/respond/`, {
+  return adminRequest(`${API_BASE}/api/admin/commands/${id}/respond/`, {
     method: 'PATCH',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminFetchUsers() {
-  const res = await fetch(`${API_BASE}/api/admin/users/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/users/`)
   return data.results ?? data
 }
 
 export async function adminFetchCustomers() {
-  const res = await fetch(`${API_BASE}/api/admin/customers/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/customers/`)
   const rows = data.results ?? data
   if (data.next) {
     let url = data.next
     const all = [...rows]
     while (url) {
       const pageUrl = url.startsWith('http') ? url : `${API_BASE}${url}`
-      const pageRes = await fetch(pageUrl, { headers: getAdminHeaders() })
-      const pageData = await handleResponse(pageRes)
+      const pageData = await adminRequest(pageUrl)
       all.push(...(pageData.results ?? pageData))
       url = pageData.next || null
     }
@@ -679,104 +827,72 @@ export async function adminFetchCustomers() {
 }
 
 export async function adminCreateUser(body) {
-  const res = await fetch(`${API_BASE}/api/admin/users/`, {
+  return adminRequest(`${API_BASE}/api/admin/users/`, {
     method: 'POST',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminFetchComments() {
-  const res = await fetch(`${API_BASE}/api/admin/comments/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/comments/`)
   return data.results ?? data
 }
 
 export async function adminDeleteComment(id) {
-  const res = await fetch(`${API_BASE}/api/admin/comments/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
-  })
-  if (res.status === 204) return null
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/comments/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminFetchCategories() {
-  const res = await fetch(`${API_BASE}/api/admin/categories/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/categories/`)
   return data.results ?? data
 }
 
 export async function adminFetchStoreCategories() {
-  const res = await fetch(`${API_BASE}/api/admin/store/categories/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/store/categories/`)
   return data.results ?? data
 }
 
 export async function adminCreateStoreCategory(formData) {
-  return apiFetch(`${API_BASE}/api/admin/store/categories/`, {
-    method: 'POST',
-    headers: adminHeadersMultipart(),
-    body: formData,
-  })
+  return adminRequest(`${API_BASE}/api/admin/store/categories/`, { method: 'POST', body: formData })
 }
 
 export async function adminUpdateStoreCategory(id, formData) {
-  return apiFetch(`${API_BASE}/api/admin/store/categories/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/store/categories/${id}/`, {
     method: 'PATCH',
-    headers: adminHeadersMultipart(),
     body: formData,
   })
 }
 
 export async function adminDeleteStoreCategory(id) {
-  const res = await fetch(`${API_BASE}/api/admin/store/categories/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
-  })
-  if (res.status === 204) return null
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/store/categories/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminFetchStoreProducts() {
-  const res = await fetch(`${API_BASE}/api/admin/store/products/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/store/products/`)
   return data.results ?? data
 }
 
 export async function adminCreateStoreProduct(formData) {
-  return apiFetch(`${API_BASE}/api/admin/store/products/`, {
-    method: 'POST',
-    headers: adminHeadersMultipart(),
-    body: formData,
-  })
+  return adminRequest(`${API_BASE}/api/admin/store/products/`, { method: 'POST', body: formData })
 }
 
 export async function adminUpdateStoreProduct(id, formData) {
-  return apiFetch(`${API_BASE}/api/admin/store/products/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/store/products/${id}/`, {
     method: 'PATCH',
-    headers: adminHeadersMultipart(),
     body: formData,
   })
 }
 
 /** Quick edits (name, prices, stock) without uploading files. */
 export async function adminPatchStoreProduct(id, body) {
-  return apiFetch(`${API_BASE}/api/admin/store/products/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/store/products/${id}/`, {
     method: 'PATCH',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
 }
 
 export async function adminDeleteStoreProduct(id) {
-  const res = await fetch(`${API_BASE}/api/admin/store/products/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
-  })
-  if (res.status === 204) return null
-  return handleResponse(res)
+  return adminRequest(`${API_BASE}/api/admin/store/products/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminAddProductGallery(productId, files) {
@@ -784,61 +900,90 @@ export async function adminAddProductGallery(productId, files) {
   for (const file of files) {
     fd.append('images', file)
   }
-  return apiFetch(`${API_BASE}/api/admin/store/products/${productId}/gallery/`, {
+  return adminRequest(`${API_BASE}/api/admin/store/products/${productId}/gallery/`, {
     method: 'POST',
-    headers: adminHeadersMultipart(),
     body: fd,
   })
 }
 
 export async function adminDeleteProductGalleryImage(productId, imageId) {
-  const res = await fetch(
+  return adminRequest(
     `${API_BASE}/api/admin/store/products/${productId}/gallery/${imageId}/`,
-    { method: 'DELETE', headers: getAdminHeaders() },
+    { method: 'DELETE' },
   )
-  if (res.status === 204) return null
-  return handleResponse(res)
 }
 
 export async function adminFetchStoreOrders() {
-  const res = await fetch(`${API_BASE}/api/admin/store/orders/`, { headers: getAdminHeaders() })
-  const data = await handleResponse(res)
+  const data = await adminRequest(`${API_BASE}/api/admin/store/orders/`)
   return data.results ?? data
 }
 
 export async function adminUpdateStoreOrder(id, body) {
-  return apiFetch(`${API_BASE}/api/admin/store/orders/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/store/orders/${id}/`, {
     method: 'PATCH',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
+}
+
+export async function adminFetchWilayas() {
+  return adminRequest(`${API_BASE}/api/admin/store/wilayas/`)
+}
+
+export async function adminFetchPostalCodes({ wilaya = '', q = '' } = {}) {
+  const params = new URLSearchParams()
+  if (wilaya) params.set('wilaya', wilaya)
+  if (q) params.set('q', q)
+  const qs = params.toString()
+  const data = await adminRequest(
+    `${API_BASE}/api/admin/store/postal-codes/${qs ? `?${qs}` : ''}`,
+  )
+  return data.results ?? data
+}
+
+export async function adminCreatePostalCode(body) {
+  return adminRequest(`${API_BASE}/api/admin/store/postal-codes/`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function adminUpdatePostalCode(id, body) {
+  return adminRequest(`${API_BASE}/api/admin/store/postal-codes/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function adminDeletePostalCode(id) {
+  return adminRequest(`${API_BASE}/api/admin/store/postal-codes/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminCreateCategory(body) {
-  const res = await fetch(`${API_BASE}/api/admin/categories/`, {
+  return adminRequest(`${API_BASE}/api/admin/categories/`, {
     method: 'POST',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminUpdateCategory(id, body) {
-  const res = await fetch(`${API_BASE}/api/admin/categories/${id}/`, {
+  return adminRequest(`${API_BASE}/api/admin/categories/${id}/`, {
     method: 'PATCH',
-    headers: getAdminHeaders(),
     body: JSON.stringify(body),
   })
-  return handleResponse(res)
 }
 
 export async function adminDeleteCategory(id) {
-  const res = await fetch(`${API_BASE}/api/admin/categories/${id}/`, {
-    method: 'DELETE',
-    headers: getAdminHeaders(),
+  return adminRequest(`${API_BASE}/api/admin/categories/${id}/`, { method: 'DELETE' })
+}
+
+export async function userChangePassword(currentPassword, newPassword) {
+  return userFetch(`${API_BASE}/api/auth/change-password/`, {
+    method: 'POST',
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
   })
-  if (res.status === 204) return null
-  return handleResponse(res)
 }
 
 export const PERM_LABELS = {

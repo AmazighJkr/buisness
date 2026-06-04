@@ -167,6 +167,16 @@ export default function AdminPanelPage() {
     loadAdmin()
   }, [])
 
+  useEffect(() => {
+    const onExpired = () => {
+      adminLogout()
+      setUser(null)
+      setLoginError('Session expired. Please sign in again.')
+    }
+    window.addEventListener('admin-session-expired', onExpired)
+    return () => window.removeEventListener('admin-session-expired', onExpired)
+  }, [])
+
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoginError('')
@@ -306,8 +316,14 @@ export default function AdminPanelPage() {
       const c = await adminFetchCommand(id)
       setSelectedCommand(c)
       setStatusDraft(c.status)
-      setQuotedPriceDraft(c.quoted_price != null ? String(c.quoted_price) : '')
-      setQuotedPriceDzdDraft(c.quoted_price_dzd != null ? String(c.quoted_price_dzd) : '')
+      const estUsd = c.estimated_total_usd != null ? String(c.estimated_total_usd) : ''
+      const estDzd = c.estimated_total_dzd != null ? String(c.estimated_total_dzd) : ''
+      setQuotedPriceDraft(
+        c.quoted_price != null ? String(c.quoted_price) : estUsd || '',
+      )
+      setQuotedPriceDzdDraft(
+        c.quoted_price_dzd != null ? String(c.quoted_price_dzd) : estDzd || '',
+      )
       setPaymentStatusDraft(c.payment_status || 'none')
     } catch (err) {
       setMsg({ type: 'error', text: err.message })

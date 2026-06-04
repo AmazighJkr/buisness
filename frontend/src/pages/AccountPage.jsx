@@ -4,13 +4,16 @@ import PageHeader from '../components/PageHeader.jsx'
 import AuthLoginCard from '../components/auth/AuthLoginCard.jsx'
 import {
   fetchUserMe,
+  userChangePassword,
   userGoogleLogin,
   userLogin,
   userLogout,
   userRegister,
 } from '../api/client.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
 
 export default function AccountPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const returnTo = searchParams.get('next')
@@ -20,6 +23,9 @@ export default function AccountPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ username: '', email: '', password: '', first_name: '' })
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwMsg, setPwMsg] = useState('')
+  const [pwSubmitting, setPwSubmitting] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -53,7 +59,7 @@ export default function AccountPage() {
         nextUser = await fetchUserMe()
       }
       if (!nextUser) {
-        setError('Signed in but could not load your profile. Refresh the page.')
+        setError(t('account.profileLoadError'))
         return
       }
       setUser(nextUser)
@@ -109,6 +115,29 @@ export default function AccountPage() {
     setUser(null)
   }
 
+  const handlePasswordChange = async (e) => {
+    e.preventDefault()
+    setPwMsg('')
+    if (pwForm.next.length < 8) {
+      setPwMsg(t('account.passwordMin'))
+      return
+    }
+    if (pwForm.next !== pwForm.confirm) {
+      setPwMsg(t('account.passwordMismatch'))
+      return
+    }
+    setPwSubmitting(true)
+    try {
+      await userChangePassword(pwForm.current, pwForm.next)
+      setPwForm({ current: '', next: '', confirm: '' })
+      setPwMsg(t('account.passwordUpdated'))
+    } catch (err) {
+      setPwMsg(err.message)
+    } finally {
+      setPwSubmitting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="auth-page">
@@ -139,24 +168,24 @@ export default function AccountPage() {
       <PageHeader highlight="/account" />
 
       <main className="page-main mx-auto max-w-md space-y-6">
-        <h1 className="font-display text-xl font-semibold">Welcome, {user.username}</h1>
-        <p className="text-sm text-dark-muted">
-          You are signed in. Manage subscriptions and project access from here.
-        </p>
+        <h1 className="font-display text-xl font-semibold">
+          {t('account.welcome', { name: user.username })}
+        </h1>
+        <p className="text-sm text-dark-muted">{t('account.signedInLead')}</p>
         <div className="panel space-y-2 p-4 text-sm">
           <p>
-            <span className="text-dark-muted">Username:</span> {user.username}
+            <span className="text-dark-muted">{t('account.username')}:</span> {user.username}
           </p>
           <p>
-            <span className="text-dark-muted">Email:</span> {user.email}
+            <span className="text-dark-muted">{t('account.email')}:</span> {user.email}
           </p>
           {user.subscriptions?.length > 0 ? (
             <div className="mt-3 border-t border-dark-border pt-3">
-              <p className="text-xs font-medium uppercase text-dark-muted">Active packs</p>
+              <p className="text-xs font-medium uppercase text-dark-muted">{t('account.activePacks')}</p>
               <ul className="mt-2 space-y-1">
                 {user.subscriptions.map((s) => (
                   <li key={s.id} className="text-xs">
-                    {s.pack_name} — until{' '}
+                    {s.pack_name} — {t('account.until')}{' '}
                     {s.expires_at ? new Date(s.expires_at).toLocaleDateString() : '—'}
                   </li>
                 ))}
@@ -164,19 +193,74 @@ export default function AccountPage() {
             </div>
           ) : (
             <p className="mt-3 text-xs text-dark-muted">
-              No active subscription.{' '}
+              {t('account.noSubscription')}{' '}
               <Link to="/subscriptions" className="text-lab-cyan underline">
-                Browse packs
+                {t('account.browsePacks')}
               </Link>
             </p>
           )}
         </div>
+        <div className="panel space-y-3 p-4">
+          <h2 className="text-sm font-semibold">{t('account.securityTitle')}</h2>
+          <p className="text-xs text-dark-muted">{t('account.securityLead')}</p>
+          {!user.has_usable_password ? (
+            <p className="text-xs text-dark-muted">{t('account.googleNoPassword')}</p>
+          ) : (
+            <form onSubmit={handlePasswordChange} className="space-y-2">
+              <label className="block text-xs text-dark-muted">
+                {t('account.currentPassword')}
+                <input
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={pwForm.current}
+                  onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
+                  className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-xs text-dark-muted">
+                {t('account.newPassword')}
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={pwForm.next}
+                  onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
+                  className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-xs text-dark-muted">
+                {t('account.confirmPassword')}
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={pwForm.confirm}
+                  onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+                  className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                />
+              </label>
+              {pwMsg && (
+                <p
+                  className={`text-xs ${pwMsg === t('account.passwordUpdated') ? 'text-lab-green' : 'text-red-300'}`}
+                >
+                  {pwMsg}
+                </p>
+              )}
+              <button type="submit" disabled={pwSubmitting} className="btn-secondary text-sm">
+                {pwSubmitting ? t('account.updating') : t('account.changePassword')}
+              </button>
+            </form>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2">
           <Link to="/subscriptions" className="btn-primary flex-1 text-center">
-            Subscriptions
+            {t('account.subscriptions')}
           </Link>
           <button type="button" onClick={logout} className="btn-secondary">
-            Log out
+            {t('account.logOut')}
           </button>
         </div>
       </main>

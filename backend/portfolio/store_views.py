@@ -27,12 +27,14 @@ class StoreOrderCreateView(APIView):
         require_algeria_store(request)
         ser = StoreOrderCreateSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
-        data = ser.validated_data
+        vd = dict(ser.validated_data)
+        items_data = vd.pop('items')
         user = request.user if request.user.is_authenticated else None
         order = create_store_order(
             user=user,
-            customer_data=data,
-            items_data=data['items'],
+            customer_data=vd,
+            items_data=items_data,
+            reservation_key=(vd.get('reservation_id') or '').strip() or None,
         )
         return Response(
             StoreOrderPublicSerializer(order).data,

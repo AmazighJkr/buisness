@@ -231,6 +231,27 @@ class CommandLayer(models.Model):
         return self.name
 
 
+class CommandLayerBundle(models.Model):
+    """Preset combinations of command layers (e.g. full IoT stack)."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    slug = models.SlugField(max_length=80, unique=True)
+    name = models.CharField(max_length=160)
+    description = models.TextField(blank=True)
+    layer_ids = models.JSONField(
+        default=list,
+        help_text='List of CommandLayer UUID strings included in this preset.',
+    )
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
 class CommandMessage(models.Model):
     class AuthorRole(models.TextChoices):
         CLIENT = 'client', 'Client'
@@ -395,6 +416,87 @@ class StoreProductImage(models.Model):
         return f'{self.product.name} image'
 
 
+class StoreStockReservation(models.Model):
+    """Short-lived stock hold during cart validation / checkout."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reservation_key = models.CharField(max_length=64, db_index=True)
+    product = models.ForeignKey(
+        StoreProduct,
+        on_delete=models.CASCADE,
+        related_name='stock_reservations',
+    )
+    quantity = models.PositiveIntegerField(default=1)
+    order = models.ForeignKey(
+        'StoreOrder',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='stock_reservations',
+    )
+    expires_at = models.DateTimeField(db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['reservation_key', 'product']),
+        ]
+
+    def __str__(self):
+        return f'{self.product_id} x{self.quantity} ({self.reservation_key[:8]}…)'
+
+
+class StoreWilaya(models.Model):
+    """Algerian wilaya for store shipping."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=2, unique=True, db_index=True)
+    name = models.CharField(max_length=80)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['code']
+        verbose_name_plural = 'Store wilayas'
+
+    def __str__(self):
+        return f'{self.code} — {self.name}'
+
+
+class StorePostalCode(models.Model):
+    """Postal code with home / bureau shipping rates (DZD). Hidden until prices are set."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    wilaya = models.ForeignKey(
+        StoreWilaya,
+        on_delete=models.CASCADE,
+        related_name='postal_codes',
+    )
+    postal_code = models.CharField(max_length=10, db_index=True)
+    city = models.CharField(max_length=80, blank=True)
+    price_home_dzd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    price_bureau_dzd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['wilaya__code', 'postal_code']
+        unique_together = [['wilaya', 'postal_code']]
+        verbose_name = 'Postal code (shipping)'
+
+    def __str__(self):
+        return f'{self.postal_code} ({self.wilaya.name})'
+
+
 class StoreOrder(models.Model):
     class Status(models.TextChoices):
         PENDING = 'pending', 'Pending'
@@ -420,9 +522,32 @@ class StoreOrder(models.Model):
         related_name='store_orders',
     )
     customer_name = models.CharField(max_length=120)
+    customer_first_name = models.CharField(max_length=60, blank=True)
+    customer_last_name = models.CharField(max_length=60, blank=True)
     customer_email = models.EmailField()
     customer_phone = models.CharField(max_length=40, blank=True)
     shipping_address = models.TextField()
+    address_line1 = models.CharField(max_length=200, blank=True)
+    address_line2 = models.CharField(max_length=200, blank=True)
+    city = models.CharField(max_length=80, blank=True)
+    wilaya = models.ForeignKey(
+        StoreWilaya,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+    )
+    postal_code = models.CharField(max_length=10, blank=True, db_index=True)
+    class DeliveryType(models.TextChoices):
+        HOME = 'home', 'Home'
+        BUREAU = 'bureau', 'Bureau / relay'
+
+    delivery_type = models.CharField(
+        max_length=10,
+        choices=DeliveryType.choices,
+        blank=True,
+    )
+    shipping_dzd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
     payment_status = models.CharField(
         max_length=12,

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Check } from 'lucide-react'
 import { useTranslation } from '../context/LocaleContext.jsx'
-import { fetchCommandLayers } from '../api/client.js'
+import { fetchCommandLayerBundles, fetchCommandLayers } from '../api/client.js'
 import { fetchPaymentConfig } from '../api/client.js'
 import { detectClientCountry } from '../utils/paymentRegion.js'
 import { formatDzd, formatUsd, useDzdPricing } from '../utils/formatMoney.js'
@@ -11,6 +11,7 @@ const GROUP_ORDER = ['firmware', 'mobile', 'cloud', 'wireless']
 export default function CommandLayerPicker({ selectedIds, onChange }) {
   const { t } = useTranslation()
   const [layers, setLayers] = useState([])
+  const [bundles, setBundles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [useDzd, setUseDzd] = useState(false)
@@ -20,11 +21,13 @@ export default function CommandLayerPicker({ selectedIds, onChange }) {
     setLoading(true)
     Promise.all([
       fetchCommandLayers().catch(() => []),
+      fetchCommandLayerBundles().catch(() => []),
       detectClientCountry().then(() => fetchPaymentConfig()).catch(() => ({ provider: 'stripe' })),
     ])
-      .then(([list, cfg]) => {
+      .then(([list, bundleList, cfg]) => {
         if (cancelled) return
         setLayers(list)
+        setBundles(bundleList)
         setUseDzd(useDzdPricing(cfg?.provider))
         const required = list.filter((l) => l.is_required).map((l) => l.id)
         if (required.length && !selectedIds.length) {
@@ -62,6 +65,14 @@ export default function CommandLayerPicker({ selectedIds, onChange }) {
     }, 0)
   }, [layers, selectedSet, useDzd])
 
+  const applyBundle = (bundle) => {
+    const ids = bundle.layer_ids || []
+    if (!ids.length) return
+    const required = layers.filter((l) => l.is_required).map((l) => l.id)
+    const merged = [...new Set([...required, ...ids])]
+    onChange(merged)
+  }
+
   const toggle = (layer) => {
     if (layer.is_required) return
     if (selectedSet.has(layer.id)) {
@@ -87,6 +98,34 @@ export default function CommandLayerPicker({ selectedIds, onChange }) {
         <p className="text-xs font-medium text-dark-text">{t('commandLayers.title')}</p>
         <p className="mt-1 text-xs text-dark-muted">{t('commandLayers.lead')}</p>
       </div>
+
+      {bundles.length > 0 && (
+        <div>
+          <p className="mb-2 text-[10px] uppercase tracking-wide text-dark-muted">
+            {t('commandLayers.bundlesTitle')}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {bundles.map((bundle) => {
+              const total = useDzd
+                ? formatDzd(Number(bundle.estimated_total_dzd || 0))
+                : formatUsd(Number(bundle.estimated_total_usd || 0))
+              return (
+                <button
+                  key={bundle.id}
+                  type="button"
+                  onClick={() => applyBundle(bundle)}
+                  className="border border-dark-border px-3 py-2 text-left text-xs panel-hover hover:border-lab-cyan"
+                  title={bundle.description}
+                >
+                  <span className="block font-medium text-dark-text">{bundle.name}</span>
+                  <span className="mt-0.5 block text-[10px] text-lab-cyan tabular-nums">{total}</span>
+                </button>
+              )
+            })}
+          </div>
+          <p className="mt-1 text-[10px] text-dark-muted">{t('commandLayers.bundlesHint')}</p>
+        </div>
+      )}
 
       {grouped.map(([groupKey, items]) => (
         <div key={groupKey}>

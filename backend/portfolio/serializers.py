@@ -13,6 +13,7 @@ from .embed_utils import normalize_code_files, resolve_simulation_embed_url
 from .models import (
     Comment,
     CommandLayer,
+    CommandLayerBundle,
     CommandMessage,
     Project,
     ProjectCategory,
@@ -21,8 +22,10 @@ from .models import (
     StoreCategory,
     StoreOrder,
     StoreOrderItem,
+    StorePostalCode,
     StoreProduct,
     StoreProductImage,
+    StoreWilaya,
     UserSubscription,
 )
 from .access import project_access, required_packs_for, user_can_view_project
@@ -544,6 +547,7 @@ class StoreOrderItemSerializer(serializers.ModelSerializer):
 
 class StoreOrderPublicSerializer(serializers.ModelSerializer):
     items = StoreOrderItemSerializer(many=True, read_only=True)
+    wilaya_name = serializers.CharField(source='wilaya.name', read_only=True, default='')
 
     class Meta:
         model = StoreOrder
@@ -551,9 +555,19 @@ class StoreOrderPublicSerializer(serializers.ModelSerializer):
             'id',
             'order_number',
             'customer_name',
+            'customer_first_name',
+            'customer_last_name',
             'customer_email',
             'customer_phone',
             'shipping_address',
+            'address_line1',
+            'address_line2',
+            'city',
+            'wilaya',
+            'wilaya_name',
+            'postal_code',
+            'delivery_type',
+            'shipping_dzd',
             'status',
             'payment_status',
             'total_usd',
@@ -565,16 +579,82 @@ class StoreOrderPublicSerializer(serializers.ModelSerializer):
         ]
 
 
+class StoreWilayaPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreWilaya
+        fields = ['id', 'code', 'name']
+
+
+class StorePostalCodePublicSerializer(serializers.ModelSerializer):
+    wilaya_name = serializers.CharField(source='wilaya.name', read_only=True)
+    has_home = serializers.BooleanField(read_only=True)
+    has_bureau = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = StorePostalCode
+        fields = [
+            'id',
+            'postal_code',
+            'city',
+            'wilaya',
+            'wilaya_name',
+            'has_home',
+            'has_bureau',
+        ]
+
+
+class AdminStorePostalCodeSerializer(serializers.ModelSerializer):
+    wilaya_name = serializers.CharField(source='wilaya.name', read_only=True)
+
+    class Meta:
+        model = StorePostalCode
+        fields = [
+            'id',
+            'wilaya',
+            'wilaya_name',
+            'postal_code',
+            'city',
+            'price_home_dzd',
+            'price_bureau_dzd',
+            'is_active',
+            'sort_order',
+        ]
+
+
+class StoreCartValidateSerializer(serializers.Serializer):
+    items = serializers.ListField(child=serializers.DictField(), allow_empty=False)
+    reservation_id = serializers.CharField(required=False, allow_blank=True, max_length=64)
+
+    def validate(self, attrs):
+        from .store_orders import validate_cart_items
+
+        return validate_cart_items(
+            attrs['items'],
+            reservation_key=(attrs.get('reservation_id') or '').strip() or None,
+        )
+
+
 class StoreOrderCreateSerializer(serializers.Serializer):
-    customer_name = serializers.CharField(max_length=120)
+    first_name = serializers.CharField(max_length=60)
+    last_name = serializers.CharField(max_length=60)
     customer_email = serializers.EmailField()
-    customer_phone = serializers.CharField(max_length=40, required=False, allow_blank=True)
-    shipping_address = serializers.CharField()
+    customer_phone = serializers.CharField(max_length=40)
+    address_line1 = serializers.CharField(max_length=200)
+    address_line2 = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    city = serializers.CharField(max_length=80)
+    postal_code = serializers.CharField(max_length=10)
+    delivery_type = serializers.ChoiceField(choices=['home', 'bureau'])
     notes = serializers.CharField(required=False, allow_blank=True)
-    items = serializers.ListField(
-        child=serializers.DictField(),
-        allow_empty=False,
-    )
+    reservation_id = serializers.CharField(required=False, allow_blank=True, max_length=64)
+    items = serializers.ListField(child=serializers.DictField(), allow_empty=False)
+    # Legacy fields (ignored when structured address is sent)
+    customer_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
+    shipping_address = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_customer_phone(self, value):
+        from .algeria_shipping import normalize_algeria_phone
+
+        return normalize_algeria_phone(value)
 
 
 class AdminStoreOrderItemSerializer(serializers.ModelSerializer):
@@ -591,9 +671,27 @@ class AdminStoreOrderItemSerializer(serializers.ModelSerializer):
         ]
 
 
+class CustomerChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate_new_password(self, value):
+        from django.contrib.auth.password_validation import validate_password
+
+        validate_password(value)
+        return value
+
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Current password is incorrect.')
+        return value
+
+
 class AdminStoreOrderSerializer(serializers.ModelSerializer):
     items = AdminStoreOrderItemSerializer(many=True, read_only=True)
     username = serializers.CharField(source='user.username', read_only=True, default=None)
+    wilaya_name = serializers.CharField(source='wilaya.name', read_only=True, default='')
 
     class Meta:
         model = StoreOrder
@@ -603,9 +701,19 @@ class AdminStoreOrderSerializer(serializers.ModelSerializer):
             'user',
             'username',
             'customer_name',
+            'customer_first_name',
+            'customer_last_name',
             'customer_email',
             'customer_phone',
             'shipping_address',
+            'address_line1',
+            'address_line2',
+            'city',
+            'wilaya',
+            'wilaya_name',
+            'postal_code',
+            'delivery_type',
+            'shipping_dzd',
             'status',
             'payment_status',
             'total_usd',
@@ -697,6 +805,24 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     def get_pack_ids(self, obj):
         return [str(p.id) for p in obj.packs.all()]
 
+    def _validate_material_store_products(self, materials):
+        for index, row in enumerate(materials):
+            if not isinstance(row, dict):
+                continue
+            sid = str(row.get('store_product_id') or '').strip()
+            if not sid:
+                continue
+            if not StoreProduct.objects.filter(
+                id=sid,
+                is_active=True,
+                category__is_active=True,
+            ).exists():
+                raise serializers.ValidationError({
+                    'materials_json': (
+                        f'Row {index + 1}: linked store product is missing or inactive.'
+                    ),
+                })
+
     def _apply_packs(self, instance, pack_ids):
         if pack_ids is not None:
             instance.packs.set(SubscriptionPack.objects.filter(id__in=pack_ids))
@@ -772,6 +898,9 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'pack_ids_json': 'Must be a list.'})
             attrs['pack_ids'] = parsed
         attrs.pop('pack_ids_json', None)
+        materials = attrs.get('materials')
+        if materials is not None:
+            self._validate_material_store_products(materials)
         if 'featured_order' in self.initial_data:
             try:
                 attrs['featured_order'] = int(self.initial_data.get('featured_order') or 0)
@@ -820,6 +949,79 @@ class AdminCommandLayerSerializer(serializers.ModelSerializer):
         name = (attrs.get('name') or '').strip()
         if not attrs.get('slug') and name:
             attrs['slug'] = slugify(name) or 'layer'
+        return attrs
+
+
+class CommandLayerBundlePublicSerializer(serializers.ModelSerializer):
+    layer_ids = serializers.SerializerMethodField()
+    estimated_total_usd = serializers.SerializerMethodField()
+    estimated_total_dzd = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommandLayerBundle
+        fields = [
+            'id',
+            'slug',
+            'name',
+            'description',
+            'layer_ids',
+            'estimated_total_usd',
+            'estimated_total_dzd',
+        ]
+
+    def get_layer_ids(self, obj):
+        active = CommandLayer.objects.filter(is_active=True).values_list('id', flat=True)
+        active_set = {str(x) for x in active}
+        return [lid for lid in (obj.layer_ids or []) if str(lid) in active_set]
+
+    def _totals(self, obj):
+        ids = self.get_layer_ids(obj)
+        _, usd, dzd = build_command_layers_snapshot(ids)
+        return usd, dzd
+
+    def get_estimated_total_usd(self, obj):
+        return str(self._totals(obj)[0])
+
+    def get_estimated_total_dzd(self, obj):
+        return str(self._totals(obj)[1])
+
+
+class AdminCommandLayerBundleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommandLayerBundle
+        fields = [
+            'id',
+            'slug',
+            'name',
+            'description',
+            'layer_ids',
+            'is_active',
+            'sort_order',
+        ]
+
+    def validate_slug(self, value):
+        return slugify((value or '').strip()) or 'bundle'
+
+    def validate_layer_ids(self, value):
+        if not isinstance(value, list) or not value:
+            raise serializers.ValidationError('Select at least one layer.')
+        active = {
+            str(x)
+            for x in CommandLayer.objects.filter(is_active=True).values_list('id', flat=True)
+        }
+        cleaned = []
+        for raw in value:
+            sid = str(raw).strip()
+            if sid not in active:
+                raise serializers.ValidationError(f'Unknown or inactive layer: {sid}')
+            if sid not in cleaned:
+                cleaned.append(sid)
+        return cleaned
+
+    def validate(self, attrs):
+        name = (attrs.get('name') or '').strip()
+        if not attrs.get('slug') and name:
+            attrs['slug'] = slugify(name) or 'bundle'
         return attrs
 
 
@@ -1090,8 +1292,19 @@ class ProjectCommandRespondSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         status = attrs.get('status')
-        quoted = attrs.get('quoted_price')
-        quoted_dzd = attrs.get('quoted_price_dzd')
+        instance = self.instance
+        if instance and status == ProjectCommand.Status.ACCEPTED:
+            if attrs.get('quoted_price') in (None, '') and not instance.quoted_price:
+                if instance.estimated_total_usd and instance.estimated_total_usd > 0:
+                    attrs['quoted_price'] = instance.estimated_total_usd
+            if attrs.get('quoted_price_dzd') in (None, '') and not instance.quoted_price_dzd:
+                if instance.estimated_total_dzd and instance.estimated_total_dzd > 0:
+                    attrs['quoted_price_dzd'] = instance.estimated_total_dzd
+        quoted = attrs.get('quoted_price', getattr(instance, 'quoted_price', None) if instance else None)
+        quoted_dzd = attrs.get(
+            'quoted_price_dzd',
+            getattr(instance, 'quoted_price_dzd', None) if instance else None,
+        )
         if status == ProjectCommand.Status.ACCEPTED and (
             (quoted and quoted > 0) or (quoted_dzd and quoted_dzd > 0)
         ):
@@ -1154,6 +1367,12 @@ class CustomerRegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'first_name']
 
+    def validate_password(self, value):
+        from django.contrib.auth.password_validation import validate_password
+
+        validate_password(value)
+        return value
+
     def validate_username(self, value):
         name = (value or '').strip()
         if len(name) < 3:
@@ -1191,6 +1410,7 @@ class CustomerMeSerializer(serializers.ModelSerializer):
     subscriptions = serializers.SerializerMethodField()
     active_pack_ids = serializers.SerializerMethodField()
     subscription_tier = serializers.SerializerMethodField()
+    has_usable_password = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -1199,10 +1419,14 @@ class CustomerMeSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'first_name',
+            'has_usable_password',
             'subscriptions',
             'active_pack_ids',
             'subscription_tier',
         ]
+
+    def get_has_usable_password(self, obj):
+        return obj.has_usable_password()
 
     def get_subscriptions(self, obj):
         from .access import active_subscriptions_for

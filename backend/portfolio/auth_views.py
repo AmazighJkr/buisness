@@ -18,6 +18,7 @@ from .payments import (
 )
 from .permissions import IsCustomerUser
 from .serializers import (
+    CustomerChangePasswordSerializer,
     CustomerMeSerializer,
     CustomerRegisterSerializer,
     SubscriptionPackPublicSerializer,
@@ -110,6 +111,17 @@ class CustomerMeView(APIView):
 
     def get(self, request):
         return Response(CustomerMeSerializer(request.user).data)
+
+
+class CustomerChangePasswordView(APIView):
+    permission_classes = [IsCustomerUser]
+
+    def post(self, request):
+        ser = CustomerChangePasswordSerializer(data=request.data, context={'request': request})
+        ser.is_valid(raise_exception=True)
+        request.user.set_password(ser.validated_data['new_password'])
+        request.user.save(update_fields=['password'])
+        return Response({'detail': 'Password updated.'})
 
 
 class SubscriptionPackListView(generics.ListAPIView):
