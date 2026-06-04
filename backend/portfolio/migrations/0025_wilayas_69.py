@@ -1,6 +1,21 @@
 from django.db import migrations
 
-from portfolio.data.algeria_wilayas import NEW_WILAYA_POSTAL, WILAYAS
+from portfolio.data.algeria_wilayas import WILAYAS
+
+# Historical — superseded by 0026 (58 wilayas). Kept inline so later data file edits do not break migrations.
+_NEW_WILAYA_POSTAL = [
+    ('59', '03400', 'Aflou'),
+    ('60', '32300', 'El Abiodh Sidi Cheikh'),
+    ('61', '13210', 'El Aricha'),
+    ('62', '07130', 'El Kantara'),
+    ('63', '05400', 'Barika'),
+    ('64', '28200', 'Bou Saâda'),
+    ('65', '12200', 'Bir El Ater'),
+    ('66', '26300', 'Ksar El Boukhari'),
+    ('67', '14300', 'Ksar Chellala'),
+    ('68', '17200', 'Aïn Oussara'),
+    ('69', '17400', 'Messaâd'),
+]
 
 
 def sync_wilayas(apps, schema_editor):
@@ -21,7 +36,7 @@ def seed_new_wilaya_postal(apps, schema_editor):
     StorePostalCode = apps.get_model('portfolio', 'StorePostalCode')
     wilaya_by_code = {w.code: w for w in StoreWilaya.objects.all()}
 
-    for wilaya_code, postal_code, city in NEW_WILAYA_POSTAL:
+    for wilaya_code, postal_code, city in _NEW_WILAYA_POSTAL:
         wilaya = wilaya_by_code.get(wilaya_code)
         if not wilaya:
             continue

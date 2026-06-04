@@ -284,7 +284,7 @@ export const translations = {
       shippingPostal: 'Shipping (postal)',
       loading: 'Loading store…',
       shippingLead:
-        'All Algerian postal codes are listed. Set home and/or bureau (relay) rates in DZD to enable checkout for each code.',
+        '58 wilayas · official post office directory. Pick a wilaya, then a postal code. Set home and/or bureau rates in DZD to enable checkout.',
       allWilayas: 'All wilayas',
       searchPostal: 'Search code or city…',
       editPostal: 'Edit postal code',
@@ -746,7 +746,7 @@ export const translations = {
       shippingPostal: 'Livraison (codes postaux)',
       loading: 'Chargement de la boutique…',
       shippingLead:
-        'Tous les codes postaux algériens sont listés. Définissez les tarifs domicile et/ou bureau en DZD pour activer le paiement.',
+        '58 wilayas · répertoire La Poste. Choisissez une wilaya puis un code postal. Tarifs domicile et/ou bureau en DZD pour activer le paiement.',
       allWilayas: 'Toutes les wilayas',
       searchPostal: 'Rechercher code ou ville…',
       editPostal: 'Modifier le code postal',
