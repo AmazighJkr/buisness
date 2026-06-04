@@ -165,10 +165,12 @@ class AdminStoreWilayaListView(APIView):
     def get(self, request):
         rows = (
             StoreWilaya.objects.annotate(
-                postal_count=Count('postal_codes'),
+                postal_count=Count('postal_codes', distinct=True),
                 configured_count=Count(
                     'postal_codes',
-                    filter=Q(price_home_dzd__gt=0) | Q(price_bureau_dzd__gt=0),
+                    filter=Q(postal_codes__price_home_dzd__gt=0)
+                    | Q(postal_codes__price_bureau_dzd__gt=0),
+                    distinct=True,
                 ),
             )
             .order_by('code')
