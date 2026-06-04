@@ -603,8 +603,19 @@ class StorePostalCodePublicSerializer(serializers.ModelSerializer):
         ]
 
 
+class AdminStoreWilayaSerializer(serializers.ModelSerializer):
+    postal_count = serializers.IntegerField(read_only=True)
+    configured_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = StoreWilaya
+        fields = ['id', 'code', 'name', 'is_active', 'postal_count', 'configured_count']
+
+
 class AdminStorePostalCodeSerializer(serializers.ModelSerializer):
     wilaya_name = serializers.CharField(source='wilaya.name', read_only=True)
+    has_home = serializers.BooleanField(read_only=True)
+    has_bureau = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = StorePostalCode
@@ -616,6 +627,8 @@ class AdminStorePostalCodeSerializer(serializers.ModelSerializer):
             'city',
             'price_home_dzd',
             'price_bureau_dzd',
+            'has_home',
+            'has_bureau',
             'is_active',
             'sort_order',
         ]

@@ -2,8 +2,9 @@
 
 from decimal import Decimal
 
-from django.db.models import Q
+from django.db.models import Count, Q
 from rest_framework import status, viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,10 +16,17 @@ from .models import StorePostalCode, StoreWilaya
 from .permissions import CanManageStore
 from .serializers import (
     AdminStorePostalCodeSerializer,
+    AdminStoreWilayaSerializer,
     StoreCartValidateSerializer,
     StorePostalCodePublicSerializer,
     StoreWilayaPublicSerializer,
 )
+
+
+class AdminPostalPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 500
 
 
 def _postal_codes_available():
@@ -119,6 +127,7 @@ class AdminStorePostalCodeViewSet(viewsets.ModelViewSet):
     queryset = StorePostalCode.objects.select_related('wilaya').all()
     serializer_class = AdminStorePostalCodeSerializer
     permission_classes = [CanManageStore]
+    pagination_class = AdminPostalPagination
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -130,6 +139,23 @@ class AdminStorePostalCodeViewSet(viewsets.ModelViewSet):
             qs = qs.filter(
                 Q(postal_code__icontains=q) | Q(city__icontains=q) | Q(wilaya__name__icontains=q),
             )
+        status_filter = (self.request.query_params.get('status') or '').strip()
+        if status_filter == 'configured':
+            qs = qs.filter(Q(price_home_dzd__gt=0) | Q(price_bureau_dzd__gt=0))
+        elif status_filter == 'no_rates':
+            qs = qs.filter(is_active=True).exclude(
+                Q(price_home_dzd__gt=0) | Q(price_bureau_dzd__gt=0),
+            )
+        elif status_filter == 'inactive':
+            qs = qs.filter(is_active=False)
+        elif status_filter == 'home_only':
+            qs = qs.filter(price_home_dzd__gt=0).filter(
+                Q(price_bureau_dzd__isnull=True) | Q(price_bureau_dzd__lte=0),
+            )
+        elif status_filter == 'bureau_only':
+            qs = qs.filter(price_bureau_dzd__gt=0).filter(
+                Q(price_home_dzd__isnull=True) | Q(price_home_dzd__lte=0),
+            )
         return qs.order_by('wilaya__code', 'postal_code')
 
 
@@ -137,5 +163,14 @@ class AdminStoreWilayaListView(APIView):
     permission_classes = [CanManageStore]
 
     def get(self, request):
-        rows = StoreWilaya.objects.all().order_by('code')
-        return Response(StoreWilayaPublicSerializer(rows, many=True).data)
+        rows = (
+            StoreWilaya.objects.annotate(
+                postal_count=Count('postal_codes'),
+                configured_count=Count(
+                    'postal_codes',
+                    filter=Q(price_home_dzd__gt=0) | Q(price_bureau_dzd__gt=0),
+                ),
+            )
+            .order_by('code')
+        )
+        return Response(AdminStoreWilayaSerializer(rows, many=True).data)

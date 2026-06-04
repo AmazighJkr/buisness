@@ -963,15 +963,25 @@ export async function adminFetchWilayas() {
   return adminRequest(`${API_BASE}/api/admin/store/wilayas/`)
 }
 
-export async function adminFetchPostalCodes({ wilaya = '', q = '' } = {}) {
+export async function adminFetchPostalCodes({
+  wilaya = '',
+  q = '',
+  status = '',
+  page = 1,
+  pageSize = 500,
+} = {}) {
   const params = new URLSearchParams()
   if (wilaya) params.set('wilaya', wilaya)
   if (q) params.set('q', q)
+  if (status) params.set('status', status)
+  params.set('page', String(page))
+  params.set('page_size', String(pageSize))
   const qs = params.toString()
-  const data = await adminRequest(
-    `${API_BASE}/api/admin/store/postal-codes/${qs ? `?${qs}` : ''}`,
-  )
-  return data.results ?? data
+  const data = await adminRequest(`${API_BASE}/api/admin/store/postal-codes/?${qs}`)
+  if (data.results) {
+    return { rows: data.results, count: data.count ?? data.results.length }
+  }
+  return { rows: data, count: data.length }
 }
 
 export async function adminCreatePostalCode(body) {
