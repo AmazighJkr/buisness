@@ -43,6 +43,9 @@ services:
       # --- Payments — paste Stripe values in Render Dashboard → Environment ---
       - key: PUBLIC_SITE_URL
         value: https://embeddedgrid.onrender.com
+      # When GeoIP is blocked, treat visitors as DZ so the store works in Algeria (optional safety net)
+      - key: GEOIP_FALLBACK_COUNTRY
+        value: DZ
       - key: PAYMENT_CURRENCY
         value: usd
       # Paste real values in Render Dashboard → Environment (placeholders show after blueprint sync)

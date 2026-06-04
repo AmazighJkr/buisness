@@ -1,13 +1,26 @@
 import {
   detectClientCountry,
+  getCachedClientCountry,
   getCachedPaymentProvider,
   paymentCountryHeaders,
   paymentProviderHeaders,
   paymentRoutingParams,
+  setCachedClientCountry,
   setCachedPaymentProvider,
 } from '../utils/paymentRegion.js'
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
+function resolveApiBase() {
+  const raw = (import.meta.env.VITE_API_URL || '').trim()
+  if (!raw) return ''
+  try {
+    new URL(raw)
+    return raw.replace(/\/$/, '')
+  } catch {
+    return ''
+  }
+}
+
+const API_BASE = resolveApiBase()
 const ADMIN_TOKEN_KEY = 'admin_access_token'
 const ADMIN_REFRESH_KEY = 'admin_refresh_token'
 const USER_TOKEN_KEY = 'user_access_token'
@@ -478,20 +491,31 @@ export async function fetchCommandTrackByEmail(email) {
 }
 
 export async function fetchPaymentConfig({ forceRefresh = false } = {}) {
-  const country = await detectClientCountry({ forceRefresh })
-  const params = paymentRoutingParams(null, country)
+  const cached = forceRefresh ? '' : getCachedClientCountry()
+  const params = paymentRoutingParams(null, cached)
   const qs = params.toString()
-  const res = await fetch(`${API_BASE}/api/payments/config/${qs ? `?${qs}` : ''}`, {
-    headers: { ...paymentCountryHeaders(), ...paymentProviderHeaders() },
-  })
+  let res
+  try {
+    res = await fetch(`${API_BASE}/api/payments/config/${qs ? `?${qs}` : ''}`, {
+      headers: { ...paymentCountryHeaders(), ...paymentProviderHeaders() },
+      credentials: 'same-origin',
+    })
+  } catch {
+    throw new Error(
+      'Could not reach the server. Check your connection or wait if the site is waking up.',
+    )
+  }
   const data = await handleResponse(res)
+  if (data.country) setCachedClientCountry(data.country)
   if (data.provider) setCachedPaymentProvider(data.provider)
   return data
 }
 
 async function paymentRequestOptions(provider) {
   const p = provider || getCachedPaymentProvider()
-  await detectClientCountry({ forceRefresh: true })
+  if (!getCachedClientCountry()) {
+    await detectClientCountry()
+  }
   return {
     headers: {
       ...paymentCountryHeaders(),

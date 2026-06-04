@@ -2,13 +2,15 @@
 
 import os
 
+from .geo import client_ip, geo_fallback_country, lookup_country_by_ip
+
 
 def client_country(request) -> str:
     """ISO 3166-1 alpha-2 country code, or empty if unknown."""
     if os.getenv('CHARGILY_FORCE_ALGERIA', '').strip().lower() in ('1', 'true', 'yes'):
         return 'DZ'
 
-    # Browser/client hint first (matches VPN and what the UI used for prices).
+    # Browser/client hint (VPN users who chose a region in UI).
     cc = (request.headers.get('X-Client-Country') or '').strip().upper()
     if len(cc) == 2:
         return cc
@@ -21,7 +23,12 @@ def client_country(request) -> str:
     if len(cc) == 2:
         return cc
 
-    return ''
+    ip = client_ip(request)
+    cc = lookup_country_by_ip(ip)
+    if len(cc) == 2:
+        return cc
+
+    return geo_fallback_country()
 
 
 def is_algeria_request(request) -> bool:

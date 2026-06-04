@@ -22,6 +22,7 @@ from .shipping_views import (
 from .payment_views import (
     ChargilyWebhookView,
     CommandPayView,
+    ClientCountryView,
     PaymentConfigView,
     StripeWebhookView,
 )
@@ -106,6 +107,7 @@ urlpatterns = [
     path('commands/messages/', CommandTrackMessageView.as_view(), name='command-messages'),
     path('commands/pay/', CommandPayView.as_view(), name='command-pay'),
     path('payments/config/', PaymentConfigView.as_view(), name='payment-config'),
+    path('payments/country/', ClientCountryView.as_view(), name='payment-country'),
     path('auth/register/', CustomerRegisterView.as_view(), name='auth-register'),
     path('auth/login/', CustomerLoginView.as_view(), name='auth-login'),
     path('auth/google/', GoogleLoginView.as_view(), name='auth-google'),

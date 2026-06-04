@@ -11,18 +11,31 @@ export function useStoreRegion() {
 
   useEffect(() => {
     let cancelled = false
-    fetchPaymentConfig({ forceRefresh: true })
-      .then((cfg) => {
-        if (cancelled) return
-        setState({
-          loading: false,
-          isAlgeria: Boolean(cfg.store_available ?? cfg.is_algeria),
-          chargily: Boolean(cfg.chargily),
-        })
+
+    const apply = (cfg) => {
+      setState({
+        loading: false,
+        isAlgeria: Boolean(cfg.store_available ?? cfg.is_algeria),
+        chargily: Boolean(cfg.chargily),
       })
-      .catch(() => {
-        if (!cancelled) setState({ loading: false, isAlgeria: false, chargily: false })
-      })
+    }
+
+    const load = async (retries = 2) => {
+      for (let attempt = 0; attempt < retries; attempt += 1) {
+        try {
+          const cfg = await fetchPaymentConfig({ forceRefresh: attempt > 0 })
+          if (!cancelled) apply(cfg)
+          return
+        } catch {
+          if (attempt < retries - 1) {
+            await new Promise((r) => setTimeout(r, 1500))
+          }
+        }
+      }
+      if (!cancelled) setState({ loading: false, isAlgeria: false, chargily: false })
+    }
+
+    load()
     return () => {
       cancelled = true
     }

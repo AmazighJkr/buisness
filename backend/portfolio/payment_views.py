@@ -134,6 +134,15 @@ class PaymentConfigView(APIView):
         })
 
 
+class ClientCountryView(APIView):
+    """Country for payment/store routing — detected on the server (no browser GeoIP)."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({'country': client_country(request)})
+
+
 class StripeWebhookView(APIView):
     permission_classes = [AllowAny]
 

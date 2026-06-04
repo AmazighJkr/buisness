@@ -25,8 +25,25 @@ function setCacheEntry(key, value) {
   }
 }
 
+/** Same-origin API base (empty = relative /api on production). */
+function apiBase() {
+  const raw = (import.meta.env.VITE_API_URL || '').trim()
+  if (!raw) return ''
+  try {
+    const url = new URL(raw)
+    return url.origin === 'null' ? '' : raw.replace(/\/$/, '')
+  } catch {
+    return ''
+  }
+}
+
 export function getCachedClientCountry() {
   return cacheEntry(COUNTRY_KEY) || ''
+}
+
+export function setCachedClientCountry(code) {
+  const cc = (code || '').trim().toUpperCase()
+  if (cc.length === 2) setCacheEntry(COUNTRY_KEY, cc)
 }
 
 export function getCachedPaymentProvider() {
@@ -37,7 +54,7 @@ export function setCachedPaymentProvider(provider) {
   if (provider) setCacheEntry(PROVIDER_KEY, provider)
 }
 
-/** Best-effort ISO country code for payment routing (DZ → Chargily). */
+/** Country for payment routing — always via our API (server GeoIP), never ipapi.co in browser. */
 export async function detectClientCountry({ forceRefresh = false } = {}) {
   if (!forceRefresh) {
     const cached = getCachedClientCountry()
@@ -45,21 +62,22 @@ export async function detectClientCountry({ forceRefresh = false } = {}) {
   }
 
   try {
-    const res = await fetch('https://ipapi.co/country_code/', {
-      signal: AbortSignal.timeout(4000),
+    const res = await fetch(`${apiBase()}/api/payments/country/`, {
+      signal: AbortSignal.timeout(8000),
+      credentials: 'same-origin',
     })
     if (res.ok) {
-      const code = (await res.text()).trim().toUpperCase()
+      const data = await res.json()
+      const code = (data.country || '').trim().toUpperCase()
       if (code.length === 2) {
-        setCacheEntry(COUNTRY_KEY, code)
+        setCachedClientCountry(code)
         return code
       }
     }
   } catch {
-    /* no fallback timezone — avoids locking Algeria on VPN */
+    /* DNS/offline/server waking — do not cache failure */
   }
 
-  setCacheEntry(COUNTRY_KEY, '')
   return ''
 }
 
