@@ -358,6 +358,16 @@ export async function fetchShippingPostalCodes(wilayaId) {
   return handleResponse(res)
 }
 
+export async function searchShippingLocations(query, wilayaId = null, limit = 20) {
+  await detectClientCountry()
+  const q = new URLSearchParams({ q: query, limit: String(limit) })
+  if (wilayaId) q.set('wilaya', wilayaId)
+  const res = await fetch(`${API_BASE}/api/store/shipping/search/?${q}`, {
+    headers: paymentCountryHeaders(),
+  })
+  return handleResponse(res)
+}
+
 export async function fetchShippingQuote(postalCode, deliveryType) {
   await detectClientCountry()
   const res = await fetch(`${API_BASE}/api/store/shipping/quote/`, {

@@ -1,0 +1,11417 @@
+[
+{
+"wilaya_code": "01",
+"postal_code": "01000",
+"city": "Adrar"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01001",
+"city": "Adgha"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01100",
+"city": "Zaouiet Sidi Abdelkader"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01102",
+"city": "Oudgha"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01103",
+"city": "Lahmeur"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01120",
+"city": "Tamentit"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01130",
+"city": "Tsabit"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01141",
+"city": "Sebaa"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01150",
+"city": "Bouda Bendraou"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01161",
+"city": "Ouled Ahmed"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01162",
+"city": "Melouka"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01200",
+"city": "Reggane"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01201",
+"city": "Bahou"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01203",
+"city": "Sali"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01220",
+"city": "Bordj-Badji-Mokhtar"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01230",
+"city": "Timiaouine"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01240",
+"city": "Zaouiet Kounta"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01241",
+"city": "Bouali"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01242",
+"city": "Tittaouine Lakhras"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01243",
+"city": "Tiouririne"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01300",
+"city": "Aoulef"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01301",
+"city": "Aoulef Cheurfa"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01302",
+"city": "Akabli"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01320",
+"city": "Tit"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01400",
+"city": "Timimoun"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01410",
+"city": "Ouled Aissa"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01415",
+"city": "Ouled Said"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01420",
+"city": "Charouine"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01430",
+"city": "Zaouiedt Debbagh"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01440",
+"city": "Tiberghamine"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01441",
+"city": "Badriane"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01442",
+"city": "M'ghiden"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01443",
+"city": "Metarfa"
+},
+{
+"wilaya_code": "01",
+"postal_code": "01444",
+"city": "Ouled Abbou"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02000",
+"city": "Chlef"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02100",
+"city": "Oued Fodda"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02101",
+"city": "Bir Saf Saf"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02110",
+"city": "Beni Rached"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02120",
+"city": "Ouled Abbes"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02130",
+"city": "El Karimia"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02131",
+"city": "Chouchaoua"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02132",
+"city": "Souk El Had"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02140",
+"city": "Harchoun"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02160",
+"city": "Oum Drou"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02170",
+"city": "Chettia"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02180",
+"city": "Ouled Fares"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02181",
+"city": "Razim Maamar"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02182",
+"city": "Kherrara"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02183",
+"city": "Meddina"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02184",
+"city": "Haouch el Ghaba"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02200",
+"city": "Tenes"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02012",
+"city": "Taougrite"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02201",
+"city": "El Kalaa Bou Hallou"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02202",
+"city": "Reggoun"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02210",
+"city": "Sidi Akkacha"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02215",
+"city": "Abou el Hassan"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02220",
+"city": "Talassa"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02225",
+"city": "Souk el Bagar"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02230",
+"city": "Bouzeghaia"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02231",
+"city": "Heumis Ain Beida"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02235",
+"city": "Tadhena"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02240",
+"city": "Beni Haoua"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02241",
+"city": "Bissa"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02245",
+"city": "Breira"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02255",
+"city": "El Marsa"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02256",
+"city": "Guelta"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02257",
+"city": "Baach"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02265",
+"city": "Zeboudja"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02266",
+"city": "Main Sinfita"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02270",
+"city": "Benaira"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02300",
+"city": "Boukadir"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02301",
+"city": "El Athmania"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02302",
+"city": "Ouled Ziad"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02011",
+"city": "Oued Sly"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02320",
+"city": "Sobha"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02321",
+"city": "Ouled Fetti"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02330",
+"city": "Aïn Merane"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02331",
+"city": "Ain Serdoune"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02332",
+"city": "Souk el Tleta"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02333",
+"city": "Ouled Berradjah"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02350",
+"city": "Taougrite"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02351",
+"city": "Bordj Baal"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02353",
+"city": "Souk el Arba"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02354",
+"city": "Chaabnia"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02370",
+"city": "Ouled Ben Abdelkader"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02371",
+"city": "Zemoura"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02372",
+"city": "Beni Ouazane"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02380",
+"city": "Sendjas"
+},
+{
+"wilaya_code": "02",
+"postal_code": "02390",
+"city": "El Hadjadj"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03000",
+"city": "Laghouat"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03001",
+"city": "Laghouat 1er novembre"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03100",
+"city": "Ksar el Hirane"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03110",
+"city": "Sidi Makhlouf"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03111",
+"city": "Bennana"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03120",
+"city": "Mekhareg"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03121",
+"city": "Reg Taounza"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03130",
+"city": "El Assafia"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03200",
+"city": "Ain Madhi"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03210",
+"city": "Tadjemout"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03220",
+"city": "El Houaita"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03230",
+"city": "Kheneg"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03240",
+"city": "Tadjrouna"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03300",
+"city": "Hassi R'Mel"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03310",
+"city": "Hassi Delaa"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03400",
+"city": "Aflou"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03410",
+"city": "Sidi Bouzid"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03420",
+"city": "Oued Morra"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03430",
+"city": "Oued M'zi"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03450",
+"city": "Beidha"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03451",
+"city": "Hassian Dhib"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03452",
+"city": "Oued Touil"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03500",
+"city": "Brida"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03501",
+"city": "Sidi Hamza"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03510",
+"city": "El Ghicha"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03520",
+"city": "Hadj Mechri"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03521",
+"city": "Ain Bekai"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03530",
+"city": "Sebgag"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03540",
+"city": "Taouiala"
+},
+{
+"wilaya_code": "03",
+"postal_code": "03550",
+"city": "Ain Sidi Ali"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04000",
+"city": "Oum el Bouaghi"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04001",
+"city": "Sidi R'ghiss M'zi"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04100",
+"city": "Aïn Babouche"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04101",
+"city": "Bir Amar"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04120",
+"city": "Ksar Sbahi"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04200",
+"city": "Aïn Beïda"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04210",
+"city": "Berriche"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04212",
+"city": "Ain Ferhat"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04230",
+"city": "Fkirina"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04241",
+"city": "Hanchir Douames"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04250",
+"city": "Meskiana"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04251",
+"city": "Ain Sedjra"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04252",
+"city": "Meliana"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04253",
+"city": "Guern Ahmar"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04260",
+"city": "Behir Chergui"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04270",
+"city": "El Djazia"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04295",
+"city": "Dhala"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04300",
+"city": "Aïn M'lila"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04301",
+"city": "Bir Ogla"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04302",
+"city": "El Djahli"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04310",
+"city": "Ouled Hamla"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04320",
+"city": "Bir Chouhada"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04326",
+"city": "Hanchir Laatache"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04330",
+"city": "Ouled Zouaï"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04335",
+"city": "Sigus"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04336",
+"city": "Ouled Naceur"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04337",
+"city": "Taxas"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04345",
+"city": "Ain Fakroun"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04347",
+"city": "Ain el Bordj"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04350",
+"city": "Bougherara el Fedjoudj"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04355",
+"city": "Aïn Kercha"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04360",
+"city": "El Harmilia"
+},
+{
+"wilaya_code": "04",
+"postal_code": "04365",
+"city": "Hanchir Toumghani"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05000",
+"city": "Batna"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05100",
+"city": "Tazoult"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05110",
+"city": "Fesdis"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05111",
+"city": "Bouilef Fesdis"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05112",
+"city": "Cite des Freres Benchadi"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05120",
+"city": "Oued Chaaba"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05121",
+"city": "Hamla"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05130",
+"city": "Timgad"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05131",
+"city": "Sidi Mançar"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05140",
+"city": "Ouyoun El Assafir"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05200",
+"city": "Arris"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05201",
+"city": "Bellihoud"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05202",
+"city": "T'zouket"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05221",
+"city": "El Hadjadj"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05222",
+"city": "Medina"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05230",
+"city": "Foum Toub"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05240",
+"city": "Inoughissen"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05250",
+"city": "T'kout"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05252",
+"city": "Kef Laarous"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05253",
+"city": "Chennaoura"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05254",
+"city": "Sidi Ali"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05255",
+"city": "Rhoufi"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05256",
+"city": "Tifelfel"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05270",
+"city": "Ghassira"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05281",
+"city": "Tibikaouine"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05300",
+"city": "Merouana"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05301",
+"city": "El Ksar"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05321",
+"city": "M'cil"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05330",
+"city": "Talkhempt"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05340",
+"city": "Oued el Maa"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05360",
+"city": "Seriana"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05361",
+"city": "Draa el Gbor"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05362",
+"city": "Taga"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05380",
+"city": "Ain Djasser"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05381",
+"city": "Ain el Beida"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05382",
+"city": "Theniet Sedra"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05383",
+"city": "Zana"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05395",
+"city": "Hidoussa"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05396",
+"city": "R'hawat"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05400",
+"city": "Barika"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05401",
+"city": "Ouled Derradji"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05410",
+"city": "Ouled Ammar"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05421",
+"city": "Metkaouak"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05430",
+"city": "M'doukel"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05440",
+"city": "Bitam"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05441",
+"city": "Ouled Aiche"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05450",
+"city": "Djezzar"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05002",
+"city": "Aïn Touta"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05501",
+"city": "Beni Makhlouf"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05502",
+"city": "Laadjalat"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05510",
+"city": "Ouled Aouf"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05520",
+"city": "Maafa"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05530",
+"city": "Beni Foudala"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05540",
+"city": "Seggana"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05541",
+"city": "Tazaghet"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05600",
+"city": "N'gaous"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05601",
+"city": "Fenarou"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05602",
+"city": "Tifrene"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05610",
+"city": "Sefiane"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05620",
+"city": "Boummaguer"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05630",
+"city": "Ras el Aioun"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05640",
+"city": "Rahbat"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05650",
+"city": "Guigba"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05660",
+"city": "Taxlent"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05661",
+"city": "Tinibaouine"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05670",
+"city": "Lemcen"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05680",
+"city": "Ouled Slimane"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05681",
+"city": "Djeriat"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05682",
+"city": "Tarf"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05690",
+"city": "Gosbat"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05700",
+"city": "Teniet El Abed"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05701",
+"city": "Baali"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05702",
+"city": "T'letz"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05703",
+"city": "Chir"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05704",
+"city": "Ouled Azzouz"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05710",
+"city": "Nouader"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05720",
+"city": "Menaa"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05721",
+"city": "Amentane"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05722",
+"city": "Aoughanime"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05723",
+"city": "Nara"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05724",
+"city": "Ouarka"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05740",
+"city": "Bouzina"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05741",
+"city": "Mezeline"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05742",
+"city": "Taggoust el Hamra"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05750",
+"city": "Tigharghar"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05760",
+"city": "Oued Taga"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05761",
+"city": "Ali Gader"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05762",
+"city": "Baiou"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05800",
+"city": "El Madher"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05810",
+"city": "Boumia"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05811",
+"city": "Ain Romane"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05820",
+"city": "Djerma"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05821",
+"city": "Sidi Khiar"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05830",
+"city": "Chemmora"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05831",
+"city": "El Kouachia"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05840",
+"city": "Boulhilat"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05851",
+"city": "Touffana"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05852",
+"city": "Legrine"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05853",
+"city": "Bou el Freis"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05860",
+"city": "Ain Yagout"
+},
+{
+"wilaya_code": "05",
+"postal_code": "05861",
+"city": "Draa Boultif"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06000",
+"city": "Béjaïa"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06047",
+"city": "Amtik N'tafat"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06023",
+"city": "Tichy"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06059",
+"city": "Taguemont"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06017",
+"city": "Oued Ghir"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06062",
+"city": "Mellala"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06007",
+"city": "Aokas"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06136",
+"city": "Aokas 20 août 1956"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06058",
+"city": "Ifalene"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06061",
+"city": "Akkar"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06060",
+"city": "Tizi N'berber"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06057",
+"city": "Ighram"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06010",
+"city": "Ighzer Amokrane"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06014",
+"city": "Ighil Ali"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06055",
+"city": "Tizi Alouane"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06013",
+"city": "Guendouze"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06018",
+"city": "Boudjellil"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06026",
+"city": "Beni Mansour"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06006",
+"city": "Tazmalt"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06056",
+"city": "Beni Ouamar"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06039",
+"city": "Beni Mellikeche"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06031",
+"city": "Bouhamza"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06008",
+"city": "Amizour"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06096",
+"city": "Taddert Tamokrant"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06003",
+"city": "El Kseur"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06094",
+"city": "Garet"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06320",
+"city": "Barbacha"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06321",
+"city": "Khellil"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06322",
+"city": "Sidi Ali"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06330",
+"city": "Ferraoun"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06340",
+"city": "Toudja"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06350",
+"city": "Semaoun"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06351",
+"city": "Aghbala"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06352",
+"city": "Aourir Adjissa"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06353",
+"city": "Ighil N'sebt"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06084",
+"city": "Semaoune (Chemini)"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06371",
+"city": "Tizi N'tindjit"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06401",
+"city": "Adekar Kebouche"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06402",
+"city": "Kiria"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06403",
+"city": "Tizi Ougueni"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06025",
+"city": "Akfadou"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06411",
+"city": "Tizamourine"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06412",
+"city": "Sillal"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06421",
+"city": "Assam"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06431",
+"city": "Djeblaa"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06432",
+"city": "Tizi el Korn"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06011",
+"city": "Seddouk"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06501",
+"city": "Immoula"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06034",
+"city": "Akourma"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06512",
+"city": "Bouhitem"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06520",
+"city": "Tamokra"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06530",
+"city": "Beni Maouche"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06531",
+"city": "Aguemoune Beni Khiar"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06532",
+"city": "Ait Adjissa"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06540",
+"city": "Sidi-Saïd"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06600",
+"city": "Kherrata"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06601",
+"city": "Adjioun"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06621",
+"city": "Bordj-Mira"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06622",
+"city": "Ait Idriss"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06630",
+"city": "Ait Smail"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06631",
+"city": "Tergregt"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06640",
+"city": "Darguina"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06641",
+"city": "El Alem"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06650",
+"city": "Tamridjet"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06660",
+"city": "Souk El Ténine"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06700",
+"city": "Sidi Aich"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06710",
+"city": "Leflaye"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06720",
+"city": "Tinabdher"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06730",
+"city": "Tibane"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06740",
+"city": "Sidi Ayad"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06751",
+"city": "Akabiou"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06752",
+"city": "Ighil Outouaf"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06761",
+"city": "Tala Tazert"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06762",
+"city": "Timezrit il Matten"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06022",
+"city": "Chemini"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06036",
+"city": "Takrietz (Souk Oufella)"
+},
+{
+"wilaya_code": "06",
+"postal_code": "06042",
+"city": "Tiliouacadi (Souk Oufella"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07000",
+"city": "Biskra"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07003",
+"city": "Biskra Air"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07004",
+"city": "Biskra el Alia"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07005",
+"city": "Biskra Star Melouk"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07006",
+"city": "Biskra Cite el Amal"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07100",
+"city": "El Outaya"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07101",
+"city": "Farfar"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07110",
+"city": "Djemorah"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07111",
+"city": "Guedila"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07120",
+"city": "Branis"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07130",
+"city": "El Kantara"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07131",
+"city": "Ain Ghezzal"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07140",
+"city": "Ain Zaatout"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07141",
+"city": "Tizi"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07200",
+"city": "Sidi Okba"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07201",
+"city": "Seriana"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07202",
+"city": "El Horaya"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07210",
+"city": "El Haouch"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07211",
+"city": "Sidi M'Hamed Moussa"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07220",
+"city": "Aïn Naga"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07230",
+"city": "M'Chouneche"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07231",
+"city": "Baniane"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07240",
+"city": "M'Ziraa"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07241",
+"city": "Tadjemout"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07242",
+"city": "Sidi Mesmoudi"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07250",
+"city": "Zeribet El Oued"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07251",
+"city": "Bades"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07252",
+"city": "Zeribet Hamed"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07260",
+"city": "El Feidh"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07261",
+"city": "El Oualadja"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07270",
+"city": "Chetma"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07271",
+"city": "Droh"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07280",
+"city": "Khangat Sidi Nadji"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07300",
+"city": "Tolga"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07310",
+"city": "Lioua"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07315",
+"city": "Oumache"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07316",
+"city": "Zaatacha Ben Boulaid"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07317",
+"city": "Megloub"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07321",
+"city": "Ain el Kerma"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07325",
+"city": "Ourlal"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07330",
+"city": "M'Lili"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07335",
+"city": "Mekhadma"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07340",
+"city": "Foughala"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07345",
+"city": "Bordj Ben Azzouz"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07350",
+"city": "El Ghrous"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07351",
+"city": "Mobar Mohamed"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07355",
+"city": "Bouchagroune"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07360",
+"city": "Lichana"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07400",
+"city": "Ouled Djellal"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07401",
+"city": "Ferfad Ali"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07402",
+"city": "Difel"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07410",
+"city": "Doucen"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07421",
+"city": "Besbes"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07430",
+"city": "Sidi Khaled"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07431",
+"city": "Arich Hamoula"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07432",
+"city": "Sidi Khaled Drissi Med"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07441",
+"city": "Chiaba"
+},
+{
+"wilaya_code": "07",
+"postal_code": "07451",
+"city": "Ras el Miaad"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08000",
+"city": "Bechar"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08001",
+"city": "Ouakda"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08002",
+"city": "Bechar Djedid"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08100",
+"city": "Beni Ounif"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08101",
+"city": "Rosf Taiba"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08110",
+"city": "Lahmar"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08130",
+"city": "Boukais"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08140",
+"city": "Kenadsa"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08150",
+"city": "Meridja"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08200",
+"city": "Abadla"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08201",
+"city": "Djorf el Barda"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08202",
+"city": "Hassi Menounat"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08203",
+"city": "Guir Lotfi"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08210",
+"city": "Mechraa Houari Boumedienne"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08220",
+"city": "Erg Ferradj"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08230",
+"city": "Taghit"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08240",
+"city": "Tabelbala"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08300",
+"city": "Beni Abbes"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08301",
+"city": "Ougarta"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08302",
+"city": "Zeghamra"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08320",
+"city": "Igli"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08321",
+"city": "Mazzer"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08330",
+"city": "Kerzaz"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08331",
+"city": "Guerzim"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08340",
+"city": "Beni Ikhlef"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08350",
+"city": "El Ouata"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08360",
+"city": "Ouled Khoudir"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08370",
+"city": "Timoudi"
+},
+{
+"wilaya_code": "08",
+"postal_code": "08380",
+"city": "Ksabi"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09000",
+"city": "Blida"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09002",
+"city": "Sidi Kebir"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09003",
+"city": "Blida Derbali Ali"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09100",
+"city": "Ouled Yaich"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09101",
+"city": "Ouled Yaich Université"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09110",
+"city": "Chrea"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09120",
+"city": "Bouarfa"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09130",
+"city": "Beni Merad"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09011",
+"city": "El Affroun"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09201",
+"city": "Beni Mouimene"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09210",
+"city": "Mouzaia"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09211",
+"city": "Beni Ghougrane"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09220",
+"city": "Ain Romana"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09230",
+"city": "Ouled El Alleug"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09231",
+"city": "Ben Salah"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09240",
+"city": "Beni Tamou"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09250",
+"city": "Chiffa"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09251",
+"city": "Bordj Emir Abdelkader"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09252",
+"city": "Ahle el Oued et Henia"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09253",
+"city": "Sidi Madani"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09260",
+"city": "Oued Djer"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09261",
+"city": "Souakria"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09300",
+"city": "Larbaa"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09310",
+"city": "Souhane"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09320",
+"city": "Meftah"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09330",
+"city": "Djebabra"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09340",
+"city": "Sidi Moussa"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09350",
+"city": "Bougara"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09351",
+"city": "Beni Missera"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09360",
+"city": "Hammam Melouane"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09370",
+"city": "Ouled Selama"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09400",
+"city": "Boufarik"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09402",
+"city": "Sidi Aid"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09403",
+"city": "Ben Hamdani"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09410",
+"city": "Tassala el Merdja"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09420",
+"city": "Beni Khellil"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09430",
+"city": "Birtouta"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09440",
+"city": "Ouled Chebel"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09450",
+"city": "Bouinan"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09451",
+"city": "Amroussa"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09452",
+"city": "Mellaha"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09460",
+"city": "Chebli"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09470",
+"city": "Soumaa"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09471",
+"city": "Hallouya"
+},
+{
+"wilaya_code": "09",
+"postal_code": "09480",
+"city": "Guerrouaou"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10002",
+"city": "Said Abid"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10100",
+"city": "M'chedallah"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10110",
+"city": "Bezite"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10120",
+"city": "Ain Turk"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10121",
+"city": "Zeboudja"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10125",
+"city": "Ath Mansour"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10130",
+"city": "Hanif"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10131",
+"city": "Ighil Nait Ameur"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10140",
+"city": "Saharidj"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10145",
+"city": "Bechloul"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10150",
+"city": "El Asnam"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10160",
+"city": "El Adjiba"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10167",
+"city": "Guentour"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10168",
+"city": "Merkala"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10170",
+"city": "Taghzout"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10181",
+"city": "Zeriba"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10182",
+"city": "Oued el Khemis"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10185",
+"city": "Ouled Rached"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10190",
+"city": "Chorfa"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10191",
+"city": "Bahalil"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10192",
+"city": "Takerboust"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10196",
+"city": "Beni Hamdoune"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10200",
+"city": "Lakhdaria"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10201",
+"city": "M'cid Zbarbora"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10210",
+"city": "Bouderbala"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10211",
+"city": "Ouled Tchalabi"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10212",
+"city": "Sebt"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10230",
+"city": "Guerrouma"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10231",
+"city": "Aïn Beïda"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10240",
+"city": "Maala"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10241",
+"city": "Zouabria"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10242",
+"city": "Ouled Gacem"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10260",
+"city": "Kadiria"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10261",
+"city": "Ouled Lalem"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10262",
+"city": "Beggas"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10270",
+"city": "Aomar"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10271",
+"city": "Krarib"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10272",
+"city": "Tizi Larbaa"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10280",
+"city": "Djebahia"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10281",
+"city": "Lahguia"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10300",
+"city": "Sour El-Ghozlane"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10301",
+"city": "Guelt Zerga"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10310",
+"city": "Dechmia"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10340",
+"city": "Bordj Okhriss"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10341",
+"city": "Mezdour"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10342",
+"city": "Ain Terzine"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10350",
+"city": "Taguedit"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10351",
+"city": "Zebara"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10370",
+"city": "Dirah"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10380",
+"city": "Hadjera Zerga"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10390",
+"city": "Maamora"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10400",
+"city": "Ain Bessem"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10401",
+"city": "Sidi Yahia"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10410",
+"city": "Ain Laloui"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10420",
+"city": "Souk el Khemis"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10430",
+"city": "El Madjene Lotfi"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10440",
+"city": "Bir Ghbalou"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10441",
+"city": "El Khabouzia"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10460",
+"city": "Raouraoua"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10470",
+"city": "El Hachimia"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10471",
+"city": "Hammam Ksenna"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10480",
+"city": "Aïn El Hadjar"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10490",
+"city": "Oued el Berdi"
+},
+{
+"wilaya_code": "10",
+"postal_code": "10491",
+"city": "Ouled Guerma"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11000",
+"city": "Tamanghasset"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11001",
+"city": "Amsel"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11100",
+"city": "In Amguel"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11110",
+"city": "Ideles"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11120",
+"city": "Abalessa"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11121",
+"city": "Silet"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11130",
+"city": "In Guezzam"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11140",
+"city": "Tazrouk"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11150",
+"city": "Tin Zaouatine"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11200",
+"city": "In Salah"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11201",
+"city": "Hassi Lahdjar"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11202",
+"city": "Igostene"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11203",
+"city": "Sahla el Fougania"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11210",
+"city": "In Ghar"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11220",
+"city": "Fougaret ez Zouia"
+},
+{
+"wilaya_code": "11",
+"postal_code": "11221",
+"city": "Fougaret Larab"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12000",
+"city": "Tébessa"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12001",
+"city": "Brahmia Ahcene"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12002",
+"city": "Djebel Annoual"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12100",
+"city": "El Kouif"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12101",
+"city": "Kissa"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12102",
+"city": "Dyr"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12103",
+"city": "Toualbia"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12110",
+"city": "Hammamet"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12112",
+"city": "Halloufa"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12130",
+"city": "Bekkaria"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12140",
+"city": "Lahouidjebet"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12150",
+"city": "Boulhaf"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12160",
+"city": "El Ma Labiodh"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12200",
+"city": "Bir el-Ater"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12201",
+"city": "Aïn Zeguiegue"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12210",
+"city": "El Ogla el Malha"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12220",
+"city": "Oum Ali"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12231",
+"city": "Bir el Ouesra"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12240",
+"city": "Negrine"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12250",
+"city": "Ferkane"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12300",
+"city": "El Aouinet"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12310",
+"city": "Boukhadra"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12311",
+"city": "Mesloula"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12320",
+"city": "Aïn Zerga"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12330",
+"city": "El Meridj"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12340",
+"city": "Morsott"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12341",
+"city": "Toricha"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12350",
+"city": "Ouenza"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12351",
+"city": "Ain Sidi Salah"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12400",
+"city": "Cheria"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12410",
+"city": "Tlidjene"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12413",
+"city": "Guentis"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12415",
+"city": "Aïn Ghrab"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12420",
+"city": "Bir Mokkadem"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12421",
+"city": "Tazbent"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12440",
+"city": "El Ogla"
+},
+{
+"wilaya_code": "12",
+"postal_code": "12460",
+"city": "Bedjene"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13000",
+"city": "Tlemcen"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13016",
+"city": "Mansourah (Tlemcen)"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13111",
+"city": "Ain el Houtz"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13120",
+"city": "Beni Mester"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13121",
+"city": "Zelboun"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13125",
+"city": "Terni"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13130",
+"city": "Ain Ghoraba"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13140",
+"city": "Ouled Mimoun"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13150",
+"city": "Ain Tellout"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13151",
+"city": "Ain Nekrouf"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13022",
+"city": "Ain Fezza"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13180",
+"city": "Bensekrane"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13181",
+"city": "Djerba Chelaida"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13182",
+"city": "Sidi Senoussi"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13185",
+"city": "Amieur"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13190",
+"city": "Sidi Abdelli"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13006",
+"city": "Sebdou"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13210",
+"city": "Aricha"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13211",
+"city": "El Aouedj"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13220",
+"city": "El Gor"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13230",
+"city": "Beni Snous"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13231",
+"city": "Khemis"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13241",
+"city": "Tleta"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13250",
+"city": "Beni Bahdel"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13260",
+"city": "Sidi Djillali"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13261",
+"city": "Debbagh Magoura"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13262",
+"city": "El Abed"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13300",
+"city": "Maghnia"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13301",
+"city": "Akid Lofti"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13302",
+"city": "Ain Zana Chebikla"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13310",
+"city": "Sabra"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13320",
+"city": "Hammam Boughrara"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13321",
+"city": "Maaziz"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13322",
+"city": "Sidi Mechhour"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13330",
+"city": "Sidi Medjahed"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13350",
+"city": "Bouhlou"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13401",
+"city": "El Bor"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13402",
+"city": "Djemma Sekhra"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13410",
+"city": "Dar Yaghmouracene"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13420",
+"city": "Souahlia"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13421",
+"city": "Mezaourou Sidi Brahim"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13430",
+"city": "Tianet"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13440",
+"city": "Marsa Ben M'Hidi"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13441",
+"city": "Arbouz"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13442",
+"city": "Boukanoun"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13460",
+"city": "Bab el Assa"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13470",
+"city": "Souani"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13480",
+"city": "Souk Thleta"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13500",
+"city": "Remchi"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13510",
+"city": "Aïn Youcef"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13520",
+"city": "El Fehoul"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13530",
+"city": "Sebaa Chioukh"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13540",
+"city": "Beni Ouarsous"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13541",
+"city": "Sidi Bendiaf"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13550",
+"city": "Hennaya"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13551",
+"city": "Ouled Kadda"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13560",
+"city": "Ouled Riah"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13580",
+"city": "Honaine"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13590",
+"city": "Souk el Khemis"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13591",
+"city": "Sidi Driss"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13600",
+"city": "Nedroma"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13601",
+"city": "Khoriba"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13610",
+"city": "Ain Kebira"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13620",
+"city": "Fellaoucene"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13621",
+"city": "Boutrak"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13640",
+"city": "Djebala"
+},
+{
+"wilaya_code": "13",
+"postal_code": "13641",
+"city": "Zekri Moussa Adjaidja"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14000",
+"city": "Tiaret"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14001",
+"city": "Karman"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14100",
+"city": "Dahmouni"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14101",
+"city": "Aïn Meriem"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14006",
+"city": "colonel Boukhari Mustapha"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14110",
+"city": "Aïn Bouchekif"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14115",
+"city": "Guertoufa"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14116",
+"city": "Temda"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14120",
+"city": "Tagdempt"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14125",
+"city": "Mellakou"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14126",
+"city": "Aïn Si Mesbah"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14130",
+"city": "Rahouia"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14135",
+"city": "Djillali Ben Amar"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14140",
+"city": "Sidi Ali Mellal"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14145",
+"city": "Mechraa Safa"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14150",
+"city": "Oued Lili"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14155",
+"city": "Tidda"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14160",
+"city": "Sidi Hosni"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14165",
+"city": "Meghila"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14175",
+"city": "Mahdia"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14176",
+"city": "Si Haoues"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14180",
+"city": "Aïn Sebain"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14185",
+"city": "Hamadia"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14190",
+"city": "Bougara"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14191",
+"city": "Ouarsenis el Beida"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14200",
+"city": "Sougueur"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14201",
+"city": "Nador Menaouar"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14210",
+"city": "Tousnina"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14220",
+"city": "Chehaima"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14230",
+"city": "Aïn Deheb"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14240",
+"city": "Naima"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14250",
+"city": "Medrissa"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14300",
+"city": "Ksar Chellala"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14310",
+"city": "Rechaïga"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14320",
+"city": "Serghine"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14330",
+"city": "Z'Malet Emi Abdelkader"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14340",
+"city": "Ain Zarit"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14341",
+"city": "Dayet Terfes"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14360",
+"city": "Si Abdelghani"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14400",
+"city": "Frenda"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14411",
+"city": "Louhou"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14430",
+"city": "Aïn Kermes"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14431",
+"city": "Djebilet Rosfa"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14460",
+"city": "Ouled Djerad"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14470",
+"city": "Aïn El Hadid"
+},
+{
+"wilaya_code": "14",
+"postal_code": "14480",
+"city": "Takhemaret"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15000",
+"city": "Tizi Ouzou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15001",
+"city": "Alma Beni Zmenzer"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15002",
+"city": "Boukhalfa"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15003",
+"city": "Kemmouda"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15004",
+"city": "Ait Hessane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15005",
+"city": "Bouhinoun"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15006",
+"city": "Redjaouna"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15007",
+"city": "Tala Athmane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15008",
+"city": "Tizi-Ouzou Chikhi"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15009",
+"city": "Timizar Loghbar"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15010",
+"city": "Tizi-Ouzou Anane Rabah"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15100",
+"city": "Draâ Ben Khedda"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15101",
+"city": "Menacera"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15102",
+"city": "Zeboudj Kara"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15110",
+"city": "Tirmitine"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15120",
+"city": "Sidi Naamane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15018",
+"city": "Tadmait"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15141",
+"city": "Sidi Ali Bounab"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15151",
+"city": "Souk el Khemis"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15152",
+"city": "Berkouka"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15153",
+"city": "Tizi Lilane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15154",
+"city": "Tizi T'zougart"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15160",
+"city": "Souk el T'nine"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15171",
+"city": "Ait Smadh"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15190",
+"city": "Beni Douala"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15191",
+"city": "Beni Aïssi"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15192",
+"city": "Ait Iddir"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15193",
+"city": "Taguemount Azouz"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15194",
+"city": "Taguemount Oukerrouche"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15200",
+"city": "Ain el Hammam"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15221",
+"city": "Koukou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15230",
+"city": "Akbil"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15240",
+"city": "Yatafen"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15241",
+"city": "Ait Saada"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15242",
+"city": "Ait Mislaine"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15243",
+"city": "Ait Ouabane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15251",
+"city": "Tassaft"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15260",
+"city": "Iferhounene"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15261",
+"city": "Souk El Had"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15262",
+"city": "Agouni Ouadallah"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15263",
+"city": "Iboudraren"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15285",
+"city": "Ouacif"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15300",
+"city": "Azazga"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15301",
+"city": "Ait Issad"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15310",
+"city": "Ifigha"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15311",
+"city": "Moknea"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15312",
+"city": "Ait Bouada"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15315",
+"city": "Azzefoun"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15320",
+"city": "Aït Chafâa"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15326",
+"city": "Iguer Mahdi"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15327",
+"city": "Ait Ikhlef"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15328",
+"city": "Iguersafène"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15329",
+"city": "Tahouna Tkdimt"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15340",
+"city": "Freha"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15341",
+"city": "Tamda"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15342",
+"city": "Tala Tegana"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15345",
+"city": "Aghrib"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15350",
+"city": "Mekla"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15351",
+"city": "Agouni Bouafir"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15352",
+"city": "Djemaa Saharidj"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15355",
+"city": "Souamâa"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15361",
+"city": "El Klaa"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15365",
+"city": "Yakouren"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15366",
+"city": "Tifrit Nait el Hadj"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15367",
+"city": "Chebel"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15368",
+"city": "Tigounatine"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15370",
+"city": "Akerrou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15375",
+"city": "Timizart"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15376",
+"city": "Abizar"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15377",
+"city": "Azarazene"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15378",
+"city": "Agouni Ouzaraz"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15380",
+"city": "Zekri"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15390",
+"city": "Illoula Oumalou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15391",
+"city": "Boubhir"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15400",
+"city": "Draa el Mizan"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15401",
+"city": "Bou Mahni"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15402",
+"city": "Tafoughalt"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15403",
+"city": "Henia"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15404",
+"city": "Ichoukrene"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15405",
+"city": "Mezrara"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15406",
+"city": "Tazerout"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15410",
+"city": "Frikat"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15420",
+"city": "Ain Zaouia"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15425",
+"city": "Boghni"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15426",
+"city": "Beni Mendes"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15427",
+"city": "Beni Kouffi"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15431",
+"city": "Ait Idja"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15440",
+"city": "Mechtras"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15445",
+"city": "Bounouh"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15450",
+"city": "Ouadhia"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15451",
+"city": "Ait Abdelkrim"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15452",
+"city": "Ait Abdelmoumene"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15460",
+"city": "Ait Bouadou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15465",
+"city": "Agouni Gueghrane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15466",
+"city": "Aït Ergane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15470",
+"city": "Tizi N'Tleta"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15471",
+"city": "Cheurfa n'Bahloul"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15480",
+"city": "Tizi Ghenif"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15481",
+"city": "Adila Tamdikht"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15482",
+"city": "M'Kira"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15483",
+"city": "Ouled Itchir"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15484",
+"city": "Ouled Meriem"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15486",
+"city": "Bouhadj"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15487",
+"city": "Taqa"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15490",
+"city": "Oued Ksari"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15500",
+"city": "Larbaa Nath Irathen"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15501",
+"city": "Azouza"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15502",
+"city": "Ighil Guefri"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15503",
+"city": "Ait Frah"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15504",
+"city": "Taourirt Amokrane"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15505",
+"city": "Aït Oumalou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15510",
+"city": "Ait Aggouacha"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15530",
+"city": "Beni-yenni"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15540",
+"city": "Irdjen"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15550",
+"city": "Tizi Rached"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15551",
+"city": "Tala Amara"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15600",
+"city": "Tigzirt"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15601",
+"city": "Ait Said"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15602",
+"city": "Tifra"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15603",
+"city": "Azroubar"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15604",
+"city": "Tala Toghrast"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15621",
+"city": "Tikobain"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15622",
+"city": "Agouni Oufekous"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15623",
+"city": "Djebla"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15624",
+"city": "Tahanouts"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15630",
+"city": "Boudjima"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15640",
+"city": "Djebel Aissa Mimoun"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15650",
+"city": "Iflissen"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15651",
+"city": "Taksebt"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15652",
+"city": "Ait Youcef"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15660",
+"city": "Makouda"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15661",
+"city": "Attouche"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15662",
+"city": "Tala Bouzrou"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15663",
+"city": "Tazrart"
+},
+{
+"wilaya_code": "15",
+"postal_code": "15664",
+"city": "Stita"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16000",
+"city": "Alger Gare"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16081",
+"city": "Baba Hassen"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16001",
+"city": "Alger Port Said"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16002",
+"city": "Alger Colis Postaux"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16003",
+"city": "Alger Premier novembre"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16004",
+"city": "Alger RP"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16005",
+"city": "Alger Ferhat Boussad"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16006",
+"city": "Alger Bouzareah"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16007",
+"city": "Alger Ali Basta"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16008",
+"city": "Alger Ahcene Askri"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16009",
+"city": "Alger Bab-el-Oued"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16010",
+"city": "Alger Malika Gaid"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16011",
+"city": "Alger Rostomia"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16012",
+"city": "Alger Said Hamdine"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16013",
+"city": "Alger Cheques Postaux"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16014",
+"city": "Alger Sidi M'hamed"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16015",
+"city": "Alger el Annassers"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16016",
+"city": "Alger Premier Mai"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16017",
+"city": "Alger Haute Casbah"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16018",
+"city": "Alger Tarik ibn Ziad"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16019",
+"city": "Alger el Kettani"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16020",
+"city": "Alger el Marsa"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16021",
+"city": "Alger Khelifa Boukhalfa"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16022",
+"city": "Alger Asselah Hocine"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16023",
+"city": "Alger APN"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16024",
+"city": "Alger C.H.U. Mustapha"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16025",
+"city": "Alger et Thaalabi"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16026",
+"city": "Alger Mohamed V"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16027",
+"city": "Alger Sept Merveilles"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16028",
+"city": "Alger Palais du Peuple"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16035",
+"city": "Hydra"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16039",
+"city": "Aïn Taya"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16040",
+"city": "Hussein Dey"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16041",
+"city": "Hussein Dey Djenki Hacene"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16049",
+"city": "Douera"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16050",
+"city": "Kouba"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16051",
+"city": "Kouba Garidi"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16052",
+"city": "Kouba el Annasser"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16058",
+"city": "Mohammadia"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16060",
+"city": "Bains Romains"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16061",
+"city": "Cap Caxine"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16070",
+"city": "El Mouradia"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16075",
+"city": "El Madania"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16076",
+"city": "Alger Riad el Feth"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16077",
+"city": "Alger Diar el Mahcoul"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16080",
+"city": "Rais Hamidou"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16030",
+"city": "Bologhine"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16094",
+"city": "Ouled Fayet"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16100",
+"city": "Dar El Beïda"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16101",
+"city": "Alger Aéroport"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16102",
+"city": "Alger Aéroport EMS"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16105",
+"city": "Alger Birkhadem"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16110",
+"city": "Bab Ezzouar"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16111",
+"city": "El Alia"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16112",
+"city": "Reghaia"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16120",
+"city": "Bordj el Kiffan"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16121",
+"city": "Dergana"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16122",
+"city": "Bordj el Kiffan Faizi"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16123",
+"city": "Alger U.S.T.H.B."
+},
+{
+"wilaya_code": "16",
+"postal_code": "16131",
+"city": "El Harrach 5 Maisons"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16132",
+"city": "Alger Palais des Expos"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16200",
+"city": "El Harrach"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16206",
+"city": "Beni Messous"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16210",
+"city": "Baraki"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16220",
+"city": "Les Eucalyptus"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16230",
+"city": "Bachdjarah"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16231",
+"city": "Hussein-Dey-Hai el Badr"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16260",
+"city": "Djasr Kasentina"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16261",
+"city": "Kouba Gue de Constantine"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16270",
+"city": "Oued Smar"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16300",
+"city": "Bir Mourad Raïs"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16320",
+"city": "Dely Ibrahim"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16330",
+"city": "Birkhadem"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16331",
+"city": "Ain Nadja"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16340",
+"city": "Bouzareah"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16341",
+"city": "Bouzareah Ali Remli"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16342",
+"city": "Bouzareah el Hamadia"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16403",
+"city": "El Achour"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16606",
+"city": "El Biar"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16063",
+"city": "Zeralda"
+},
+{
+"wilaya_code": "16",
+"postal_code": "16093",
+"city": "Mehelma"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17000",
+"city": "Djelfa"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17100",
+"city": "El Idrissia"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17101",
+"city": "Oum Cheggag"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17110",
+"city": "El Guedid"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17120",
+"city": "Charef"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17121",
+"city": "El Hammam"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17122",
+"city": "Touazi"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17130",
+"city": "Beni Yacoub"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17200",
+"city": "Ain Oussera"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17210",
+"city": "Guernini"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17215",
+"city": "Sidi Ladjel"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17220",
+"city": "Hassi Fedoul"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17225",
+"city": "El Khemis"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17230",
+"city": "Birine"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17231",
+"city": "Dra Souary"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17235",
+"city": "Benhar"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17240",
+"city": "Had-Sahary"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17245",
+"city": "Bouira Lahdab"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17250",
+"city": "Ain Fekka"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17002",
+"city": "Hassi Bahbah"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17301",
+"city": "Mouilah"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17302",
+"city": "El Mesrane"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17304",
+"city": "Hassi el Mora"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17310",
+"city": "Zaafrane"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17320",
+"city": "Hassi el Euch"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17330",
+"city": "Ain Maabed"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17340",
+"city": "Dar Chioukh"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17341",
+"city": "Guendouza"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17342",
+"city": "El Oguila"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17343",
+"city": "El Merdja"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17350",
+"city": "M'Liliha"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17360",
+"city": "Sidi Baizid"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17400",
+"city": "Messaad"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17401",
+"city": "Abdelmadjid"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17402",
+"city": "Haniet Ouled Salem"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17410",
+"city": "Guettara"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17415",
+"city": "Deldoul"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17420",
+"city": "Sed Rahal"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17425",
+"city": "Selmana"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17426",
+"city": "El Gahra"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17430",
+"city": "Oum Laadham"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17435",
+"city": "Mouadjebar"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17440",
+"city": "Ain el Ibel"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17441",
+"city": "Amera"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17442",
+"city": "N'thila"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17443",
+"city": "Oued Seddeur"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17445",
+"city": "Zaccar"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17450",
+"city": "Douis"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17455",
+"city": "Ain Chouhada"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17460",
+"city": "Tadmit"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17461",
+"city": "El Hiouhi"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17465",
+"city": "Faidh el Botma"
+},
+{
+"wilaya_code": "17",
+"postal_code": "17470",
+"city": "Amourah"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18000",
+"city": "Jijel"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18001",
+"city": "Chadia"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18002",
+"city": "Bouhanche Beni Ahmed"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18003",
+"city": "Ouled Taffer"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18100",
+"city": "Texenna"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18101",
+"city": "Mourghane"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18102",
+"city": "Khennak Oum el Hout"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18103",
+"city": "Dar ben Amar"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18104",
+"city": "Metletine"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18110",
+"city": "Ziama Mansouriah"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18113",
+"city": "Bordj Ali"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18114",
+"city": "Tabirt"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18120",
+"city": "Eraguene"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18121",
+"city": "Ain Lebna"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18122",
+"city": "Assoumar"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18130",
+"city": "El Aouana"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18131",
+"city": "El Merdj"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18132",
+"city": "Beni Ketit"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18140",
+"city": "Selma"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18150",
+"city": "Kaous"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18161",
+"city": "Beni Affeur"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18162",
+"city": "El Maad"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18170",
+"city": "Beni Yadjis"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18200",
+"city": "Taher"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18201",
+"city": "Dekkara"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18202",
+"city": "Bazoul"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18220",
+"city": "Emir Abdelkader"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18230",
+"city": "Chahna"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18231",
+"city": "Boutenache"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18240",
+"city": "Ouled Askeur"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18241",
+"city": "Menazel"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18250",
+"city": "Chekfa"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18251",
+"city": "Boudekak Adouir"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18252",
+"city": "Sbet"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18260",
+"city": "Bordj Tahar"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18270",
+"city": "Sidi Abdelaziz"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18271",
+"city": "El Kaada"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18272",
+"city": "Tisbilaine"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18300",
+"city": "El Milia"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18301",
+"city": "Mazer"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18302",
+"city": "M'chatt"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18311",
+"city": "Ouled Yahia Khadrouche"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18312",
+"city": "Ouled Aouat"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18320",
+"city": "Sidi Maarouf"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18321",
+"city": "El Kennar"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18322",
+"city": "El Akbia"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18323",
+"city": "Ghezala"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18331",
+"city": "El Khennak"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18332",
+"city": "Laraba"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18340",
+"city": "Settara"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18350",
+"city": "Ghebala M'cid Aicha"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18351",
+"city": "El Aoudia"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18360",
+"city": "El Ancer"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18361",
+"city": "Belghimouze"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18362",
+"city": "Beni Belaid"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18363",
+"city": "Maharka"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18364",
+"city": "Ouled Boufaha"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18365",
+"city": "Ouled Chebana"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18380",
+"city": "Belhadef"
+},
+{
+"wilaya_code": "18",
+"postal_code": "18381",
+"city": "Beni Mimoune"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19000",
+"city": "Setif"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19002",
+"city": "El Anasser Base"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19003",
+"city": "Fermatou"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19004",
+"city": "Douar Fermatou"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19100",
+"city": "Ain Arnat"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19101",
+"city": "Khalfoun"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19103",
+"city": "El Hachichia"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19104",
+"city": "El Mahdia"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19110",
+"city": "Ain Abessa"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19111",
+"city": "Bouira"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19112",
+"city": "Mahouan"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19120",
+"city": "El Ouricia"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19130",
+"city": "Mezloug"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19200",
+"city": "Ain Oulmane"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19201",
+"city": "Guellal"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19203",
+"city": "Melloul"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19220",
+"city": "Ksar el Abtal"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19221",
+"city": "Kherba"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19225",
+"city": "Ouled Si Ahmed"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19230",
+"city": "Ain Lahdjar"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19231",
+"city": "Ain Remada"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19245",
+"city": "Ain Azal"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19246",
+"city": "Hamma Boutaleb"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19250",
+"city": "Boutaleb"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19261",
+"city": "Addaoua"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19265",
+"city": "Guijel"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19266",
+"city": "Bendieb"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19280",
+"city": "Salah Bey"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19281",
+"city": "Ras Isly"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19285",
+"city": "Ouled Tebben"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19300",
+"city": "Bougaa"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19310",
+"city": "Ain Roua"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19331",
+"city": "El Hadra"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19340",
+"city": "Guenzet"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19341",
+"city": "Kourdjana"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19342",
+"city": "Dar el Hadj"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19351",
+"city": "Tittest"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19361",
+"city": "Ouled Ali ben Athmane"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19370",
+"city": "Maouaklane"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19371",
+"city": "Bouamrane"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19400",
+"city": "Aïn El Kebira"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19401",
+"city": "Souk el Khmeis"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19421",
+"city": "Ouled Maiza"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19430",
+"city": "Beni Aziz"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19432",
+"city": "Akrif Bnourdim"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19440",
+"city": "Ain Sebt"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19450",
+"city": "Maaouia"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19461",
+"city": "Souk el Djemaa"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19462",
+"city": "Cherufa"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19471",
+"city": "Bida"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19480",
+"city": "Amoucha"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19490",
+"city": "Tizi N'Bechar"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19495",
+"city": "Oued el Berd"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19500",
+"city": "Bouandas"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19511",
+"city": "Izatitene"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19540",
+"city": "Tala Ifacene"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19542",
+"city": "Oued Sebt"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19543",
+"city": "Ain Mergoum"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19600",
+"city": "El Eulma"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19601",
+"city": "Goutali"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19620",
+"city": "Beni Fouda"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19625",
+"city": "Oum Ladjoul"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19626",
+"city": "Hammam Sokhna"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19630",
+"city": "Taya"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19640",
+"city": "Beidha Bordj"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19650",
+"city": "Bir El Arch"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19660",
+"city": "Belaa"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19670",
+"city": "El Ouldja"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19675",
+"city": "Bazer Sakhra"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19676",
+"city": "El Mellah Hamouchi"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19680",
+"city": "Djemila"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19681",
+"city": "El Merdja"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19700",
+"city": "Beni Ourtilane"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19701",
+"city": "Arassa"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19710",
+"city": "Beni Chebana"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19711",
+"city": "Tarfet"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19720",
+"city": "Ain legradj"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19721",
+"city": "Beni Hadef"
+},
+{
+"wilaya_code": "19",
+"postal_code": "19730",
+"city": "Beni Mohli"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20000",
+"city": "Saida"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20001",
+"city": "Boukhors"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20002",
+"city": "Saida en-Nasr"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20100",
+"city": "Ain el Hadjar"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20101",
+"city": "Madjene Oued Falette"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20102",
+"city": "Oued Berbour"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20103",
+"city": "Sidi M'barek"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20110",
+"city": "Moulay Larbi"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20121",
+"city": "Fidjel"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20131",
+"city": "Ain Teghat"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20132",
+"city": "Rebahia"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20133",
+"city": "Hammam Rabbi"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20134",
+"city": "Ain Zerga"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20140",
+"city": "Ain Soltane"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20150",
+"city": "Youb"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20151",
+"city": "Khelifa Maata"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20152",
+"city": "Hassi el Abed"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20161",
+"city": "Hounet"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20170",
+"city": "Sidi Boubekeur"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20180",
+"city": "Sidi Amar"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20181",
+"city": "Cherki Sidi Aissa"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20201",
+"city": "Oum Djerane"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20202",
+"city": "Dhaiet Zraguet"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20203",
+"city": "Tamesna"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20210",
+"city": "Maamora"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20221",
+"city": "Balloul"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20222",
+"city": "Khourichfa"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20223",
+"city": "Touta"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20035",
+"city": "Tircine"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20241",
+"city": "Friouat Morghad"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20242",
+"city": "Sfid"
+},
+{
+"wilaya_code": "20",
+"postal_code": "20250",
+"city": "Ain Sekhouna"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21000",
+"city": "Skikda"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21001",
+"city": "Stora"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21003",
+"city": "Hamoudi Hamrouche"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21004",
+"city": "Oued Ksob"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21100",
+"city": "Filfila"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21101",
+"city": "Les Platanes"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21110",
+"city": "Hamadi Krouma"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21120",
+"city": "Beni Bechir"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21130",
+"city": "El Hadaiek"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21140",
+"city": "Bouchetata Mahmoud"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21141",
+"city": "Oued Selsela"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21142",
+"city": "Bou Mendjel"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21150",
+"city": "Aïn Zouit"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21200",
+"city": "Collo"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21201",
+"city": "El Ouloudj"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21203",
+"city": "Hadjiria"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21204",
+"city": "Ramoul"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21210",
+"city": "Kerkera"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21211",
+"city": "Bourghida"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21216",
+"city": "Ali Charef"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21220",
+"city": "Zitouna"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21221",
+"city": "Aïn Aghbal"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21222",
+"city": "Tabalout"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21225",
+"city": "Cheraia"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21226",
+"city": "Tamanart"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21230",
+"city": "Kanoua"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21231",
+"city": "Affensou"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21236",
+"city": "Mellab"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21237",
+"city": "Bounoughra"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21238",
+"city": "Oued Djebel"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21239",
+"city": "Siouane"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21241",
+"city": "El Ouldja"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21250",
+"city": "Aïn Kechra"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21251",
+"city": "Beni Kadrissene"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21252",
+"city": "Boudoukha"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21253",
+"city": "Hadjar Mefrouche"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21254",
+"city": "Tahouna"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21265",
+"city": "Tamalous"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21266",
+"city": "Aïn Charaia"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21267",
+"city": "Aïn Tabia"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21268",
+"city": "Demnia"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21270",
+"city": "Bin El Ouiden"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21300",
+"city": "Azzaba"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21301",
+"city": "Menzel Bendiche"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21303",
+"city": "Menzel El Abtal"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21310",
+"city": "Djendel Saadi Mohamed"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21311",
+"city": "Guerbes"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21312",
+"city": "Ras el Ma"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21320",
+"city": "El Marsa"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21330",
+"city": "Ben Azouz"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21331",
+"city": "Boumaiza"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21332",
+"city": "Tobeiga"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21340",
+"city": "Es Sebt"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21350",
+"city": "Aïn Charchar"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21351",
+"city": "Mekassa"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21352",
+"city": "Oued-el-Kebir"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21360",
+"city": "Bekkouche Lakhdar"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21400",
+"city": "El Harrouch"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21401",
+"city": "Toumiettes"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21403",
+"city": "Said Bousbaa"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21410",
+"city": "Zerdezas"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21415",
+"city": "Aïn Bouziane"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21420",
+"city": "El Ghedir"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21425",
+"city": "Ramdane Djamel"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21430",
+"city": "Emdjez Edchich"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21431",
+"city": "Djebel Staiha"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21432",
+"city": "Bouhalbes"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21435",
+"city": "Salah Bouchaour"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21440",
+"city": "Sidi Mezghiche"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21441",
+"city": "Souk el Tleta"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21442",
+"city": "El Hamri"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21443",
+"city": "Mokhtita"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21445",
+"city": "Beni Oulbane"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21450",
+"city": "Oum Toub"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21451",
+"city": "Sidi Kamber"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21452",
+"city": "Boulazib"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21455",
+"city": "Ouled Hebaba"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21456",
+"city": "El Ghenzoua"
+},
+{
+"wilaya_code": "21",
+"postal_code": "21457",
+"city": "Aïn Slamat"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22000",
+"city": "Sidi Bel Abbès"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22001",
+"city": "Sidi bel Abbes Adim Fatiha"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22002",
+"city": "Sidi bel Abbes Chouhada"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22003",
+"city": "Sidi bel Abbes Khelladi"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22004",
+"city": "Sidi bel Abbes Larbi ben M'hidi"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22005",
+"city": "Sidi-bel-Abbès 1er novembre"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22006",
+"city": "Sidi bel Abbes Sakia el Hamra"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22007",
+"city": "Sidi bel Abbes Terre"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22008",
+"city": "Sidi bel Abbes Sidi Yacine"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22100",
+"city": "Sidi Lahcene"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22120",
+"city": "Sidi Yacoub Bentemine"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22130",
+"city": "Sidi Khales"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22140",
+"city": "Tessala"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22150",
+"city": "Ain Thrid"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22180",
+"city": "Shal Thaoura"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22190",
+"city": "Sidi Brahim"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22200",
+"city": "Sfisef"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22210",
+"city": "Ain Adden"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22220",
+"city": "Mostefa ben Brahim"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22225",
+"city": "M'Cid"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22230",
+"city": "Sidi Hamadouche"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22235",
+"city": "Zerouala"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22240",
+"city": "Tenira"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22241",
+"city": "Tenezara"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22245",
+"city": "Benachiba Chelia"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22250",
+"city": "Oued Sefioun"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22255",
+"city": "Belarbi"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22256",
+"city": "Boumaad Tilmouni"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22260",
+"city": "Hassi Dahou"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22265",
+"city": "Ain El Berd"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22270",
+"city": "Makedra"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22300",
+"city": "Ben Badis"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22310",
+"city": "Sidi Ali Benyoub"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22311",
+"city": "Belalia Yemloul"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22320",
+"city": "Chetouane"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22330",
+"city": "Hassi Zahana"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22340",
+"city": "Bedradine el Mokrani"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22350",
+"city": "Sidi Ali Boussidi"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22360",
+"city": "Lamtar"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22370",
+"city": "Sidi Dahou de Zairs"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22380",
+"city": "Boukhanafis"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22381",
+"city": "Khalidj"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22390",
+"city": "Tabia"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22400",
+"city": "Telagh"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22410",
+"city": "Merine"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22415",
+"city": "Oued Taourira"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22420",
+"city": "Tafessour"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22430",
+"city": "Teghalimet"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22435",
+"city": "Mezaourou"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22440",
+"city": "Dhaya"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22445",
+"city": "Oued Sebaa"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22450",
+"city": "Marhoum"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22455",
+"city": "Sidi Chaib"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22460",
+"city": "Bir el H'man"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22465",
+"city": "Ras el Ma"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22470",
+"city": "Redjem Demouche"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22475",
+"city": "Moulay Slissen"
+},
+{
+"wilaya_code": "22",
+"postal_code": "22485",
+"city": "El Haçaiba"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23000",
+"city": "Annaba"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23004",
+"city": "El Hadjar"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23005",
+"city": "Sidi Amar"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23006",
+"city": "Aïn Berda"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23009",
+"city": "Berrahal"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23010",
+"city": "El Bouni"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23014",
+"city": "Chetaïbi"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23015",
+"city": "Seraïdi"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23018",
+"city": "Cheurfa"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23021",
+"city": "Oued El Aneb"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23022",
+"city": "Treat"
+},
+{
+"wilaya_code": "23",
+"postal_code": "23031",
+"city": "Eulma"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24000",
+"city": "Guelma"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24100",
+"city": "Guelaat Boudbaa"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24110",
+"city": "Boumahra Ahmed"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24111",
+"city": "Bled Gaffar"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24121",
+"city": "Guelaat Fiala"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24125",
+"city": "Djeballah Khemissi"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24130",
+"city": "El Fedjoudj"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24140",
+"city": "Aïn Hassainia"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24141",
+"city": "Ain Kharouba"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24145",
+"city": "Ben Djarah"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24150",
+"city": "Hammam Meskhoutine"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24151",
+"city": "Dahmoune Tahar"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24160",
+"city": "Medjez Amar"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24165",
+"city": "Belkheir"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24170",
+"city": "Bouati Mahmoud"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24180",
+"city": "Heliopolis"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24181",
+"city": "Hammam Ouled Ali"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24185",
+"city": "Aïn Larbi"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24200",
+"city": "Bouchegouf"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24210",
+"city": "Medjez Sfa"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24220",
+"city": "Hammam N'Bail"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24221",
+"city": "Nador"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24231",
+"city": "Ain Souda"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24240",
+"city": "Bouhachana"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24250",
+"city": "Oued Cheham"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24251",
+"city": "Ain Mebarka"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24270",
+"city": "Nechmaya"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24280",
+"city": "Aïn Ben Beida"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24281",
+"city": "Nouadria"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24290",
+"city": "Oued Fragha"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24291",
+"city": "Boudaroua"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24292",
+"city": "Boukamouza"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24296",
+"city": "Ben Smih"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24300",
+"city": "Oued Zenati"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24301",
+"city": "Ksar el Azeb"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24310",
+"city": "Ras el Agba"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24320",
+"city": "Aïn Reggada"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24331",
+"city": "Taya"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24340",
+"city": "Bordj Sabat"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24350",
+"city": "Roknia"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24360",
+"city": "Sellaoua Announa"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24370",
+"city": "Aïn Makhlouf"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24380",
+"city": "Tamlouka"
+},
+{
+"wilaya_code": "24",
+"postal_code": "24381",
+"city": "Ain Arko"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25000",
+"city": "Constantine Gare"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25001",
+"city": "Constantine Cite Daksi"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25002",
+"city": "Constantine Coudiat"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25003",
+"city": "Constantine Sidi Mabrouk"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25004",
+"city": "Constantine Mansourah"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25005",
+"city": "Constantine RP"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25006",
+"city": "Constantine Cite des Martyrs"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25007",
+"city": "Constantine Aouati Mostefa"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25008",
+"city": "Constantine Belouizdad"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25009",
+"city": "Constantine El Kantara"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25010",
+"city": "Constantine Chabersas"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25011",
+"city": "Constantine Cite Filali"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25012",
+"city": "Constantine Cite Ziadia"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25013",
+"city": "Constantine El Gamas"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25014",
+"city": "Constantine Loucif"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25015",
+"city": "Constantine Oued Hamimi"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25016",
+"city": "Constantine Saidani"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25017",
+"city": "Constantine Université"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25018",
+"city": "Constantine Wilaya"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25019",
+"city": "Constantine Zouaghi"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25020",
+"city": "Constantine Ain-el-Bey"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25022",
+"city": "Constantine Les Pins"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25023",
+"city": "Constantine 20 août 1955"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25024",
+"city": "Constantine Bellevue"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25100",
+"city": "El Khroub"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25101",
+"city": "El Gourzi"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25102",
+"city": "Ben Badis"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25103",
+"city": "Guettar el Aich"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25120",
+"city": "Ouled Rahmoune"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25130",
+"city": "Aïn Abid"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25131",
+"city": "Bordj Meheris"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25132",
+"city": "Zehana"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25133",
+"city": "Lamaamra Achrine Aout"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25140",
+"city": "Ain Smara"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25200",
+"city": "Zighoud Youcef"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25201",
+"city": "Sidi Larbi"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25210",
+"city": "Didouche Mourad"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25211",
+"city": "Beni Mestina"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25220",
+"city": "Beni Hamiden"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25230",
+"city": "Hamma Bouziane"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25231",
+"city": "Bekira"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25232",
+"city": "Chaabet Medbouh"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25233",
+"city": "El Malah"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25234",
+"city": "Ain Ben Sbaa"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25235",
+"city": "Kaidi Abdellah"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25240",
+"city": "Ibn Ziad"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25241",
+"city": "Farallah"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25250",
+"city": "Ain Kerma"
+},
+{
+"wilaya_code": "25",
+"postal_code": "25251",
+"city": "Darsoun"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26000",
+"city": "Médéa"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26001",
+"city": "Ain D'hab"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26002",
+"city": "Rezarza"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26100",
+"city": "Ouzera"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26101",
+"city": "Benhaddou Bouhadjar"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26111",
+"city": "Tizi Mahdi"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26120",
+"city": "Draa Essamar"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26125",
+"city": "Tamesguida"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26130",
+"city": "Oued Harbil"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26140",
+"city": "El Hamdania"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26145",
+"city": "Benchicao"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26150",
+"city": "Ouamri"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26160",
+"city": "Si Mahdjoub"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26165",
+"city": "Bouaichoune"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26170",
+"city": "Ouled Bouachra"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26180",
+"city": "Hannacha"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26200",
+"city": "Berrouaghia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26201",
+"city": "M'hadjbia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26211",
+"city": "Sidi Nadji"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26220",
+"city": "El Omaria"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26221",
+"city": "Sidi Salem"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26230",
+"city": "Ouled Brahim (Médéa)"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26240",
+"city": "Khams Djouamaa"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26250",
+"city": "Sidi Naamane"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26260",
+"city": "Zoubiria"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26270",
+"city": "Rebaia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26271",
+"city": "Merabtine"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26300",
+"city": "Ksar el Boukhari"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26311",
+"city": "Ain Tletat"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26320",
+"city": "Boghar"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26325",
+"city": "Moudjbar"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26330",
+"city": "Saneg"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26340",
+"city": "Oum el Djallil"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26345",
+"city": "Chahbounia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26350",
+"city": "Bou Aiche"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26360",
+"city": "Boughezoul"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26365",
+"city": "Aziz"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26366",
+"city": "Kherba Siouf"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26370",
+"city": "Derrag"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26380",
+"city": "Ouled Hellal"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26381",
+"city": "Ain Dalia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26400",
+"city": "Beni Slimane"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26401",
+"city": "Ahl Chaaba"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26410",
+"city": "Sidi Errabia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26420",
+"city": "Djouab"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26430",
+"city": "Bir Ben Laabed"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26441",
+"city": "Hakimia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26442",
+"city": "Tamda"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26450",
+"city": "Boudkene"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26451",
+"city": "Ouled Larbi"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26460",
+"city": "Sidi Ziane"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26470",
+"city": "Sidi Zahar"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26500",
+"city": "Ain Boucif"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26510",
+"city": "Sidi Damed"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26521",
+"city": "Benia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26530",
+"city": "Chellalet El Adhaoura"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26540",
+"city": "Cheniguel"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26550",
+"city": "Tafraout"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26560",
+"city": "Ain Ouksir"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26570",
+"city": "Tlatet Eddouar"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26580",
+"city": "Seghouane"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26591",
+"city": "Oum el Adham"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26592",
+"city": "Bir Messaoud"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26595",
+"city": "El Ouinet"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26600",
+"city": "Tablat"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26610",
+"city": "Deux Bassins"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26621",
+"city": "Seriat"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26630",
+"city": "El Azizia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26641",
+"city": "Maarik el Malah"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26650",
+"city": "Meghraoua"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26660",
+"city": "Sedraia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26670",
+"city": "Mihoub"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26680",
+"city": "Aissaouia"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26690",
+"city": "Bouchrahil"
+},
+{
+"wilaya_code": "26",
+"postal_code": "26695",
+"city": "Baata"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27000",
+"city": "Mostaganem"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27001",
+"city": "Mostaganem Bordji"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27100",
+"city": "Hassi Mameche"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27110",
+"city": "Sayada"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27111",
+"city": "Debdaba"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27120",
+"city": "Mazagran"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27121",
+"city": "Oureah"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27130",
+"city": "Aïn Nouïssy"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27141",
+"city": "El Hassiane (Beni Yahi)"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27150",
+"city": "Stidia"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27151",
+"city": "Louza"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27160",
+"city": "Fornaka"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27200",
+"city": "Aïn Tedles"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27210",
+"city": "Sour"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27215",
+"city": "Sidi Belattar"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27220",
+"city": "Oued El Kheir"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27230",
+"city": "Safsaf"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27235",
+"city": "Kheiredine"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27236",
+"city": "Ouled Hamou"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27240",
+"city": "Aïn Boudinar"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27245",
+"city": "Bouguirat"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27246",
+"city": "Ouled Chafaa"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27250",
+"city": "Sirat"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27255",
+"city": "Mesra"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27260",
+"city": "Aïn Sidi Cherif"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27270",
+"city": "Touahria"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27300",
+"city": "Sidi Ali"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27301",
+"city": "Achasta Ammor"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27302",
+"city": "M'zila Mahieddine"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27310",
+"city": "Hadjadj"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27320",
+"city": "Abdelmalek Ramdane"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27330",
+"city": "Achaacha"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27340",
+"city": "Ouled Boughalem"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27350",
+"city": "Sidi Lakhdar"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27351",
+"city": "Tazgait"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27352",
+"city": "Mansourah"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27370",
+"city": "Khadra"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27380",
+"city": "Nekmaria"
+},
+{
+"wilaya_code": "27",
+"postal_code": "27390",
+"city": "Ouled Maallah"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28000",
+"city": "M'sila"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28001",
+"city": "Boukhemissa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28002",
+"city": "Ghezal"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28003",
+"city": "Aïn El Hadjel"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28091",
+"city": "Baniou"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28100",
+"city": "Ouled Derradj"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28101",
+"city": "Braktia"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28111",
+"city": "Bichara"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28112",
+"city": "Zitoun"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28113",
+"city": "Djaouna"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28114",
+"city": "El Ghil"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28120",
+"city": "Ouled Addi Guebala"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28121",
+"city": "M'zair"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28130",
+"city": "Berhoum"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28150",
+"city": "Magra"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28160",
+"city": "Belaiba"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28170",
+"city": "Aïn Khadra"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28180",
+"city": "M'Tarfa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28190",
+"city": "Souamaa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28200",
+"city": "Bou Saada"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28211",
+"city": "Eddis"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28212",
+"city": "Mohamed Seddik Benyahia"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28215",
+"city": "Ben S'rour"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28217",
+"city": "El Allig"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28220",
+"city": "Sidi Ameur"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28225",
+"city": "Oultem"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28230",
+"city": "Benzouh"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28231",
+"city": "Aïn Kermane"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28236",
+"city": "Djoub"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28240",
+"city": "Zarzour"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28251",
+"city": "Bir Guellalia"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28252",
+"city": "Djebel Meharga"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28253",
+"city": "Dhebel Thameur"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28254",
+"city": "Djebel Zeyreg"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28256",
+"city": "Djebel Guettara"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28265",
+"city": "Tamsa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28300",
+"city": "Sidi Aïssa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28301",
+"city": "Beddiab"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28302",
+"city": "Berrarda"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28320",
+"city": "Sidi Hadjeres"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28330",
+"city": "Zerarka"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28331",
+"city": "Reguaieg"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28340",
+"city": "Beni Ilmane"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28351",
+"city": "Guetfa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28400",
+"city": "Aïn El Melh"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28401",
+"city": "Thameur Sidi M'hamed"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28411",
+"city": "Bordj Belkhrif"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28420",
+"city": "Aïn Errich"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28431",
+"city": "Aïn Oghrab"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28440",
+"city": "El Hamel"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28450",
+"city": "Medjedel"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28451",
+"city": "Hassi Rahem"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28470",
+"city": "Slim"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28480",
+"city": "Bir Fodda"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28481",
+"city": "M'guitaa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28490",
+"city": "Mohammed Boudiaf"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28495",
+"city": "Aïn Fares"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28496",
+"city": "Aïn Laaleg"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28500",
+"city": "Hammam Dalaa"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28501",
+"city": "Dreat"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28502",
+"city": "Bir Mahdi"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28511",
+"city": "Ahl el Oued"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28520",
+"city": "Tarmount"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28530",
+"city": "Ouled Mansour"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28540",
+"city": "Chellal"
+},
+{
+"wilaya_code": "28",
+"postal_code": "28541",
+"city": "Ced el Ghaba"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29000",
+"city": "Mascara"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29001",
+"city": "Khessibia"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29100",
+"city": "Bou Hanifia"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29101",
+"city": "Graia"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29110",
+"city": "Hacine"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29120",
+"city": "El Guettana"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29130",
+"city": "Tizi"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29140",
+"city": "Aïn Fares"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29141",
+"city": "Noureddine"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29200",
+"city": "Tighenif"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29225",
+"city": "M'hamid"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29230",
+"city": "El Bordj"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29235",
+"city": "El Menouar"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29240",
+"city": "Oued El Abtal"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29241",
+"city": "Aïn Bouras"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29245",
+"city": "Aïn Farah"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29250",
+"city": "Sidi Kada"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29251",
+"city": "Smala Sidi Mahieddine"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29255",
+"city": "Nesmoth"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29260",
+"city": "Khalouia"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29300",
+"city": "Sig"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29301",
+"city": "Khrouf"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29320",
+"city": "Ras Ain Amirouche"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29330",
+"city": "Zahana"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29331",
+"city": "Djenien Meskine"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29340",
+"city": "El Gaada"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29350",
+"city": "Oggaz"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29360",
+"city": "Alaimia"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29400",
+"city": "Mohammadia"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29401",
+"city": "Macta Menouar"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29402",
+"city": "Sahaouria"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29420",
+"city": "Sidi Abdelmoumene"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29421",
+"city": "Sidi Benzerga"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29430",
+"city": "El Ghomri"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29440",
+"city": "Sedjerara"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29450",
+"city": "Bou Henni"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29452",
+"city": "Yallou"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29460",
+"city": "Mocta Douz"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29500",
+"city": "Ghriss"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29510",
+"city": "Makda"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29515",
+"city": "Oued Taria"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29520",
+"city": "Benian"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29525",
+"city": "Aïn Fekan"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29530",
+"city": "Aïn Fras"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29535",
+"city": "Guerdjoum"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29540",
+"city": "Matemore"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29541",
+"city": "Zellaga"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29550",
+"city": "Aouf"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29560",
+"city": "Froha"
+},
+{
+"wilaya_code": "29",
+"postal_code": "29565",
+"city": "Maoussa"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30000",
+"city": "Ouargla"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30001",
+"city": "Bamendil"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30002",
+"city": "Chott"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30003",
+"city": "Bouameur"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30006",
+"city": "Sidi Amrane"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30009",
+"city": "Beni Thour"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30015",
+"city": "Ouargla 1er mai"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30100",
+"city": "Sidi Khouiled"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30110",
+"city": "N'Goussa"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30111",
+"city": "El Bour"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30112",
+"city": "Frane"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30120",
+"city": "Aïn Beïda (Ouargla)"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30130",
+"city": "Rouissat"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30140",
+"city": "Hassi Ben Abdellah"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30200",
+"city": "Touggourt"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30201",
+"city": "El Bhour"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30202",
+"city": "El Ksour"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30203",
+"city": "Ghamra"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30204",
+"city": "Goug"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30205",
+"city": "Moggar"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30206",
+"city": "Sidi Mahdi"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30207",
+"city": "Touggourt Emir A.E.K."
+},
+{
+"wilaya_code": "30",
+"postal_code": "30210",
+"city": "M'garine"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30220",
+"city": "Balidat Ameur"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30230",
+"city": "Temacine"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30240",
+"city": "Touggourt Nezla"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30250",
+"city": "Zaouia el Abidia"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30260",
+"city": "Tebesbest"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30270",
+"city": "Sidi Slimane"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30300",
+"city": "El Hadjira"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30301",
+"city": "Chegga"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30302",
+"city": "Lagraf"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30303",
+"city": "Rachedi"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30310",
+"city": "El Allia"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30400",
+"city": "Taibet"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30401",
+"city": "Dlilai"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30402",
+"city": "Mouih ben Ali"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30410",
+"city": "M'Naguer"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30420",
+"city": "Benaceur"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30500",
+"city": "Hassi Messaoud"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30501",
+"city": "Haoud el Hamra"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30502",
+"city": "Irara"
+},
+{
+"wilaya_code": "30",
+"postal_code": "30510",
+"city": "El Borma"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31000",
+"city": "Oran el M'naouer"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31001",
+"city": "Oran ben Abderrezak"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31002",
+"city": "Oran Bougueri"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31003",
+"city": "Oran Collis Postaux"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31004",
+"city": "Oran D'haia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31005",
+"city": "Oran el Feth"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31006",
+"city": "Oran el Hamri st hubert"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31007",
+"city": "Oran el Makkari"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31008",
+"city": "Oran el Marsa"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31009",
+"city": "Oran el Moudjahed"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31010",
+"city": "Oran Emir Khaled"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31011",
+"city": "Oran es Sijane"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31012",
+"city": "Oran es Soukhour"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31013",
+"city": "Oran Hai Badr"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31014",
+"city": "Oran H.L.M. Seddikia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31015",
+"city": "Houha Mohamed (Mahmoud)"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31016",
+"city": "Oran Ibn Sinna"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31017",
+"city": "Oran Imam el Houari"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31018",
+"city": "Oran la Fontaine"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31019",
+"city": "Oran Mekki Khelifa"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31020",
+"city": "Oran Mouloud Ferauoun"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31021",
+"city": "Oran Othmania"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31022",
+"city": "Oran Oussama"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31024",
+"city": "Oran RP"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31025",
+"city": "Oran Seddikia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31026",
+"city": "Oran Sidi el Bachir"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31027",
+"city": "Oran Sidi Okba"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31028",
+"city": "Oran Si Salah"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31029",
+"city": "Oran Tafna"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31030",
+"city": "Oran Wilaya"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31031",
+"city": "Oran Yaghmorassen"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31032",
+"city": "Oran Fellaoussene"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31033",
+"city": "Oran RP Terre 2"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31034",
+"city": "Oran Izidi Mohamed"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31035",
+"city": "Oran Dar Beïda"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31036",
+"city": "Oran U.S.T.O."
+},
+{
+"wilaya_code": "31",
+"postal_code": "31037",
+"city": "Oran Ibn Roch"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31100",
+"city": "Es Senia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31101",
+"city": "En Nedjma"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31103",
+"city": "Aïn Beïda (Oran)"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31110",
+"city": "El Kerma"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31121",
+"city": "Sidi Maarouf"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31130",
+"city": "Bir el-Djir"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31131",
+"city": "Bendaoud"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31132",
+"city": "El Minzah"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31133",
+"city": "Khemisit"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31140",
+"city": "Oued Tlelat"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31141",
+"city": "Mahdia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31142",
+"city": "Kehailia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31143",
+"city": "Sidi Ghalem"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31150",
+"city": "El Braya"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31160",
+"city": "Tafraoui"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31170",
+"city": "Boutlelis"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31171",
+"city": "Naib"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31180",
+"city": "Messerghin"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31181",
+"city": "Rabah"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31200",
+"city": "Arzew"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31201",
+"city": "Akid Othmane"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31202",
+"city": "El Mahgoun"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31210",
+"city": "Bethioua"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31211",
+"city": "Granine"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31212",
+"city": "Ayaida"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31213",
+"city": "Chairia"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31214",
+"city": "Djefafla"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31215",
+"city": "Araba"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31220",
+"city": "Marsat El Hadjadj"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31221",
+"city": "Hassasna"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31230",
+"city": "Ain Biya"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31240",
+"city": "Boufatis"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31241",
+"city": "Gotni"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31242",
+"city": "Hassiane Ettoual"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31250",
+"city": "Ben Freha"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31260",
+"city": "Gdyel"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31261",
+"city": "Kristel"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31270",
+"city": "Hassi Mefsoukh"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31280",
+"city": "Sidi ben Yabka"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31290",
+"city": "Hassi Bounif"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31291",
+"city": "Hassi Ameur"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31295",
+"city": "Hassi Ben Okba"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31300",
+"city": "Ain Turk"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31301",
+"city": "Ain Turk Terre"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31310",
+"city": "Mers el Kébir"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31311",
+"city": "Akid Abbes"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31312",
+"city": "Dadayoun"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31313",
+"city": "Fellaoussene A. Ramdane"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31314",
+"city": "Mers el Kebir Marine"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31320",
+"city": "Bousfer"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31321",
+"city": "Bousfer Air"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31330",
+"city": "El Ançor"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31340",
+"city": "Ain Kerma"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31341",
+"city": "El Bordj el Abiadh"
+},
+{
+"wilaya_code": "31",
+"postal_code": "31342",
+"city": "Sidi Bakhti"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32000",
+"city": "El Bayadh"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32001",
+"city": "El Bayadh Hasnaoui Said"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32002",
+"city": "El Bayadh Sahnoune Miloud"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32100",
+"city": "Boualem"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32110",
+"city": "Sidi Ameur"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32120",
+"city": "Sidi Tifour"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32130",
+"city": "Sidi Slimane"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32140",
+"city": "Stitten"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32150",
+"city": "Ghassoul"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32160",
+"city": "Krakda"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32170",
+"city": "Brezina"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32200",
+"city": "Bougtoub"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32210",
+"city": "El Kheiter"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32211",
+"city": "Bordj el May"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32220",
+"city": "Tousmouline"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32240",
+"city": "Rogassa"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32250",
+"city": "Cheguig"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32300",
+"city": "El Abiodh Sidi Chekh"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32310",
+"city": "El Bnoud"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32320",
+"city": "Boussemghoun"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32330",
+"city": "Chellala"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32340",
+"city": "Ain el Orak"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32350",
+"city": "Arbaouat"
+},
+{
+"wilaya_code": "32",
+"postal_code": "32360",
+"city": "El Mehara"
+},
+{
+"wilaya_code": "33",
+"postal_code": "33000",
+"city": "Illizi"
+},
+{
+"wilaya_code": "33",
+"postal_code": "33100",
+"city": "Djanet"
+},
+{
+"wilaya_code": "33",
+"postal_code": "33200",
+"city": "In Amenas"
+},
+{
+"wilaya_code": "33",
+"postal_code": "33210",
+"city": "Bordj Omar Driss"
+},
+{
+"wilaya_code": "33",
+"postal_code": "33220",
+"city": "Debdeb"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34000",
+"city": "Bordj-Bou-Arreridj"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34001",
+"city": "Cherchar"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34100",
+"city": "Mansoura"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34101",
+"city": "El Hamra"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34120",
+"city": "El Mehir"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34125",
+"city": "Bendaoud"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34130",
+"city": "Ouled Sidi Brahim"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34131",
+"city": "Tizi Kachouchene"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34145",
+"city": "Bordj Zemoura"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34146",
+"city": "Beni Laalem"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34160",
+"city": "Ouled Dahmane"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34166",
+"city": "Merdj Medjana"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34167",
+"city": "Ouled Rached"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34170",
+"city": "Tefreg"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34175",
+"city": "El Main"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34180",
+"city": "Teniet En Nasr"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34185",
+"city": "Colla"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34190",
+"city": "Medjana"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34191",
+"city": "Ain Soltane"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34195",
+"city": "El Achir"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34200",
+"city": "Ras el Oued"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34201",
+"city": "Bir Hmaoudi"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34202",
+"city": "Rmail"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34210",
+"city": "Ouled Brahim (Bordj Bou Arreridj)"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34215",
+"city": "Ain Taghrout"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34216",
+"city": "Chefaa"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34220",
+"city": "Bir Kasdali"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34225",
+"city": "Tixter"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34235",
+"city": "Khelil"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34240",
+"city": "El Hamadia"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34241",
+"city": "Mekarta"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34245",
+"city": "Rabta"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34255",
+"city": "Ksour"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34260",
+"city": "Sidi Embarek"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34261",
+"city": "Ayada"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34262",
+"city": "Bir Aissa"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34263",
+"city": "Guemmour"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34264",
+"city": "Boulhaf"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34270",
+"city": "Belimour"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34275",
+"city": "Bordj Ghédir"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34276",
+"city": "Telata"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34285",
+"city": "Ghilassa"
+},
+{
+"wilaya_code": "34",
+"postal_code": "34295",
+"city": "El Anasser"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35000",
+"city": "Boumerdès"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35100",
+"city": "Dellys"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35101",
+"city": "Takdempt"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35110",
+"city": "Afir"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35120",
+"city": "Ben Choud"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35130",
+"city": "Baghlia"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35131",
+"city": "Ouled Hamida"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35132",
+"city": "Fourar Ain Sebaou"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35140",
+"city": "Taourga"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35150",
+"city": "Sidi Daoud"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35151",
+"city": "Tchouchfi Bouberak"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35200",
+"city": "Bordj Menaiel"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35201",
+"city": "Rouafa"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35202",
+"city": "Tizi Nali Slimane"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35210",
+"city": "Djinet"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35211",
+"city": "Haouche ben Ouali"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35220",
+"city": "Chabet el Ameur"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35230",
+"city": "Isser"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35231",
+"city": "Isserville"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35232",
+"city": "Kehf el Gharbi"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35250",
+"city": "Naciria"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35260",
+"city": "Zemmouri"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35261",
+"city": "Koudiat el Arais"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35262",
+"city": "Boudhar"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35270",
+"city": "Si Mustapha"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35280",
+"city": "Leghata"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35320",
+"city": "Bordj El Bahri"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35321",
+"city": "El Marsa"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35350",
+"city": "Khemis El-Khechna"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35351",
+"city": "Bou Hamedi"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35352",
+"city": "Chebacheb"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35353",
+"city": "Khemis el Khechna 17 juin"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35370",
+"city": "Larbatache"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35400",
+"city": "Boudouaou"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35420",
+"city": "Corso"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35425",
+"city": "Beni Amrane"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35426",
+"city": "Bouaidel"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35427",
+"city": "Haddada"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35428",
+"city": "Zenina"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35440",
+"city": "Ouled Moussa"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35450",
+"city": "El Kharrouba"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35470",
+"city": "Thenia"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35471",
+"city": "Karma"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35480",
+"city": "Souk El-Haad"
+},
+{
+"wilaya_code": "35",
+"postal_code": "35490",
+"city": "Tidjelabine"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36000",
+"city": "El Tarf"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36001",
+"city": "Ain Khiar"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36002",
+"city": "Mexna"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36100",
+"city": "El Kala"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36101",
+"city": "Kantara el Malha el Hamra"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36111",
+"city": "Oum Teboul"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36112",
+"city": "Oued el Hout"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36120",
+"city": "El Aioun"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36130",
+"city": "Roum el Souk"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36140",
+"city": "Ben Amar"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36141",
+"city": "Bouaabed"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36142",
+"city": "Righia"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36150",
+"city": "Lac des Oiseaux"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36160",
+"city": "Berrihane"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36170",
+"city": "Aïn El Assel"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36171",
+"city": "Boutella Abdallah"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36180",
+"city": "Bougous"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36190",
+"city": "Zitouna"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36195",
+"city": "Bouteldja"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36200",
+"city": "Drean"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36201",
+"city": "Ain Allem"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36210",
+"city": "Chihani"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36211",
+"city": "Raghouche"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36220",
+"city": "Ben M'hidi"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36222",
+"city": "Sidi Kacem Boughermaa"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36223",
+"city": "Sidi Embarek Bounamoussa"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36230",
+"city": "Zerizer"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36240",
+"city": "Besbes"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36241",
+"city": "Dar Houssa"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36242",
+"city": "Chott"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36250",
+"city": "Asfour"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36260",
+"city": "Chefia"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36271",
+"city": "Chebaita"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36300",
+"city": "Bouhadjar"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36310",
+"city": "Oued Zitoun"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36320",
+"city": "Hammam Beni Salah"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36330",
+"city": "Ain Kerma"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36331",
+"city": "El Fhis"
+},
+{
+"wilaya_code": "36",
+"postal_code": "36332",
+"city": "Berdjilette"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37000",
+"city": "Chenachan"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37005",
+"city": "Ford Lotfi"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37004",
+"city": "Gara Djebilet"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37006",
+"city": "Hassi Mounir"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37003",
+"city": "Oum El Assel"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37001",
+"city": "Tindouf Hassi Ammar"
+},
+{
+"wilaya_code": "37",
+"postal_code": "37002",
+"city": "Tindouf Hay Nasr"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38000",
+"city": "Tissemsilt"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38001",
+"city": "Ain Kerma"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38100",
+"city": "Khemisti"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38101",
+"city": "Ain Ferradja"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38102",
+"city": "Ain Guergour"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38110",
+"city": "Ammari"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38120",
+"city": "Maacem"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38130",
+"city": "Ouled Bessem"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38140",
+"city": "Sidi Abed"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38200",
+"city": "Theniet El Had"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38201",
+"city": "Amrouna"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38202",
+"city": "Meguisba"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38203",
+"city": "Sidi Megrani"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38204",
+"city": "Sidi Mosbah"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38210",
+"city": "Sidi Boutouchent"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38220",
+"city": "Youssoufia"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38230",
+"city": "Layoune"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38231",
+"city": "Doui Hasni"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38232",
+"city": "Baraka"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38240",
+"city": "Bordj Emir Abdelkader"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38241",
+"city": "Sekaka"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38300",
+"city": "Bordj Bou Naama"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38301",
+"city": "Melaab"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38310",
+"city": "Tamalaht"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38320",
+"city": "Beni Lahcene"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38330",
+"city": "Beni Chaib"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38331",
+"city": "Souk Sebt"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38340",
+"city": "Sidi Slimane"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38350",
+"city": "Boucaid"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38360",
+"city": "Lazharia"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38362",
+"city": "Tamzlait"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38370",
+"city": "Larbaa"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38390",
+"city": "Lardjem"
+},
+{
+"wilaya_code": "38",
+"postal_code": "38395",
+"city": "Sidi Lantri"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39000",
+"city": "El Oued"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39001",
+"city": "Lizerg"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39100",
+"city": "Debila"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39101",
+"city": "Djedeida"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39102",
+"city": "Hassani Abdelkrim"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39110",
+"city": "Hassi Khalifa"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39130",
+"city": "Sidi Aoun"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39140",
+"city": "Magrane"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39141",
+"city": "Ayaycha"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39150",
+"city": "Bayada"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39160",
+"city": "Trifaoui"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39170",
+"city": "Robbah"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39171",
+"city": "Oglat Amiche"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39180",
+"city": "Nakhla"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39200",
+"city": "El M'Ghair"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39202",
+"city": "El Baadj"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39203",
+"city": "Ain Cheikh"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39204",
+"city": "Dendouga"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39210",
+"city": "Stile"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39220",
+"city": "Oum Touyour"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39230",
+"city": "Sidi Khellil"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39240",
+"city": "Djamaa"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39241",
+"city": "Aïn Choucha"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39242",
+"city": "El Arfiane"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39243",
+"city": "Tamerna"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39244",
+"city": "Tigidine"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39245",
+"city": "Zaoualia"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39250",
+"city": "M'Rara"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39260",
+"city": "Sidi Amrane"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39271",
+"city": "Tenedla"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39300",
+"city": "Tayeb Larbi"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39311",
+"city": "Douilat"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39400",
+"city": "Guemar"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39401",
+"city": "Ghamra"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39402",
+"city": "Hobba"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39410",
+"city": "Mih Ouansa"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39420",
+"city": "Ouled El Alenda"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39430",
+"city": "Reguiba"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39440",
+"city": "Hamraia"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39450",
+"city": "Kouinine"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39460",
+"city": "Ourmas"
+},
+{
+"wilaya_code": "39",
+"postal_code": "39470",
+"city": "Taghzout"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40000",
+"city": "Khenchela"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40001",
+"city": "Tamayourt"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40100",
+"city": "El Hamma"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40101",
+"city": "Chentgouma"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40102",
+"city": "Ain Mimoun"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40103",
+"city": "Hamam Salihine"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40120",
+"city": "M'Toussa"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40130",
+"city": "Baghai"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40141",
+"city": "Ain Aizar"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40150",
+"city": "Ain Touila"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40151",
+"city": "Belkitane"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40152",
+"city": "Bekkar"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40200",
+"city": "Kais"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40201",
+"city": "Henchir M'lieh"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40220",
+"city": "Taouzient"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40230",
+"city": "Yabous"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40240",
+"city": "Bouhmama"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40250",
+"city": "M'Sara"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40261",
+"city": "Kamouda"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40300",
+"city": "Chechar"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40301",
+"city": "Taberdga"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40302",
+"city": "Seiar"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40303",
+"city": "Aghir"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40304",
+"city": "Tafassour"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40310",
+"city": "Khirane"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40320",
+"city": "Djellal"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40321",
+"city": "Tizint"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40331",
+"city": "Ain Djarboua"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40332",
+"city": "Zoui"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40340",
+"city": "Babar"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40341",
+"city": "Fouanis"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40351",
+"city": "Tazougart"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40352",
+"city": "Ouled Azzedine"
+},
+{
+"wilaya_code": "40",
+"postal_code": "40360",
+"city": "El Oueldja"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41000",
+"city": "Souk Ahras"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41100",
+"city": "Taoura"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41101",
+"city": "Battoum"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41102",
+"city": "Bou Maaraf"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41110",
+"city": "Mechroha"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41111",
+"city": "Ain Seynour"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41115",
+"city": "Merahna"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41116",
+"city": "Bir Louhichi"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41131",
+"city": "Bordj M'raou"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41140",
+"city": "Dréa"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41146",
+"city": "El Betiha"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41150",
+"city": "Tiffech"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41155",
+"city": "Zaarouria"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41165",
+"city": "Ouled Driss"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41200",
+"city": "Sedrata"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41210",
+"city": "Khemissa"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41220",
+"city": "M'daourouch"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41222",
+"city": "Ain Hadjar"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41230",
+"city": "Oued Kerberit"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41240",
+"city": "Ragouba"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41250",
+"city": "Bhir Bouhouche"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41280",
+"city": "An Soltane"
+},
+{
+"wilaya_code": "41",
+"postal_code": "41290",
+"city": "Oum El Adhaim"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42000",
+"city": "Tipaza"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42101",
+"city": "Rivaille"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42102",
+"city": "Hamdania"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42103",
+"city": "Cherchell Terre"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42110",
+"city": "Sidi Semiane"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42115",
+"city": "Sidi Ghiles"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42120",
+"city": "Hadjeret Ennous"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42125",
+"city": "Menaceur"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42126",
+"city": "Temloul"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42127",
+"city": "Fedjana"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42128",
+"city": "Ban Yagoub Fedjana"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42130",
+"city": "Sidi Amar"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42135",
+"city": "Gouraya"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42140",
+"city": "Messelmoun"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42145",
+"city": "Damous"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42146",
+"city": "Bouyamine"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42150",
+"city": "Larhat"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42161",
+"city": "Loudalouze"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42200",
+"city": "Hadjout"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42202",
+"city": "Errahaba"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42203",
+"city": "El Bachir Mohamed"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42210",
+"city": "Meurad"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42211",
+"city": "Bouteldja"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42220",
+"city": "Ahmar el Ain"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42221",
+"city": "Cinq Martyrs"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42230",
+"city": "Bourkika"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42231",
+"city": "Sahel"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42240",
+"city": "Nador"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42250",
+"city": "Sidi Rached"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42300",
+"city": "Cherchell"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42301",
+"city": "Bouchaoui"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42302",
+"city": "Oued Sidi Lekhal"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42321",
+"city": "Sidi-Fredj"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42322",
+"city": "El Bridja"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42323",
+"city": "Zeralda B Souidana"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42324",
+"city": "Mazafran Bouzezga"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42340",
+"city": "Staoueli"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42370",
+"city": "Baba Hassen"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42380",
+"city": "Souidania"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42390",
+"city": "Khraicia"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42391",
+"city": "Sidi Boukhris"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42395",
+"city": "Saoula"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42396",
+"city": "Baba Ali"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42003",
+"city": "Kolea"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42410",
+"city": "Chaiba"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42415",
+"city": "Bou Ismaïl"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42416",
+"city": "Halloula Sahilia"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42420",
+"city": "Khemisti"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42425",
+"city": "Bou Haroun"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42430",
+"city": "Ain Tagourait"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42435",
+"city": "Attatba"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42440",
+"city": "Fouka"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42441",
+"city": "Fouka el Bahri"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42442",
+"city": "Ain El Ahdjar"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42445",
+"city": "Douaouda Ville"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42446",
+"city": "Douaouda Marine"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42447",
+"city": "Daouda Oliviers"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42450",
+"city": "Mehelma"
+},
+{
+"wilaya_code": "42",
+"postal_code": "42451",
+"city": "Zaatria"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43000",
+"city": "Mila"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43001",
+"city": "Azeba"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43100",
+"city": "Grarem"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43101",
+"city": "Guettara"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43110",
+"city": "Aïn Tine"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43130",
+"city": "Chigara"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43140",
+"city": "Hamala"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43150",
+"city": "Sidi Merouane"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43200",
+"city": "Chelghoum Laid"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43201",
+"city": "Boufoula"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43202",
+"city": "Boukarana"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43210",
+"city": "Aïn Mellouk"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43211",
+"city": "Mechtatine"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43220",
+"city": "Tadjenanet"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43230",
+"city": "Benyahia Abderrahmane"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43240",
+"city": "Oued Athmenia"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43241",
+"city": "Bled Youcef"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43242",
+"city": "Djebel Aougueb"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43243",
+"city": "Boumalek"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43250",
+"city": "Teleghma"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43251",
+"city": "Ben Boulaid"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43260",
+"city": "Oued Seguen"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43270",
+"city": "Ouled Khalouf"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43280",
+"city": "El Mechira"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43301",
+"city": "Fedj M'zala"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43316",
+"city": "Beni Guecha"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43320",
+"city": "Tiberguent"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43325",
+"city": "Tassadane"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43331",
+"city": "Aïn Beida Djebel Halfa"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43336",
+"city": "Kef Bouderga"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43337",
+"city": "Merouana"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43338",
+"city": "Aïn Trik"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43346",
+"city": "Redjas"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43350",
+"city": "Amira Arrès"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43356",
+"city": "Beinen"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43360",
+"city": "Zeghaia"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43365",
+"city": "Ahmed Rachedi"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43370",
+"city": "Rouached"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43371",
+"city": "Sidi Zerrouk"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43376",
+"city": "Zarza"
+},
+{
+"wilaya_code": "43",
+"postal_code": "43380",
+"city": "Tassala"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44000",
+"city": "Ain Defla"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44100",
+"city": "Djelida"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44101",
+"city": "Baba Driss Aouaidia"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44110",
+"city": "Tarik Ibn Ziad"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44120",
+"city": "Bordj Emir Khaled"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44130",
+"city": "Bourached"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44135",
+"city": "El Amra"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44136",
+"city": "El Aneb"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44140",
+"city": "Mekhatria"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44150",
+"city": "El Hassania"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44151",
+"city": "Souk el Djemaa"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44160",
+"city": "Djemaa Ouled Cheikh"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44165",
+"city": "Bathia"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44170",
+"city": "Arib"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44171",
+"city": "Dar el Kaid"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44180",
+"city": "Oued Djemaa"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44190",
+"city": "Bir Ould Khelifa"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44200",
+"city": "Miliana"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44201",
+"city": "Zouggala"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44210",
+"city": "Ben Allal"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44220",
+"city": "Aïn Torki"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44225",
+"city": "Khemis Miliana"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44226",
+"city": "Ouled Belgacem"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44230",
+"city": "Sidi Lakhdar"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44240",
+"city": "Ain Soltane"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44245",
+"city": "Boumedfaa"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44246",
+"city": "Oued Zeboudj"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44250",
+"city": "Hammam Righa"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44260",
+"city": "Aïn Benian"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44265",
+"city": "Hoceinia"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44270",
+"city": "Djendel"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44271",
+"city": "Ain Dem"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44280",
+"city": "Ain Lechiekh"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44285",
+"city": "Oued Chorfa"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44286",
+"city": "Amourah"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44290",
+"city": "Bir Bouche"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44300",
+"city": "El Attaf"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44301",
+"city": "Moulay Abdelkader"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44302",
+"city": "Ouled Azza"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44303",
+"city": "Cheikh Benyahia"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44304",
+"city": "Sidi Bouabida"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44305",
+"city": "Ouled Moussa Terchi"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44330",
+"city": "Bellaas"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44340",
+"city": "El Abaida"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44350",
+"city": "Tacheta Zougara"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44360",
+"city": "Ain Bouyahia"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44370",
+"city": "Rouina"
+},
+{
+"wilaya_code": "44",
+"postal_code": "44380",
+"city": "Zeddine"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45000",
+"city": "Naâma"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45001",
+"city": "Touadjeur"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45100",
+"city": "Mecheria"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45110",
+"city": "Aïn Ben Khelil"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45120",
+"city": "Mekmen ben Amar"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45130",
+"city": "El Kesdir"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45140",
+"city": "El Biod"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45200",
+"city": "Ain Sefra"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45201",
+"city": "Mekter Forthassa"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45210",
+"city": "Tiout"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45220",
+"city": "Sfissifa"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45230",
+"city": "Moghrar"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45231",
+"city": "Moghrar Foukani"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45232",
+"city": "Moghrar Tahtani"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45240",
+"city": "Djenien Bourezg"
+},
+{
+"wilaya_code": "45",
+"postal_code": "45250",
+"city": "Asla"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46000",
+"city": "Ain Temouchent"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46100",
+"city": "El Malah"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46110",
+"city": "El Amria"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46125",
+"city": "Hassi el Ghella"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46126",
+"city": "Aissaoui Boziane el Badr"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46130",
+"city": "Ouled Boudjemaa"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46135",
+"city": "Ain Kihal"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46140",
+"city": "Sidi Ben Adda"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46145",
+"city": "Terga"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46155",
+"city": "Aghlal"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46160",
+"city": "Chaabat El Leham"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46200",
+"city": "Hammam Bouhadjar"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46201",
+"city": "Ain Beida"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46210",
+"city": "Aïn El Arbaa"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46230",
+"city": "Hassana"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46240",
+"city": "Oued Berkeche"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46250",
+"city": "Oued Sebbah"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46270",
+"city": "Aoubellil"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46300",
+"city": "Beni Saf"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46310",
+"city": "Sidi Safi"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46320",
+"city": "El Emir Abdelkader"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46331",
+"city": "Souk el Tenine"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46341",
+"city": "Sidi Ouriache"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46350",
+"city": "Ain Tolba"
+},
+{
+"wilaya_code": "46",
+"postal_code": "46351",
+"city": "Ain Allem"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47000",
+"city": "Ghardaia"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47001",
+"city": "Belghanem"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47002",
+"city": "Melika"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47004",
+"city": "Baissa Oualouane"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47006",
+"city": "Lamied"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47007",
+"city": "Noumerat"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47008",
+"city": "Hai el Moudjahidine"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47100",
+"city": "Berriane"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47110",
+"city": "El Guerrara"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47120",
+"city": "El Atteuf"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47121",
+"city": "Ghardaia Noumerat"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47130",
+"city": "Bounoura"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47005",
+"city": "Beni Isguen"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47132",
+"city": "Sidi Abbaz 20 aout 1955"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47133",
+"city": "Garat Ettaam"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47140",
+"city": "Dayet Ben Dahoua"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47200",
+"city": "Metili"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47201",
+"city": "Souareg"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47202",
+"city": "Guemgouma"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47210",
+"city": "Mansoura Nouvelle"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47220",
+"city": "Hassi el Fehel"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47230",
+"city": "Sebseb"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47300",
+"city": "El Mianiaa"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47301",
+"city": "Belbachir"
+},
+{
+"wilaya_code": "47",
+"postal_code": "47310",
+"city": "Hassi el Gara"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48000",
+"city": "Relizane"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48100",
+"city": "El Matmar"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48115",
+"city": "Kalaa"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48116",
+"city": "Semmar"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48125",
+"city": "Yellel"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48135",
+"city": "Mendes"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48136",
+"city": "Kenenda"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48145",
+"city": "Sidi Khettab"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48150",
+"city": "Belaassel Bouzegza"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48155",
+"city": "Zemmora"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48170",
+"city": "Oued El Djemaa"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48175",
+"city": "Oued es Salem"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48180",
+"city": "Sidi M'Hamed Benaouda"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48200",
+"city": "Mazouna"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48201",
+"city": "Ouled Meziane"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48210",
+"city": "Sidi M'hamed Ben Ali"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48220",
+"city": "El Guettar"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48230",
+"city": "Mediouna"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48240",
+"city": "Beni Zentis"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48001",
+"city": "Oued Rhiou"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48301",
+"city": "Kharmacha"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48315",
+"city": "Ammi Moussa"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48316",
+"city": "Souk El Had"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48321",
+"city": "Ouled Moudjeur"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48325",
+"city": "Aïn Tarek"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48335",
+"city": "Ouarizane"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48340",
+"city": "El H'madna"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48345",
+"city": "Ouled Sidi Mihoub"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48350",
+"city": "Ouled Yaich"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48360",
+"city": "Djidiouia"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48365",
+"city": "Hamri"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48370",
+"city": "Ramka"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48380",
+"city": "Lahlef"
+},
+{
+"wilaya_code": "48",
+"postal_code": "48381",
+"city": "Grainia"
+}
+]

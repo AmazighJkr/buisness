@@ -4,9 +4,7 @@ import StoreHeader from '../components/StoreHeader.jsx'
 import StoreAlgeriaGate, { StoreNotAvailableInRegion } from '../components/store/StoreAlgeriaGate.jsx'
 import {
   createStoreOrder,
-  fetchShippingPostalCodes,
   fetchShippingQuote,
-  fetchShippingWilayas,
   fetchStoreOrderResume,
   fetchUserMe,
   payStoreOrder,
@@ -14,6 +12,7 @@ import {
 } from '../api/client.js'
 import { useCart } from '../hooks/useCart.js'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
+import ShippingLocationCombobox from '../components/store/ShippingLocationCombobox.jsx'
 import {
   clearPendingStoreOrder,
   readPendingStoreOrder,
@@ -44,8 +43,7 @@ export default function CheckoutPage() {
   const [resumeLoading, setResumeLoading] = useState(false)
   const [cartSnapshot, setCartSnapshot] = useState(null)
   const [cartRefreshError, setCartRefreshError] = useState('')
-  const [wilayas, setWilayas] = useState([])
-  const [postalCodes, setPostalCodes] = useState([])
+  const [selectedLocation, setSelectedLocation] = useState(null)
   const [shippingQuote, setShippingQuote] = useState(null)
   const [form, setForm] = useState({
     first_name: '',
@@ -151,31 +149,6 @@ export default function CheckoutPage() {
   }, [isAlgeria, items, t])
 
   useEffect(() => {
-    if (!isAlgeria) return
-    fetchShippingWilayas()
-      .then(setWilayas)
-      .catch(() => setWilayas([]))
-  }, [isAlgeria])
-
-  useEffect(() => {
-    if (!form.wilaya_id) {
-      setPostalCodes([])
-      return
-    }
-    let cancelled = false
-    fetchShippingPostalCodes(form.wilaya_id)
-      .then((rows) => {
-        if (!cancelled) setPostalCodes(rows)
-      })
-      .catch(() => {
-        if (!cancelled) setPostalCodes([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [form.wilaya_id])
-
-  useEffect(() => {
     if (!form.postal_code || !form.delivery_type) {
       setShippingQuote(null)
       return
@@ -212,9 +185,9 @@ export default function CheckoutPage() {
   const shippingDzd = shippingQuote ? Number(shippingQuote.shipping_dzd) : 0
   const orderTotalDzd = productsSubtotal + shippingDzd
 
-  const selectedPostal = postalCodes.find((p) => p.postal_code === form.postal_code)
-  const canHome = selectedPostal?.has_home
-  const canBureau = selectedPostal?.has_bureau
+  const selectedPostal = selectedLocation
+  const canHome = shippingQuote?.has_home ?? selectedLocation?.has_home
+  const canBureau = shippingQuote?.has_bureau ?? selectedLocation?.has_bureau
 
   useEffect(() => {
     if (!selectedPostal) return
@@ -526,48 +499,26 @@ export default function CheckoutPage() {
                   />
                 </label>
                 <label className="block text-xs text-dark-muted">
-                  {t('checkout.wilaya')}
-                  <select
-                    required
-                    value={form.wilaya_id}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        wilaya_id: e.target.value,
-                        postal_code: '',
-                      })
-                    }
-                    className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
-                  >
-                    <option value="">{t('checkout.selectWilaya')}</option>
-                    {wilayas.map((w) => (
-                      <option key={w.id} value={w.id}>
-                        {w.code} — {w.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block text-xs text-dark-muted">
-                  {t('checkout.postalCode')}
-                  <select
-                    required
-                    disabled={!form.wilaya_id}
-                    value={form.postal_code}
-                    onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
-                    className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm font-mono"
-                  >
-                    <option value="">{t('checkout.selectPostal')}</option>
-                    {postalCodes.map((p) => (
-                      <option key={p.id} value={p.postal_code}>
-                        {p.postal_code}
-                        {p.city ? ` — ${p.city}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  {form.wilaya_id && postalCodes.length === 0 && (
-                    <span className="mt-1 block text-amber-300">
-                      {t('checkout.noPostalWilaya')}
-                    </span>
+                  {t('checkout.searchLocation')}
+                  <ShippingLocationCombobox
+                    value={selectedLocation}
+                    onChange={(row) => {
+                      if (!row) {
+                        setSelectedLocation(null)
+                        setForm((f) => ({ ...f, wilaya_id: '', postal_code: '' }))
+                        return
+                      }
+                      setSelectedLocation(row)
+                      setForm((f) => ({
+                        ...f,
+                        wilaya_id: row.wilaya,
+                        postal_code: row.postal_code,
+                        city: f.city || row.city || '',
+                      }))
+                    }}
+                  />
+                  {selectedLocation && !canHome && !canBureau && (
+                    <span className="mt-1 block text-amber-300">{t('checkout.noShippingRates')}</span>
                   )}
                 </label>
                 <fieldset className="space-y-2 text-sm">

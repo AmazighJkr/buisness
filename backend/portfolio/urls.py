@@ -17,6 +17,7 @@ from .shipping_views import (
     StoreCartValidateView,
     StorePostalCodeListView,
     StoreShippingQuoteView,
+    StoreShippingSearchView,
     StoreWilayaListView,
 )
 from .payment_views import (
@@ -90,6 +91,7 @@ urlpatterns = [
     path('store/categories/', StoreCategoryListView.as_view(), name='store-category-list'),
     path('store/shipping/wilayas/', StoreWilayaListView.as_view(), name='store-shipping-wilayas'),
     path('store/shipping/postal-codes/', StorePostalCodeListView.as_view(), name='store-shipping-postal'),
+    path('store/shipping/search/', StoreShippingSearchView.as_view(), name='store-shipping-search'),
     path('store/shipping/quote/', StoreShippingQuoteView.as_view(), name='store-shipping-quote'),
     path('store/cart/validate/', StoreCartValidateView.as_view(), name='store-cart-validate'),
     path('store/orders/', StoreOrderCreateView.as_view(), name='store-order-create'),

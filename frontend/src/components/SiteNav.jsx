@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { useTranslation } from '../context/LocaleContext.jsx'
+import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import { NAV_LAB, navLinkActive } from '../config/siteNav.js'
 
 const SiteNavContext = createContext(null)
@@ -59,6 +60,7 @@ export function SiteNavDesktop() {
 
 export function SiteNavMobile() {
   const { open, setOpen, isActive, t } = useSiteNav()
+  const { storeVisible } = useStoreRegion()
 
   return (
     <div className="site-nav-mobile">
@@ -92,14 +94,18 @@ export function SiteNavMobile() {
                 {t(labelKey)}
               </Link>
             ))}
-            <p className="site-nav-drawer-heading mt-3">{t('nav.store')}</p>
-            <Link
-              to="/shop"
-              onClick={() => setOpen(false)}
-              className="site-nav-drawer-link site-nav-drawer-link--store"
-            >
-              {t('nav.openStore')}
-            </Link>
+            {storeVisible && (
+              <>
+                <p className="site-nav-drawer-heading mt-3">{t('nav.store')}</p>
+                <Link
+                  to="/shop"
+                  onClick={() => setOpen(false)}
+                  className="site-nav-drawer-link site-nav-drawer-link--store"
+                >
+                  {t('nav.openStore')}
+                </Link>
+              </>
+            )}
             <Link
               to="/account"
               onClick={() => setOpen(false)}

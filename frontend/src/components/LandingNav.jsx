@@ -5,6 +5,7 @@ import LanguageSwitcher from './LanguageSwitcher.jsx'
 import NavAccount from './NavAccount.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
+import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import { NAV_LAB } from '../config/siteNav.js'
 
 const SECTION_KEYS = [
@@ -16,6 +17,7 @@ const SECTION_KEYS = [
 
 export default function LandingNav() {
   const { t } = useTranslation()
+  const { storeVisible } = useStoreRegion()
   const [active, setActive] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -73,9 +75,11 @@ export default function LandingNav() {
         </nav>
 
         <div className="site-header-actions">
-          <Link to="/shop" className="store-entry-btn">
-            {t('nav.store')}
-          </Link>
+          {storeVisible && (
+            <Link to="/shop" className="store-entry-btn">
+              {t('nav.store')}
+            </Link>
+          )}
           <LanguageSwitcher compact />
           <ThemeToggle compact />
           <NavAccount />
@@ -130,16 +134,20 @@ export default function LandingNav() {
                 {t(labelKey)}
               </Link>
             ))}
-            <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">
-              {t('nav.store')}
-            </p>
-            <Link
-              to="/shop"
-              onClick={() => setMenuOpen(false)}
-              className="site-nav-drawer-link site-nav-drawer-link--store mb-1 block rounded-md px-3 py-2.5 text-sm"
-            >
-              {t('nav.openStore')}
-            </Link>
+            {storeVisible && (
+              <>
+                <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wider text-dark-muted">
+                  {t('nav.store')}
+                </p>
+                <Link
+                  to="/shop"
+                  onClick={() => setMenuOpen(false)}
+                  className="site-nav-drawer-link site-nav-drawer-link--store mb-1 block rounded-md px-3 py-2.5 text-sm"
+                >
+                  {t('nav.openStore')}
+                </Link>
+              </>
+            )}
             <Link
               to="/account"
               onClick={() => setMenuOpen(false)}

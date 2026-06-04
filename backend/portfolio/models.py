@@ -496,6 +496,14 @@ class StorePostalCode(models.Model):
     def __str__(self):
         return f'{self.postal_code} ({self.wilaya.name})'
 
+    @property
+    def has_home(self):
+        return self.price_home_dzd is not None and self.price_home_dzd > 0
+
+    @property
+    def has_bureau(self):
+        return self.price_bureau_dzd is not None and self.price_bureau_dzd > 0
+
 
 class StoreOrder(models.Model):
     class Status(models.TextChoices):

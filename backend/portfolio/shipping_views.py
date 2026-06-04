@@ -27,13 +27,44 @@ def _postal_codes_available():
     )
 
 
+def _postal_codes_directory():
+    return StorePostalCode.objects.filter(is_active=True, wilaya__is_active=True)
+
+
 class StoreWilayaListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        wilaya_ids = _postal_codes_available().values_list('wilaya_id', flat=True).distinct()
+        wilaya_ids = _postal_codes_directory().values_list('wilaya_id', flat=True).distinct()
         rows = StoreWilaya.objects.filter(id__in=wilaya_ids, is_active=True).order_by('code')
         return Response(StoreWilayaPublicSerializer(rows, many=True).data)
+
+
+class StoreShippingSearchView(APIView):
+    """Typeahead search over all active postal codes (shipping prices optional)."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        q = (request.query_params.get('q') or '').strip()
+        wilaya_id = (request.query_params.get('wilaya') or '').strip()
+        try:
+            limit = min(max(int(request.query_params.get('limit') or 20), 1), 50)
+        except (TypeError, ValueError):
+            limit = 20
+
+        if len(q) < 1:
+            return Response([])
+
+        qs = _postal_codes_directory().select_related('wilaya')
+        if wilaya_id:
+            qs = qs.filter(wilaya_id=wilaya_id)
+        qs = qs.filter(
+            Q(postal_code__icontains=q)
+            | Q(city__icontains=q)
+            | Q(wilaya__name__icontains=q),
+        ).order_by('wilaya__code', 'postal_code')[:limit]
+        return Response(StorePostalCodePublicSerializer(qs, many=True).data)
 
 
 class StorePostalCodeListView(APIView):

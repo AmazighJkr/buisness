@@ -44,5 +44,7 @@ export function useStoreRegion() {
   return {
     ...state,
     useDzd: true,
+    /** True only when geo resolved and visitor is in Algeria — use to hide store nav. */
+    storeVisible: !state.loading && Boolean(state.isAlgeria),
   }
 }
