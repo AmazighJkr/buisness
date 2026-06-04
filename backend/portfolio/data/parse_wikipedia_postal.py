@@ -55,6 +55,20 @@ WIKI_ALIASES = {
     'aïn temouchent': '46',
     'ghardaia': '47',
     'ghardaïa': '47',
+    'aflou': '59',
+    'el abiodh sidi cheikh': '60',
+    'el aricha': '61',
+    'el kantara': '62',
+    'barika': '63',
+    'bou saada': '64',
+    'bou saâda': '64',
+    'bir el ater': '65',
+    'ksar el boukhari': '66',
+    'ksar chellala': '67',
+    'ain oussara': '68',
+    'aïn oussara': '68',
+    'messaad': '69',
+    'messaâd': '69',
 }
 
 

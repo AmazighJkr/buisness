@@ -1,4 +1,6 @@
-# Algerian wilayas (58) — code is official wilaya number as string for sorting.
+# Algerian wilayas (69) — official numeric code as zero-padded string.
+# Source: https://fr.wikipedia.org/wiki/Liste_des_wilayas_d%27Alg%C3%A9rie
+# Includes 11 wilayas approved in 2025 (codes 59–69, law n°26-06).
 
 WILAYAS = [
     ('01', 'Adrar'),
@@ -59,4 +61,30 @@ WILAYAS = [
     ('56', 'Djanet'),
     ('57', 'El M\'Ghair'),
     ('58', 'El Meniaa'),
+    ('59', 'Aflou'),
+    ('60', 'El Abiodh Sidi Cheikh'),
+    ('61', 'El Aricha'),
+    ('62', 'El Kantara'),
+    ('63', 'Barika'),
+    ('64', 'Bou Saâda'),
+    ('65', 'Bir El Ater'),
+    ('66', 'Ksar El Boukhari'),
+    ('67', 'Ksar Chellala'),
+    ('68', 'Aïn Oussara'),
+    ('69', 'Messaâd'),
+]
+
+# Chef-lieu postal codes for wilayas 59–69 (split from parent wilayas in 2025).
+NEW_WILAYA_POSTAL = [
+    ('59', '03400', 'Aflou'),
+    ('60', '32300', 'El Abiodh Sidi Cheikh'),
+    ('61', '13210', 'El Aricha'),
+    ('62', '07130', 'El Kantara'),
+    ('63', '05400', 'Barika'),
+    ('64', '28200', 'Bou Saâda'),
+    ('65', '12200', 'Bir El Ater'),
+    ('66', '26300', 'Ksar El Boukhari'),
+    ('67', '14300', 'Ksar Chellala'),
+    ('68', '17200', 'Aïn Oussara'),
+    ('69', '17400', 'Messaâd'),
 ]
