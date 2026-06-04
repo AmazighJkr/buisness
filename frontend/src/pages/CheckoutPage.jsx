@@ -13,6 +13,9 @@ import {
 import { useCart } from '../hooks/useCart.js'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import ShippingLocationCombobox from '../components/store/ShippingLocationCombobox.jsx'
+import CheckoutCaptcha from '../components/checkout/CheckoutCaptcha.jsx'
+import CheckoutLegalConsent from '../components/checkout/CheckoutLegalConsent.jsx'
+import { validateCheckoutForm, firstCheckoutError } from '../utils/checkoutValidation.js'
 import {
   clearPendingStoreOrder,
   readPendingStoreOrder,
@@ -45,6 +48,10 @@ export default function CheckoutPage() {
   const [cartRefreshError, setCartRefreshError] = useState('')
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [shippingQuote, setShippingQuote] = useState(null)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const [captchaAnswer, setCaptchaAnswer] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -236,16 +243,24 @@ export default function CheckoutPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (items.length === 0) {
-      setError('Your cart is empty.')
+      setError(t('checkout.cartEmpty'))
+      return
+    }
+    const errors = validateCheckoutForm(form, {
+      shippingQuote,
+      acceptedTerms,
+      captchaAnswer,
+      t,
+    })
+    if (!captchaToken) errors.captcha = t('checkout.captchaLoadFailed')
+    setFieldErrors(errors)
+    const firstErr = firstCheckoutError(errors)
+    if (firstErr) {
+      setError(firstErr)
       return
     }
     setSubmitting(true)
     setError('')
-    if (!shippingQuote) {
-      setError(t('checkout.selectShipping'))
-      setSubmitting(false)
-      return
-    }
     try {
       const order = await createStoreOrder({
         first_name: form.first_name.trim(),
@@ -258,6 +273,9 @@ export default function CheckoutPage() {
         postal_code: form.postal_code,
         delivery_type: form.delivery_type,
         notes: form.notes,
+        accepted_terms: true,
+        captcha_token: captchaToken,
+        captcha_answer: String(captchaAnswer).trim(),
         reservation_id: getCartReservationId() || cartSnapshot?.reservation_id || '',
         items: displayItems.map((row) => ({
           product_id: row.productId,
@@ -289,11 +307,18 @@ export default function CheckoutPage() {
       clearCartReservationId()
       navigate(`/shop/order?number=${order.order_number}&paid=1`, { replace: true })
     } catch (err) {
-      setError(err.message || t('checkout.checkoutFailed'))
+      const msg = err.message || t('checkout.checkoutFailed')
+      setError(msg)
+      if (/captcha|security check/i.test(msg)) {
+        setFieldErrors((prev) => ({ ...prev, captcha: msg }))
+      }
     } finally {
       setSubmitting(false)
     }
   }
+
+  const inputErrorClass = (key) =>
+    fieldErrors[key] ? 'border-red-500/60' : 'border-dark-border'
 
   const startNewCheckout = () => {
     setSearchParams({}, { replace: true })
@@ -438,18 +463,30 @@ export default function CheckoutPage() {
                     <input
                       required
                       value={form.first_name}
-                      onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                      className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                      onChange={(e) => {
+                        setForm({ ...form, first_name: e.target.value })
+                        setFieldErrors((fe) => ({ ...fe, first_name: undefined }))
+                      }}
+                      className={`mt-1 w-full border bg-dark-bg px-3 py-2 text-sm ${inputErrorClass('first_name')}`}
                     />
+                    {fieldErrors.first_name && (
+                      <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.first_name}</span>
+                    )}
                   </label>
                   <label className="block text-xs text-dark-muted">
                     {t('checkout.lastName')}
                     <input
                       required
                       value={form.last_name}
-                      onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                      className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                      onChange={(e) => {
+                        setForm({ ...form, last_name: e.target.value })
+                        setFieldErrors((fe) => ({ ...fe, last_name: undefined }))
+                      }}
+                      className={`mt-1 w-full border bg-dark-bg px-3 py-2 text-sm ${inputErrorClass('last_name')}`}
                     />
+                    {fieldErrors.last_name && (
+                      <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.last_name}</span>
+                    )}
                   </label>
                 </div>
                 <label className="block text-xs text-dark-muted">
@@ -458,28 +495,46 @@ export default function CheckoutPage() {
                     type="email"
                     required
                     value={form.customer_email}
-                    onChange={(e) => setForm({ ...form, customer_email: e.target.value })}
-                    className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                    onChange={(e) => {
+                      setForm({ ...form, customer_email: e.target.value })
+                      setFieldErrors((fe) => ({ ...fe, customer_email: undefined }))
+                    }}
+                    className={`mt-1 w-full border bg-dark-bg px-3 py-2 text-sm ${inputErrorClass('customer_email')}`}
                   />
+                  {fieldErrors.customer_email && (
+                    <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.customer_email}</span>
+                  )}
                 </label>
                 <label className="block text-xs text-dark-muted">
                   {t('checkout.phone')}
                   <input
                     required
                     value={form.customer_phone}
-                    onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
-                    className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                    onChange={(e) => {
+                      setForm({ ...form, customer_phone: e.target.value })
+                      setFieldErrors((fe) => ({ ...fe, customer_phone: undefined }))
+                    }}
+                    className={`mt-1 w-full border bg-dark-bg px-3 py-2 text-sm ${inputErrorClass('customer_phone')}`}
                     placeholder={t('checkout.phonePlaceholder')}
                   />
+                  {fieldErrors.customer_phone && (
+                    <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.customer_phone}</span>
+                  )}
                 </label>
                 <label className="block text-xs text-dark-muted">
                   {t('checkout.address1')}
                   <input
                     required
                     value={form.address_line1}
-                    onChange={(e) => setForm({ ...form, address_line1: e.target.value })}
-                    className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                    onChange={(e) => {
+                      setForm({ ...form, address_line1: e.target.value })
+                      setFieldErrors((fe) => ({ ...fe, address_line1: undefined }))
+                    }}
+                    className={`mt-1 w-full border bg-dark-bg px-3 py-2 text-sm ${inputErrorClass('address_line1')}`}
                   />
+                  {fieldErrors.address_line1 && (
+                    <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.address_line1}</span>
+                  )}
                 </label>
                 <label className="block text-xs text-dark-muted">
                   {t('checkout.address2')}
@@ -494,9 +549,15 @@ export default function CheckoutPage() {
                   <input
                     required
                     value={form.city}
-                    onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
+                    onChange={(e) => {
+                      setForm({ ...form, city: e.target.value })
+                      setFieldErrors((fe) => ({ ...fe, city: undefined }))
+                    }}
+                    className={`mt-1 w-full border bg-dark-bg px-3 py-2 text-sm ${inputErrorClass('city')}`}
                   />
+                  {fieldErrors.city && (
+                    <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.city}</span>
+                  )}
                 </label>
                 <label className="block text-xs text-dark-muted">
                   {t('checkout.searchLocation')}
@@ -506,6 +567,7 @@ export default function CheckoutPage() {
                       if (!row) {
                         setSelectedLocation(null)
                         setForm((f) => ({ ...f, wilaya_id: '', postal_code: '' }))
+                        setFieldErrors((fe) => ({ ...fe, postal_code: undefined, shipping: undefined }))
                         return
                       }
                       setSelectedLocation(row)
@@ -515,8 +577,15 @@ export default function CheckoutPage() {
                         postal_code: row.postal_code,
                         city: f.city || row.city || '',
                       }))
+                      setFieldErrors((fe) => ({ ...fe, postal_code: undefined, shipping: undefined }))
                     }}
                   />
+                  {fieldErrors.postal_code && (
+                    <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.postal_code}</span>
+                  )}
+                  {fieldErrors.shipping && (
+                    <span className="mt-0.5 block text-xs text-red-300">{fieldErrors.shipping}</span>
+                  )}
                   {selectedLocation && !canHome && !canBureau && (
                     <span className="mt-1 block text-amber-300">{t('checkout.noShippingRates')}</span>
                   )}
@@ -557,6 +626,24 @@ export default function CheckoutPage() {
                     className="mt-1 w-full border border-dark-border bg-dark-bg px-3 py-2 text-sm"
                   />
                 </label>
+                <CheckoutLegalConsent
+                  accepted={acceptedTerms}
+                  onChange={(v) => {
+                    setAcceptedTerms(v)
+                    setFieldErrors((fe) => ({ ...fe, terms: undefined }))
+                  }}
+                  error={fieldErrors.terms}
+                />
+                <CheckoutCaptcha
+                  token={captchaToken}
+                  answer={captchaAnswer}
+                  onTokenChange={setCaptchaToken}
+                  onAnswerChange={(v) => {
+                    setCaptchaAnswer(v)
+                    setFieldErrors((fe) => ({ ...fe, captcha: undefined }))
+                  }}
+                  error={fieldErrors.captcha}
+                />
               </div>
 
               <div className="panel h-fit p-4">
@@ -628,7 +715,14 @@ export default function CheckoutPage() {
                 )}
                 <button
                   type="submit"
-                  disabled={submitting || !shippingQuote || Boolean(cartRefreshError)}
+                  disabled={
+                    submitting ||
+                    !shippingQuote ||
+                    Boolean(cartRefreshError) ||
+                    !acceptedTerms ||
+                    !captchaToken ||
+                    !String(captchaAnswer).trim()
+                  }
                   className="btn-primary mt-4 w-full"
                 >
                   {submitting

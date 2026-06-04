@@ -660,14 +660,30 @@ class StoreOrderCreateSerializer(serializers.Serializer):
     notes = serializers.CharField(required=False, allow_blank=True)
     reservation_id = serializers.CharField(required=False, allow_blank=True, max_length=64)
     items = serializers.ListField(child=serializers.DictField(), allow_empty=False)
+    accepted_terms = serializers.BooleanField()
+    captcha_token = serializers.CharField(max_length=512)
+    captcha_answer = serializers.CharField(max_length=16)
     # Legacy fields (ignored when structured address is sent)
     customer_name = serializers.CharField(max_length=120, required=False, allow_blank=True)
     shipping_address = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_accepted_terms(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Vous devez accepter les CGV et la politique de confidentialité.',
+            )
+        return value
 
     def validate_customer_phone(self, value):
         from .algeria_shipping import normalize_algeria_phone
 
         return normalize_algeria_phone(value)
+
+    def validate(self, attrs):
+        from .checkout_captcha import verify_captcha
+
+        verify_captcha(attrs.get('captcha_token', ''), attrs.get('captcha_answer', ''))
+        return attrs
 
 
 class AdminStoreOrderItemSerializer(serializers.ModelSerializer):

@@ -381,6 +381,14 @@ export async function fetchShippingQuote(postalCode, deliveryType) {
   return handleResponse(res)
 }
 
+export async function fetchCheckoutCaptcha() {
+  await detectClientCountry()
+  const res = await fetch(`${API_BASE}/api/store/checkout/captcha/`, {
+    headers: paymentCountryHeaders(),
+  })
+  return handleResponse(res)
+}
+
 export async function createStoreOrder(payload) {
   await detectClientCountry()
   return authFetch(`${API_BASE}/api/store/orders/`, {

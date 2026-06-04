@@ -10,6 +10,8 @@ import ShopPage from './pages/ShopPage.jsx'
 import CartPage from './pages/CartPage.jsx'
 import CheckoutPage from './pages/CheckoutPage.jsx'
 import StoreOrderPage from './pages/StoreOrderPage.jsx'
+import TermsPage from './pages/TermsPage.jsx'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx'
 
 function AdminRedirect() {
   if (typeof window !== 'undefined') {
@@ -31,6 +33,8 @@ export default function App() {
       <Route path="shop/cart" element={<CartPage />} />
       <Route path="shop/checkout" element={<CheckoutPage />} />
       <Route path="shop/order" element={<StoreOrderPage />} />
+      <Route path="legal/terms" element={<TermsPage />} />
+      <Route path="legal/privacy" element={<PrivacyPolicyPage />} />
       <Route path="shop/:productSlug" element={<ShopPage />} />
       <Route path="shop" element={<ShopPage />} />
       <Route path="command" element={<CommandPage />} />

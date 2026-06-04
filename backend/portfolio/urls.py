@@ -27,6 +27,7 @@ from .payment_views import (
     PaymentConfigView,
     StripeWebhookView,
 )
+from .checkout_views import StoreCheckoutCaptchaView
 from .store_views import (
     AdminStoreOrderViewSet,
     MyStoreOrdersListView,
@@ -94,6 +95,7 @@ urlpatterns = [
     path('store/shipping/search/', StoreShippingSearchView.as_view(), name='store-shipping-search'),
     path('store/shipping/quote/', StoreShippingQuoteView.as_view(), name='store-shipping-quote'),
     path('store/cart/validate/', StoreCartValidateView.as_view(), name='store-cart-validate'),
+    path('store/checkout/captcha/', StoreCheckoutCaptchaView.as_view(), name='store-checkout-captcha'),
     path('store/orders/', StoreOrderCreateView.as_view(), name='store-order-create'),
     path('store/orders/track/', StoreOrderTrackView.as_view(), name='store-order-track'),
     path('store/orders/mine/', MyStoreOrdersListView.as_view(), name='store-order-mine'),
