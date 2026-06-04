@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react'
 import LanguageSwitcher from './LanguageSwitcher.jsx'
 import NavAccount from './NavAccount.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
+import SiteBrand from './SiteBrand.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import { NAV_LAB } from '../config/siteNav.js'
@@ -51,9 +52,7 @@ export default function LandingNav() {
   return (
     <header className="site-header fixed top-0 left-0 right-0 z-50">
       <div className="site-header-inner max-w-6xl landing-nav__inner">
-        <button type="button" onClick={() => scrollTo('home')} className="site-logo shrink-0 site-header-brand">
-          Embedded<span>Grid</span>
-        </button>
+        <SiteBrand variant="landing" className="shrink-0" />
 
         <nav className="site-nav-desktop" aria-label="Landing sections">
           {SECTION_KEYS.map((s) => (

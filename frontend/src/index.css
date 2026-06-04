@@ -406,8 +406,8 @@ body {
 .lab-header__inner,
 .store-header__inner,
 .landing-nav__inner {
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
-  grid-template-areas: 'home brand nav actions';
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'brand nav actions';
 }
 
 .site-header-leading {
@@ -614,8 +614,8 @@ body {
   .lab-header__inner,
   .store-header__inner,
   .landing-nav__inner {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'home brand actions';
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'brand actions';
   }
 
   .site-header-inner:not(.lab-header__inner):not(.store-header__inner):not(.landing-nav__inner) {
@@ -645,10 +645,23 @@ body {
   letter-spacing: 0.04em;
   color: var(--eg-text);
   text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.site-logo:hover {
+  color: var(--eg-accent);
 }
 
 .site-logo span {
   color: var(--eg-accent);
+}
+
+.site-logo:hover span {
+  color: var(--eg-accent);
+  filter: brightness(1.08);
 }
 
 .nav-scrim {

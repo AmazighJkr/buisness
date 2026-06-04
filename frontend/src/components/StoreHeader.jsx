@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher.jsx'
-import MainSiteButton from './MainSiteButton.jsx'
+import SiteBrand from './SiteBrand.jsx'
 import NavAccount from './NavAccount.jsx'
 import NavCart from './NavCart.jsx'
 import SiteSubheader from './SiteSubheader.jsx'
@@ -15,11 +15,7 @@ export default function StoreHeader({ highlight = '/shop', subheader = null }) {
   return (
     <header className="store-header site-header">
       <div className="store-header__inner site-header-inner lab-header__inner">
-        <MainSiteButton />
-
-        <Link to="/shop" className="site-logo store-header__logo site-header-brand">
-          Embedded<span>Grid</span>
-        </Link>
+        <SiteBrand variant="store" className="store-header__logo" />
 
         <nav className="store-header__nav site-nav-desktop" aria-label="Store navigation">
           {NAV_STORE.map(({ to, labelKey }) => (

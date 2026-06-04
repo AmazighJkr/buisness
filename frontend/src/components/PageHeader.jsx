@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher.jsx'
 import NavAccount from './NavAccount.jsx'
-import SiteHomeButton from './SiteHomeButton.jsx'
+import SiteBrand from './SiteBrand.jsx'
 import SiteSubheader from './SiteSubheader.jsx'
 import { SiteNavDesktop, SiteNavMobile, SiteNavProvider } from './SiteNav.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
@@ -16,11 +16,7 @@ export default function PageHeader({ highlight = '', subheader = null }) {
     <SiteNavProvider highlight={highlight}>
       <header className="site-header lab-header">
         <div className="site-header-inner lab-header__inner">
-          <SiteHomeButton />
-
-          <Link to="/projects" className="site-logo site-header-brand">
-            Embedded<span>Grid</span>
-          </Link>
+          <SiteBrand variant="lab" />
 
           <SiteNavDesktop />
 
