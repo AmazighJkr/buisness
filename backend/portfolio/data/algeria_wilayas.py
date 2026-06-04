@@ -27,7 +27,7 @@ WILAYAS = [
     ('25', 'Constantine'),
     ('26', 'Médéa'),
     ('27', 'Mostaganem'),
-    ('28', "M'Sila"),
+    ('28', 'M'),
     ('29', 'Mascara'),
     ('30', 'Ouargla'),
     ('31', 'Oran'),
@@ -56,6 +56,6 @@ WILAYAS = [
     ('54', 'In Guezzam'),
     ('55', 'Touggourt'),
     ('56', 'Djanet'),
-    ('57', 'El M\'Ghair'),
+    ('57', "El M'Ghair"),
     ('58', 'El Meniaa'),
 ]

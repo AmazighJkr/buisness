@@ -35,6 +35,43 @@ def normalize_wilaya_name(raw: str) -> str:
     return WILAYA_NAME_FIX.get(name, name)
 
 
+def split_sql_insert_values(line: str) -> list[str]:
+    """Parse VALUES (...) from an INSERT line into a list of field strings."""
+    start = line.find('VALUES (')
+    if start < 0:
+        return []
+    chunk = line[start + len('VALUES (') :].rstrip().rstrip(');').rstrip(')')
+    values: list[str] = []
+    i = 0
+    while i < len(chunk):
+        while i < len(chunk) and chunk[i] in ' \t,':
+            i += 1
+        if i >= len(chunk):
+            break
+        if chunk[i] == "'":
+            i += 1
+            buf: list[str] = []
+            while i < len(chunk):
+                ch = chunk[i]
+                if ch == "'":
+                    if i + 1 < len(chunk) and chunk[i + 1] not in (',', ')'):
+                        buf.append("'")
+                        i += 1
+                        continue
+                    break
+                buf.append(ch)
+                i += 1
+            values.append(''.join(buf))
+            i += 1
+        else:
+            m = re.match(r'(\d+)', chunk[i:])
+            if not m:
+                break
+            values.append(m.group(1))
+            i += m.end()
+    return values
+
+
 def parse_cities(folder: Path) -> dict[str, str]:
     """wilaya_code -> normalized name"""
     wilayas: dict[str, str] = {}
@@ -55,29 +92,32 @@ def parse_cities(folder: Path) -> dict[str, str]:
 
 
 def parse_post_line(line: str) -> dict | None:
-    post_m = re.search(r"VALUES \(\d+,'(\d{5})'", line)
-    if not post_m:
+    """
+    algeria_postcodes columns:
+    id, post_code, post_name, post_name_ascii, post_address, post_address_ascii,
+    commune_id, commune_name, commune_name_ascii, daira_name, daira_name_ascii,
+    wilaya_code, wilaya_name, wilaya_name_ascii
+    """
+    values = split_sql_insert_values(line)
+    if len(values) < 13:
         return None
-    wilaya_matches = [m for m in re.finditer(r",'(\d{2})',", line) if int(m.group(1)) <= 58]
-    if not wilaya_matches:
+    postal_code = values[1].strip()
+    if not re.fullmatch(r'\d{5}', postal_code):
         return None
-    wilaya_m = wilaya_matches[-1]
-    wilaya_code = wilaya_m.group(1)
-    chunk = line[: wilaya_m.start()]
-    commune_ids = re.findall(r',(\d+),', chunk)
-    commune_id = commune_ids[-1] if commune_ids else ''
-    tail = line[wilaya_m.end() :]
-    name_m = re.match(r"'[^']*','([^']*)'", tail) or re.match(r"'[^']*','(.+?)'\)", tail)
-    wilaya_ascii = normalize_wilaya_name(name_m.group(1)) if name_m else wilaya_code
+    wilaya_code = values[11].zfill(2)
+    if int(wilaya_code) > 58:
+        return None
+    post_name_ascii = values[3].strip()
+    commune_name_ascii = values[8].strip() if len(values) > 8 else ''
     return {
-        'postal_code': post_m.group(1),
+        'postal_code': postal_code,
         'wilaya_code': wilaya_code,
-        'wilaya_name': wilaya_ascii,
-        'commune_id': commune_id,
+        'post_name': post_name_ascii,
+        'commune_name': commune_name_ascii,
     }
 
 
-def parse_postcodes(folder: Path, communes: dict[str, str]) -> list[dict]:
+def parse_postcodes(folder: Path) -> list[dict]:
     seen: set[tuple[str, str]] = set()
     rows: list[dict] = []
     for line in (folder / 'algeria_postcodes.sql').read_text(encoding='utf-8').splitlines():
@@ -90,36 +130,24 @@ def parse_postcodes(folder: Path, communes: dict[str, str]) -> list[dict]:
         if key in seen:
             continue
         seen.add(key)
-        city = communes.get(parsed['commune_id'], '')
+        label = parsed['post_name'] or parsed['commune_name']
         rows.append({
             'wilaya_code': parsed['wilaya_code'],
             'postal_code': parsed['postal_code'],
-            'city': city or parsed['wilaya_name'],
+            'city': label,
+            'post_name': parsed['post_name'],
+            'commune_name': parsed['commune_name'],
         })
     return rows
 
 
-def parse_communes(folder: Path) -> dict[str, str]:
-    """commune_id -> commune_name_ascii"""
-    communes: dict[str, str] = {}
-    for line in (folder / 'algeria_cities.sql').read_text(encoding='utf-8').splitlines():
-        if not line.startswith('INSERT'):
-            continue
-        m = re.search(r"VALUES \((\d+),'[^']*','([^']*)'", line)
-        if not m:
-            continue
-        communes[m.group(1)] = m.group(2).strip()
-    return communes
-
-
 def parse_sql_folder(folder: Path) -> tuple[list[tuple[str, str]], list[dict]]:
     wilayas = parse_cities(folder)
-    communes = parse_communes(folder)
-    postals = parse_postcodes(folder, communes)
+    postals = parse_postcodes(folder)
     for row in postals:
         code = row['wilaya_code']
-        if code not in wilayas:
-            wilayas[code] = normalize_wilaya_name(row['city'])
+        if code not in wilayas and row.get('commune_name'):
+            wilayas[code] = normalize_wilaya_name(row['commune_name'])
     wilaya_list = sorted(wilayas.items(), key=lambda x: x[0])
     return wilaya_list, postals
 
@@ -140,7 +168,7 @@ def main():
         lines.append(f"    ('{code}', {name!r}),\n")
     lines.append(']\n')
     (data_dir / 'algeria_wilayas.py').write_text(''.join(lines), encoding='utf-8')
-    print(f'Wrote {len(wilayas)} wilayas and {len(postals)} postal codes')
+    print(f'Wrote {len(wilayas)} wilayas and {len(postals)} postal codes (post_name_ascii as city)')
 
 
 if __name__ == '__main__':
