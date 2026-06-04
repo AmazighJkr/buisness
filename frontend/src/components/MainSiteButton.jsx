@@ -6,7 +6,10 @@ export default function MainSiteButton() {
   const { t } = useTranslation()
   return (
     <Link to="/" className="site-main-site-btn">
-      {t('nav.mainSite')}
+      <span className="site-main-site-btn__arrow" aria-hidden>
+        ←
+      </span>
+      <span className="site-main-site-btn__label">{t('nav.mainSite')}</span>
     </Link>
   )
 }

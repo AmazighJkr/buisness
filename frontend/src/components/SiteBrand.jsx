@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
 
 /**
- * Header logo — always links to the section home.
- * landing: EmbeddedGrid → / · lab: /projects · store: StoreGrid → /shop
+ * Header logo — section home link.
+ * landing & lab: EmbeddedGrid → / · store: StoreGrid → /shop
  */
 export default function SiteBrand({ variant = 'lab', className = '' }) {
   const isStore = variant === 'store'
-  const to = isStore ? '/shop' : variant === 'landing' ? '/' : '/projects'
+  const to = isStore ? '/shop' : '/'
   const prefix = isStore ? 'Store' : 'Embedded'
-  const aria = isStore ? 'StoreGrid home' : variant === 'landing' ? 'EmbeddedGrid home' : 'EmbeddedGrid projects'
+  const aria = isStore ? 'StoreGrid home' : 'EmbeddedGrid home'
 
   return (
     <Link

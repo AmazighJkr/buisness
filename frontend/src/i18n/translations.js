@@ -16,7 +16,7 @@ export const translations = {
       orderStatus: 'Order status',
       account: 'Account',
       lab: 'Lab',
-      mainSite: 'Main site',
+      mainSite: 'Main website',
       home: 'Home',
       enterprise: 'Enterprise',
       services: 'Services',
