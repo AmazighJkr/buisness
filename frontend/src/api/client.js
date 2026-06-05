@@ -1035,6 +1035,16 @@ export async function adminFetchDashboard() {
   return adminRequest(`${API_BASE}/api/admin/dashboard/`)
 }
 
+export async function adminFetchStaffActivity({ staff = '', resource = '', action = '' } = {}) {
+  const params = new URLSearchParams()
+  if (staff) params.set('staff', staff)
+  if (resource) params.set('resource', resource)
+  if (action) params.set('action', action)
+  const qs = params.toString()
+  const data = await adminRequest(`${API_BASE}/api/admin/audit-log/${qs ? `?${qs}` : ''}`)
+  return data.results ?? data
+}
+
 export async function adminUpdateUser(id, body) {
   return adminRequest(`${API_BASE}/api/admin/users/${id}/`, {
     method: 'PATCH',

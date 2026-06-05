@@ -25,6 +25,7 @@ import {
   staffHasStoreAccess,
   validateUploadFile,
 } from '../api/client.js'
+import AdminActivityLog from '../components/admin/AdminActivityLog.jsx'
 import AdminDashboard from '../components/admin/AdminDashboard.jsx'
 import AdminStaff from '../components/admin/AdminStaff.jsx'
 import AdminCategories from '../components/AdminCategories.jsx'
@@ -400,6 +401,7 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'manage_store') || user.is_superuser) tabs.push(['legal', 'Legal'])
   if (user.is_superuser) tabs.push(['clients', 'Clients'])
   if (user.is_superuser) tabs.push(['users', 'Staff'])
+  if (user.is_superuser) tabs.push(['activity', 'Activity'])
 
   const projectForm = (
     <form onSubmit={handleSaveProject} autoComplete="off" className="panel max-w-3xl space-y-4 p-6">
@@ -840,6 +842,8 @@ export default function AdminPanelPage() {
           onMessage={(type, text) => setMsg({ type, text })}
         />
       )}
+
+      {tab === 'activity' && user.is_superuser && <AdminActivityLog />}
     </div>
     </div>
   )

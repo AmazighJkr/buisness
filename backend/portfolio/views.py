@@ -17,6 +17,7 @@ from .models import (
     Project,
     ProjectCategory,
     ProjectCommand,
+    StaffAuditLog,
     SubscriptionPack,
     StoreCategory,
     StoreProduct,
@@ -48,6 +49,7 @@ from .serializers import (
     AdminUserCreateSerializer,
     AdminUserSerializer,
     AdminUserUpdateSerializer,
+    StaffAuditLogSerializer,
     AdminStoreCategorySerializer,
     AdminStoreProductSerializer,
     CategoryAdminSerializer,
@@ -731,3 +733,23 @@ class AdminSubscriptionPackViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
     permission_classes = [CanManagePacks]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class AdminStaffAuditLogListView(generics.ListAPIView):
+    """Superuser-only history of staff actions on the admin API."""
+
+    serializer_class = StaffAuditLogSerializer
+    permission_classes = [CanManageUsers]
+
+    def get_queryset(self):
+        qs = StaffAuditLog.objects.select_related('actor').all()
+        staff = (self.request.query_params.get('staff') or '').strip()
+        resource = (self.request.query_params.get('resource') or '').strip()
+        action = (self.request.query_params.get('action') or '').strip()
+        if staff:
+            qs = qs.filter(actor_username__icontains=staff)
+        if resource:
+            qs = qs.filter(resource=resource)
+        if action:
+            qs = qs.filter(action=action)
+        return qs[:500]

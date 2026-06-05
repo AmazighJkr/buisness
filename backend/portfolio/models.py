@@ -652,6 +652,45 @@ class LegalPage(models.Model):
         return self.get_slug_display()
 
 
+class StaffAuditLog(models.Model):
+    """Immutable log of staff actions on the admin API."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='staff_audit_logs',
+    )
+    actor_username = models.CharField(max_length=150, blank=True)
+    action = models.CharField(max_length=32)
+    resource = models.CharField(max_length=64)
+    object_id = models.CharField(max_length=64, blank=True)
+    object_label = models.CharField(max_length=255, blank=True)
+    summary = models.CharField(max_length=500)
+    metadata = models.JSONField(default=dict, blank=True)
+    method = models.CharField(max_length=8)
+    path = models.CharField(max_length=255)
+    status_code = models.PositiveSmallIntegerField(default=200)
+    ip_address = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at', 'actor']),
+            models.Index(fields=['resource', '-created_at']),
+        ]
+
+    def save(self, *args, **kwargs):
+        if self.actor_id and not self.actor_username:
+            self.actor_username = self.actor.username
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.summary or f'{self.actor_username} {self.action} {self.resource}'
+
+
 class UserSocialAuth(models.Model):
     """Links a customer account to Google (or other providers later)."""
 

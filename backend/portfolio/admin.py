@@ -13,6 +13,7 @@ from .models import (
     Project,
     ProjectCategory,
     ProjectCommand,
+    StaffAuditLog,
     SubscriptionPack,
     StoreCategory,
     StoreOrder,
@@ -452,6 +453,38 @@ try:
     admin.site.unregister(Group)
 except admin.sites.NotRegistered:
     pass
+
+@admin.register(StaffAuditLog)
+class StaffAuditLogAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'actor_username', 'action', 'resource', 'object_label', 'summary')
+    list_filter = ('action', 'resource', 'method')
+    search_fields = ('actor_username', 'summary', 'object_label', 'object_id', 'path')
+    readonly_fields = (
+        'id',
+        'actor',
+        'actor_username',
+        'action',
+        'resource',
+        'object_id',
+        'object_label',
+        'summary',
+        'metadata',
+        'method',
+        'path',
+        'status_code',
+        'ip_address',
+        'created_at',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
 
 admin.site.register(User, PortfolioUserAdmin)
 admin.site.register(Group)

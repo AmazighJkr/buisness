@@ -25,6 +25,7 @@ from .models import (
     StorePostalCode,
     StoreProduct,
     StoreProductImage,
+    StaffAuditLog,
     StoreWilaya,
     UserSubscription,
 )
@@ -1741,3 +1742,26 @@ class AdminCustomerSerializer(serializers.ModelSerializer):
             and sub.expires_at
             and sub.expires_at > now
         )
+
+
+class StaffAuditLogSerializer(serializers.ModelSerializer):
+    actor = serializers.CharField(source='actor_username', read_only=True)
+
+    class Meta:
+        model = StaffAuditLog
+        fields = [
+            'id',
+            'actor',
+            'action',
+            'resource',
+            'object_id',
+            'object_label',
+            'summary',
+            'metadata',
+            'method',
+            'path',
+            'status_code',
+            'ip_address',
+            'created_at',
+        ]
+        read_only_fields = fields

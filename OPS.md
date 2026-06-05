@@ -84,6 +84,10 @@ When creating/editing staff in **Admin → Staff**:
 
 Superusers can create and edit all staff accounts.
 
+## Staff activity log
+
+All successful **POST / PATCH / PUT / DELETE** requests to `/api/admin/*` by staff are stored in `StaffAuditLog` (who, what, when, summary, sanitized payload). Superusers review them in **Admin → Activity** or Django admin → Staff audit logs.
+
 ## Invoice PDFs
 
 - **Customers**: order track page → *Download invoice* (order number + checkout email).
