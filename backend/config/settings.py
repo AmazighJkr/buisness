@@ -218,12 +218,23 @@ ALLOWED_UPLOAD_EXTENSIONS = {'.pdf', '.png', '.jpg', '.jpeg', '.gif', '.zip', '.
 
 # Shown to clients on staff command messages (never the admin username).
 ENTERPRISE_DISPLAY_NAME = os.getenv('ENTERPRISE_DISPLAY_NAME', 'EmbeddedGrid')
+PUBLIC_SITE_URL = os.getenv('PUBLIC_SITE_URL', '').strip().rstrip('/')
+if not PUBLIC_SITE_URL and _render_host:
+    PUBLIC_SITE_URL = f'https://{_render_host}'
+if not PUBLIC_SITE_URL:
+    PUBLIC_SITE_URL = 'http://localhost:5173'
+
+WHATSAPP_SUPPORT_URL = os.getenv('WHATSAPP_SUPPORT_URL', '').strip()
+SLA_COMMAND_REPLY_HOURS = int(os.getenv('SLA_COMMAND_REPLY_HOURS', '48'))
+SLA_SHIP_DAYS_AFTER_PAYMENT = int(os.getenv('SLA_SHIP_DAYS_AFTER_PAYMENT', '5'))
+STORE_LOW_STOCK_THRESHOLD = int(os.getenv('STORE_LOW_STOCK_THRESHOLD', '3'))
 
 STORE_CART_RESERVATION_TTL_MINUTES = int(os.getenv('STORE_CART_RESERVATION_TTL_MINUTES', '15'))
 STORE_ORDER_RESERVATION_TTL_MINUTES = int(os.getenv('STORE_ORDER_RESERVATION_TTL_MINUTES', '60'))
 
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '').strip() or None
-COMMAND_NOTIFY_EMAIL = os.getenv('COMMAND_NOTIFY_EMAIL', '').strip() or None
+CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', '').strip() or DEFAULT_FROM_EMAIL or ''
+COMMAND_NOTIFY_EMAIL = os.getenv('COMMAND_NOTIFY_EMAIL', '').strip() or CONTACT_EMAIL or None
 EMAIL_HOST = os.getenv('EMAIL_HOST', '')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587') or 587)
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
 import AuthLoginCard from '../components/auth/AuthLoginCard.jsx'
 import {
+  fetchMyOrders,
   fetchUserMe,
   userChangePassword,
   userGoogleLogin,
@@ -10,6 +11,7 @@ import {
   userLogout,
   userRegister,
 } from '../api/client.js'
+import { formatDzd } from '../utils/formatMoney.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
 
 export default function AccountPage() {
@@ -26,6 +28,8 @@ export default function AccountPage() {
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
   const [pwMsg, setPwMsg] = useState('')
   const [pwSubmitting, setPwSubmitting] = useState(false)
+  const [orders, setOrders] = useState({ commands: [], store_orders: [] })
+  const [ordersLoading, setOrdersLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -51,6 +55,15 @@ export default function AccountPage() {
       cancelled = true
     }
   }, [searchParams, returnTo, navigate])
+
+  useEffect(() => {
+    if (!user) return
+    setOrdersLoading(true)
+    fetchMyOrders()
+      .then(setOrders)
+      .catch(() => setOrders({ commands: [], store_orders: [] }))
+      .finally(() => setOrdersLoading(false))
+  }, [user])
 
   const afterAuth = useCallback(
     async (authUser, tokenFromResponse) => {
@@ -167,7 +180,7 @@ export default function AccountPage() {
     <div className="page-shell">
       <PageHeader highlight="/account" />
 
-      <main className="page-main mx-auto max-w-md space-y-6">
+      <main className="page-main mx-auto max-w-lg space-y-6">
         <h1 className="font-display text-xl font-semibold">
           {t('account.welcome', { name: user.username })}
         </h1>
@@ -199,6 +212,66 @@ export default function AccountPage() {
               </Link>
             </p>
           )}
+        </div>
+        <div className="panel space-y-3 p-4">
+          <h2 className="text-sm font-semibold">{t('account.myOrdersTitle')}</h2>
+          <p className="text-xs text-dark-muted">{t('account.myOrdersLead')}</p>
+          {ordersLoading ? (
+            <p className="text-xs text-dark-muted animate-pulse">{t('account.myOrdersLoading')}</p>
+          ) : (
+            <>
+              {orders.store_orders?.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium uppercase text-dark-muted">
+                    {t('account.storeOrders')}
+                  </p>
+                  <ul className="mt-2 space-y-2">
+                    {orders.store_orders.map((o) => (
+                      <li key={o.id} className="text-xs border border-dark-border p-2">
+                        <Link
+                          to={`/shop/order?number=${encodeURIComponent(o.order_number)}`}
+                          className="font-mono text-lab-cyan hover:underline"
+                        >
+                          {o.order_number}
+                        </Link>
+                        <span className="text-dark-muted"> · {o.status}</span>
+                        <span className="block">{formatDzd(Number(o.total_dzd))}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {orders.commands?.length > 0 && (
+                <div className={orders.store_orders?.length ? 'mt-4' : ''}>
+                  <p className="text-xs font-medium uppercase text-dark-muted">
+                    {t('account.customCommands')}
+                  </p>
+                  <ul className="mt-2 space-y-2">
+                    {orders.commands.map((c) => (
+                      <li key={c.id} className="text-xs border border-dark-border p-2">
+                        <Link
+                          to={c.tracking_code ? `/track?code=${encodeURIComponent(c.tracking_code)}` : '/track'}
+                          className="text-lab-cyan hover:underline"
+                        >
+                          {c.tracking_code || `#${c.id}`}
+                        </Link>
+                        <span className="text-dark-muted"> · {c.status}</span>
+                        {c.idea_preview && (
+                          <p className="mt-1 text-dark-muted line-clamp-2">{c.idea_preview}</p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!orders.store_orders?.length && !orders.commands?.length && (
+                <p className="text-xs text-dark-muted">{t('account.noOrdersYet')}</p>
+              )}
+            </>
+          )}
+          <Link to="/track" className="inline-block text-xs text-lab-cyan underline">
+            {t('account.trackLink')}
+          </Link>
         </div>
         <div className="panel space-y-3 p-4">
           <h2 className="text-sm font-semibold">{t('account.securityTitle')}</h2>

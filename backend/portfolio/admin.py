@@ -33,9 +33,13 @@ PORTFOLIO_PERMS = (
     'manage_categories',
     'view_commands',
     'respond_commands',
+    'manage_command_layers',
     'moderate_comment',
     'manage_packs',
     'manage_store',
+    'post_store',
+    'edit_store',
+    'manage_store_orders',
 )
 
 class AccountTypeFilter(admin.SimpleListFilter):

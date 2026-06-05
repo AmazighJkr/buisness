@@ -76,6 +76,58 @@ class CanManagePacks(BasePermission):
 
 
 class CanManageStore(BasePermission):
+    """Any store-related permission (catalog, orders, or legacy manage_store)."""
+
+    def has_permission(self, request, view):
+        from .staff_permissions import staff_has_any_perm
+
+        return staff_has_any_perm(
+            request.user,
+            'manage_store',
+            'post_store',
+            'edit_store',
+            'manage_store_orders',
+        )
+
+
+class CanManageStoreCatalog(BasePermission):
+    """Edit categories, shipping, products (not create-only)."""
+
+    def has_permission(self, request, view):
+        from .staff_permissions import staff_can_edit_store
+
+        return staff_can_edit_store(request.user)
+
+
+class CanPostStore(BasePermission):
+    def has_permission(self, request, view):
+        from .staff_permissions import staff_can_post_store
+
+        return staff_can_post_store(request.user)
+
+
+class CanEditStore(BasePermission):
+    def has_permission(self, request, view):
+        from .staff_permissions import staff_can_edit_store
+
+        return staff_can_edit_store(request.user)
+
+
+class CanManageStoreOrders(BasePermission):
+    def has_permission(self, request, view):
+        from .staff_permissions import staff_can_manage_store_orders
+
+        return staff_can_manage_store_orders(request.user)
+
+
+class CanManageCommandLayers(BasePermission):
+    def has_permission(self, request, view):
+        from .staff_permissions import staff_can_manage_command_layers
+
+        return staff_can_manage_command_layers(request.user)
+
+
+class CanManageLegalPages(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False

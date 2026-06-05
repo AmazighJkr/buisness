@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
-import { adminFetchStoreOrders, adminUpdateStoreOrder } from '../api/client.js'
+import {
+  adminDownloadStoreInvoice,
+  adminFetchStoreOrders,
+  adminUpdateStoreOrder,
+} from '../api/client.js'
 import { formatDzd, formatUsd } from '../utils/formatMoney.js'
 
 const ORDER_STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
@@ -11,6 +15,7 @@ export default function AdminStoreOrders() {
   const [msg, setMsg] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const [draft, setDraft] = useState({ status: '', payment_status: '', admin_notes: '' })
+  const [invoiceLoading, setInvoiceLoading] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -156,9 +161,29 @@ export default function AdminStoreOrders() {
                   className="mt-1 w-full border border-dark-border bg-dark-bg px-2 py-1"
                 />
               </label>
-              <button type="button" onClick={save} className="btn-primary">
-                Save changes
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={save} className="btn-primary">
+                  Save changes
+                </button>
+                <button
+                  type="button"
+                  disabled={invoiceLoading}
+                  onClick={async () => {
+                    setInvoiceLoading(true)
+                    setMsg('')
+                    try {
+                      await adminDownloadStoreInvoice(selected.id, selected.order_number)
+                    } catch (e) {
+                      setMsg(e.message)
+                    } finally {
+                      setInvoiceLoading(false)
+                    }
+                  }}
+                  className="btn-secondary"
+                >
+                  {invoiceLoading ? 'Generating…' : 'Download invoice PDF'}
+                </button>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-dark-muted">Select an order to view details.</p>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { adminFetchStoreCategories, adminFetchStoreProducts } from '../api/client.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import AdminShippingPostal from './admin/AdminShippingPostal.jsx'
@@ -6,15 +6,19 @@ import AdminStoreCategories from './admin/AdminStoreCategories.jsx'
 import AdminStoreManageProducts from './admin/AdminStoreManageProducts.jsx'
 import AdminStorePostProduct from './admin/AdminStorePostProduct.jsx'
 
-export default function AdminStore() {
+export default function AdminStore({ canPost = true, canEdit = true }) {
   const { t } = useTranslation()
-  const STORE_VIEWS = [
-    { id: 'categories', label: t('adminStore.categories') },
-    { id: 'add', label: t('adminStore.addProduct') },
-    { id: 'manage', label: t('adminStore.manageProducts') },
-    { id: 'shipping', label: t('adminStore.shippingPostal') },
-  ]
-  const [view, setView] = useState('categories')
+  const storeViews = useMemo(
+    () =>
+      [
+        canEdit && { id: 'categories', label: t('adminStore.categories') },
+        canPost && { id: 'add', label: t('adminStore.addProduct') },
+        canEdit && { id: 'manage', label: t('adminStore.manageProducts') },
+        canEdit && { id: 'shipping', label: t('adminStore.shippingPostal') },
+      ].filter(Boolean),
+    [canEdit, canPost, t],
+  )
+  const [view, setView] = useState(storeViews[0]?.id || 'categories')
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -35,6 +39,12 @@ export default function AdminStore() {
     load().catch((e) => setMsg({ type: 'error', text: e.message }))
   }, [])
 
+  useEffect(() => {
+    if (!storeViews.some((v) => v.id === view)) {
+      setView(storeViews[0]?.id || 'categories')
+    }
+  }, [storeViews, view])
+
   const onMessage = (type, text) => setMsg({ type, text })
 
   return (
@@ -45,7 +55,7 @@ export default function AdminStore() {
       </div>
 
       <div className="flex flex-wrap gap-2 border-b border-dark-border pb-3">
-        {STORE_VIEWS.map(({ id, label }) => (
+        {storeViews.map(({ id, label }) => (
           <button
             key={id}
             type="button"

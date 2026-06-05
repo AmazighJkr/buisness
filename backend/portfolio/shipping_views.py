@@ -13,7 +13,7 @@ from .algeria_shipping import get_postal_code_for_checkout, shipping_price_dzd
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 from .models import StorePostalCode, StoreWilaya
-from .permissions import CanManageStore
+from .permissions import CanEditStore
 from .serializers import (
     AdminStorePostalCodeSerializer,
     AdminStoreWilayaSerializer,
@@ -126,7 +126,7 @@ class StoreCartValidateView(APIView):
 class AdminStorePostalCodeViewSet(viewsets.ModelViewSet):
     queryset = StorePostalCode.objects.select_related('wilaya').all()
     serializer_class = AdminStorePostalCodeSerializer
-    permission_classes = [CanManageStore]
+    permission_classes = [CanEditStore]
     pagination_class = AdminPostalPagination
 
     def get_queryset(self):
@@ -160,7 +160,7 @@ class AdminStorePostalCodeViewSet(viewsets.ModelViewSet):
 
 
 class AdminStoreWilayaListView(APIView):
-    permission_classes = [CanManageStore]
+    permission_classes = [CanEditStore]
 
     def get(self, request):
         rows = (

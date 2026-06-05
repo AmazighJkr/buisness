@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import StoreHeader from '../components/StoreHeader.jsx'
-import { payStoreOrder, trackStoreOrder } from '../api/client.js'
+import { downloadStoreOrderInvoice, payStoreOrder, trackStoreOrder } from '../api/client.js'
+import { CONTACT } from '../config/contact.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
 import { useCart } from '../hooks/useCart.js'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
 import { clearPendingStoreOrder } from '../utils/storeCheckout.js'
@@ -15,7 +17,18 @@ const STATUS_LABEL = {
   cancelled: 'Cancelled',
 }
 
+function whatsappOrderUrl(orderNumber) {
+  const base = CONTACT.whatsappHref
+  if (!base) return ''
+  const text = encodeURIComponent(
+    `Bonjour / Hello — commande ${orderNumber}. Merci / Thank you.`,
+  )
+  const sep = base.includes('?') ? '&' : '?'
+  return `${base}${sep}text=${text}`
+}
+
 export default function StoreOrderPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const numberParam = searchParams.get('number') || ''
   const paidBanner = searchParams.get('paid') === '1'
@@ -29,6 +42,7 @@ export default function StoreOrderPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paying, setPaying] = useState(false)
+  const [invoiceLoading, setInvoiceLoading] = useState(false)
 
   useEffect(() => {
     if (!numberParam) return
@@ -50,6 +64,9 @@ export default function StoreOrderPage() {
     try {
       const data = await trackStoreOrder(trackNumber, trackEmail)
       setOrder(data)
+      if (data.customer_email && !trackEmail) {
+        setTrackEmail(data.customer_email)
+      }
     } catch (err) {
       setError(err.message || 'Order not found.')
     } finally {
@@ -152,6 +169,37 @@ export default function StoreOrderPage() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-dark-border pt-4">
+              {whatsappOrderUrl(order.order_number) && (
+                <a
+                  href={whatsappOrderUrl(order.order_number)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded border border-lab-green/50 px-3 py-2 text-sm text-lab-green hover:bg-lab-green/10"
+                >
+                  {t('storeOrder.whatsapp')}
+                </a>
+              )}
+              <button
+                type="button"
+                disabled={invoiceLoading || !trackEmail}
+                onClick={async () => {
+                  setInvoiceLoading(true)
+                  setError('')
+                  try {
+                    await downloadStoreOrderInvoice(order.order_number, trackEmail || order.customer_email)
+                  } catch (err) {
+                    setError(err.message)
+                  } finally {
+                    setInvoiceLoading(false)
+                  }
+                }}
+                className="rounded border border-dark-border px-3 py-2 text-sm hover:border-lab-cyan"
+              >
+                {invoiceLoading ? t('storeOrder.invoiceLoading') : t('storeOrder.downloadInvoice')}
+              </button>
+            </div>
 
             {order.payment_status === 'pending' && order.status !== 'cancelled' && (
               <div className="mt-4 flex flex-col gap-2">

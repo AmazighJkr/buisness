@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from .legal_defaults import LEGAL_SEED
 from .models import LegalPage
-from .permissions import CanManageStore
+from .permissions import CanManageLegalPages
 
 
 def _pick_locale(content: dict, lang: str) -> dict:
@@ -46,7 +46,7 @@ class LegalPagePublicView(APIView):
 
 
 class AdminLegalPageListView(APIView):
-    permission_classes = [CanManageStore]
+    permission_classes = [CanManageLegalPages]
 
     def get(self, request):
         pages = {p.slug: p for p in LegalPage.objects.all()}
@@ -62,7 +62,7 @@ class AdminLegalPageListView(APIView):
 
 
 class AdminLegalPageDetailView(APIView):
-    permission_classes = [CanManageStore]
+    permission_classes = [CanManageLegalPages]
 
     def get(self, request, slug):
         if slug not in ('terms', 'privacy'):

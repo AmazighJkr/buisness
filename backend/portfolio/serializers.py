@@ -40,9 +40,13 @@ PORTFOLIO_PERMS = [
     'manage_categories',
     'view_commands',
     'respond_commands',
+    'manage_command_layers',
     'moderate_comment',
     'manage_packs',
     'manage_store',
+    'post_store',
+    'edit_store',
+    'manage_store_orders',
 ]
 
 
@@ -1407,12 +1411,48 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
     def get_permissions(self, obj):
         if obj.is_superuser:
-            return PORTFOLIO_PERMS + ['manage_categories']
+            return list(PORTFOLIO_PERMS)
         return [
             p.split('.')[-1]
             for p in obj.get_all_permissions()
             if p.startswith('portfolio.') and p.split('.')[-1] in PORTFOLIO_PERMS
         ]
+
+
+def _apply_staff_permissions(user, codenames: list[str]) -> None:
+    user.user_permissions.clear()
+    for codename in codenames:
+        try:
+            perm = Permission.objects.get(
+                codename=codename,
+                content_type__app_label='portfolio',
+            )
+            user.user_permissions.add(perm)
+        except Permission.DoesNotExist:
+            pass
+
+
+class AdminUserUpdateSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=False, allow_blank=True)
+    password = serializers.CharField(min_length=8, write_only=True, required=False, allow_blank=True)
+    permissions = serializers.ListField(
+        child=serializers.ChoiceField(choices=PORTFOLIO_PERMS),
+        required=False,
+    )
+    is_superuser = serializers.BooleanField(required=False)
+
+    def update(self, instance, validated_data):
+        if 'email' in validated_data:
+            instance.email = validated_data['email']
+        password = validated_data.get('password', '')
+        if password:
+            instance.set_password(password)
+        if 'is_superuser' in validated_data and self.context['request'].user.is_superuser:
+            instance.is_superuser = validated_data['is_superuser']
+        if 'permissions' in validated_data and not instance.is_superuser:
+            _apply_staff_permissions(instance, validated_data['permissions'])
+        instance.save()
+        return instance
 
 
 class CustomerRegisterSerializer(serializers.ModelSerializer):

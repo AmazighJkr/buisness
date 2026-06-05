@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Cpu, LogOut, Plus, Search, Users } from 'lucide-react'
+import { Cpu, LogOut, Plus, Search } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import {
-  PERM_LABELS,
   adminCreateProject,
-  adminCreateUser,
   adminDeleteComment,
   adminDeleteProject,
   adminFetchCategories,
@@ -14,15 +12,21 @@ import {
   adminFetchComments,
   adminFetchProjects,
   adminFetchPacks,
-  adminFetchUsers,
   adminLogin,
   adminLogout,
   adminRespondCommand,
   adminSendCommandMessage,
   adminUpdateProject,
   fetchAdminMe,
+  staffCanEditStore,
+  staffCanManageLayers,
+  staffCanManageStoreOrders,
+  staffCanPostStore,
+  staffHasStoreAccess,
   validateUploadFile,
 } from '../api/client.js'
+import AdminDashboard from '../components/admin/AdminDashboard.jsx'
+import AdminStaff from '../components/admin/AdminStaff.jsx'
 import AdminCategories from '../components/AdminCategories.jsx'
 import AdminCommandLayers from '../components/AdminCommandLayers.jsx'
 import AdminCustomers from '../components/AdminCustomers.jsx'
@@ -39,7 +43,6 @@ import EditableRows from '../components/EditableRows.jsx'
 import ProjectMaterialsEditor, { EMPTY_MATERIAL_ROW } from '../components/admin/ProjectMaterialsEditor.jsx'
 import { COMMAND_STATUSES, PAYMENT_STATUSES } from '../constants/commandStatus.js'
 
-const ALL_PERMS = Object.keys(PERM_LABELS)
 const EMPTY_MAT = { ...EMPTY_MATERIAL_ROW }
 const EMPTY_WIRE = { from_pin: '', to_pin: '', notes: '' }
 const EMPTY_CODE = { title: '', code: '' }
@@ -90,8 +93,6 @@ export default function AdminPanelPage() {
   const [projectSearch, setProjectSearch] = useState('')
   const [commands, setCommands] = useState([])
   const [comments, setComments] = useState([])
-  const [staffUsers, setStaffUsers] = useState([])
-
   const [categories, setCategories] = useState([])
   const [form, setForm] = useState({
     categoryId: '',
@@ -110,13 +111,6 @@ export default function AdminPanelPage() {
   const [codeFiles, setCodeFiles] = useState([{ ...EMPTY_CODE }])
   const [schematic, setSchematic] = useState(null)
   const [editId, setEditId] = useState(null)
-
-  const [newUser, setNewUser] = useState({
-    username: '',
-    password: '',
-    email: '',
-    permissions: [],
-  })
 
   const [selectedCommand, setSelectedCommand] = useState(null)
   const [statusDraft, setStatusDraft] = useState('Pending')
@@ -145,9 +139,6 @@ export default function AdminPanelPage() {
     if (hasPerm(me, 'moderate_comment')) {
       tasks.push(adminFetchComments().then(setComments).catch(() => []))
     }
-    if (me?.is_superuser) {
-      tasks.push(adminFetchUsers().then(setStaffUsers).catch(() => []))
-    }
     await Promise.all(tasks)
   }
 
@@ -156,10 +147,7 @@ export default function AdminPanelPage() {
     setUser(me)
     if (me) {
       await loadData(me)
-      if (hasPerm(me, 'post_project')) setTab('post')
-      else if (hasPerm(me, 'view_commands')) setTab('commands')
-      else if (hasPerm(me, 'manage_store')) setTab('store')
-      else if (me.is_superuser) setTab('users')
+      setTab('dashboard')
     }
     setLoading(false)
   }
@@ -287,31 +275,6 @@ export default function AdminPanelPage() {
     window.scrollTo(0, 0)
   }
 
-  const handleCreateUser = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setMsg({ type: '', text: '' })
-    try {
-      await adminCreateUser(newUser)
-      setMsg({ type: 'success', text: `User "${newUser.username}" created.` })
-      setNewUser({ username: '', password: '', email: '', permissions: [] })
-      setStaffUsers(await adminFetchUsers())
-    } catch (err) {
-      setMsg({ type: 'error', text: err.message })
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const toggleNewUserPerm = (perm) => {
-    setNewUser((u) => ({
-      ...u,
-      permissions: u.permissions.includes(perm)
-        ? u.permissions.filter((p) => p !== perm)
-        : [...u.permissions, perm],
-    }))
-  }
-
   const openCommand = async (id) => {
     try {
       const c = await adminFetchCommand(id)
@@ -424,19 +387,17 @@ export default function AdminPanelPage() {
     )
   }
 
-  const tabs = []
+  const tabs = [['dashboard', 'Dashboard']]
   if (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) tabs.push(['post', 'Post / Edit'])
   if (hasPerm(user, 'edit_project') || hasPerm(user, 'post_project')) tabs.push(['projects', 'Projects'])
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
-  if (hasPerm(user, 'respond_commands')) tabs.push(['command-layers', 'Layers'])
+  if (staffCanManageLayers(user)) tabs.push(['command-layers', 'Layers'])
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
   if (hasPerm(user, 'edit_project') || user.is_superuser) tabs.push(['packs', 'Packs'])
-  if (hasPerm(user, 'manage_store') || user.is_superuser) {
-    tabs.push(['store', 'Store'])
-    tabs.push(['store-orders', 'Orders'])
-    tabs.push(['legal', 'Legal'])
-  }
+  if (staffHasStoreAccess(user)) tabs.push(['store', 'Store'])
+  if (staffCanManageStoreOrders(user)) tabs.push(['store-orders', 'Orders'])
+  if (hasPerm(user, 'manage_store') || user.is_superuser) tabs.push(['legal', 'Legal'])
   if (user.is_superuser) tabs.push(['clients', 'Clients'])
   if (user.is_superuser) tabs.push(['users', 'Staff'])
 
@@ -656,17 +617,30 @@ export default function AdminPanelPage() {
         ))}
       </div>
 
+      {tab === 'dashboard' && (
+        <AdminDashboard
+          onNavigate={(id) => {
+            setTab(id)
+            window.scrollTo(0, 0)
+          }}
+        />
+      )}
+
       {tab === 'post' && (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) && projectForm}
 
       {tab === 'categories' && hasPerm(user, 'manage_categories') && <AdminCategories />}
 
       {tab === 'packs' && (hasPerm(user, 'edit_project') || user.is_superuser) && <AdminPacks />}
-      {tab === 'store' && (hasPerm(user, 'manage_store') || user.is_superuser) && <AdminStore />}
+      {tab === 'store' && staffHasStoreAccess(user) && (
+        <AdminStore
+          user={user}
+          canPost={staffCanPostStore(user)}
+          canEdit={staffCanEditStore(user)}
+        />
+      )}
       {tab === 'legal' && (hasPerm(user, 'manage_store') || user.is_superuser) && <AdminLegal />}
 
-      {tab === 'store-orders' && (hasPerm(user, 'manage_store') || user.is_superuser) && (
-        <AdminStoreOrders />
-      )}
+      {tab === 'store-orders' && staffCanManageStoreOrders(user) && <AdminStoreOrders />}
 
       {tab === 'clients' && user.is_superuser && <AdminCustomers />}
 
@@ -710,7 +684,7 @@ export default function AdminPanelPage() {
         </div>
       )}
 
-      {tab === 'command-layers' && hasPerm(user, 'respond_commands') && <AdminCommandLayers />}
+      {tab === 'command-layers' && staffCanManageLayers(user) && <AdminCommandLayers />}
 
       {tab === 'commands' && hasPerm(user, 'view_commands') && (
         <div className="grid gap-6 lg:grid-cols-2 max-w-5xl">
@@ -861,41 +835,10 @@ export default function AdminPanelPage() {
       )}
 
       {tab === 'users' && user.is_superuser && (
-        <div className="grid gap-8 lg:grid-cols-2 max-w-4xl">
-          <form onSubmit={handleCreateUser} className="border border-lab-border bg-lab-surface chamfer p-6 space-y-4">
-            <h2 className="flex items-center gap-2 text-sm text-lab-cyan"><Users className="h-4 w-4" /> CREATE_ACCOUNT</h2>
-            <input required placeholder="Username" value={newUser.username}
-              onChange={(e) => setNewUser((u) => ({ ...u, username: e.target.value }))}
-              className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm" />
-            <input type="email" placeholder="Email" value={newUser.email}
-              onChange={(e) => setNewUser((u) => ({ ...u, email: e.target.value }))}
-              className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm" />
-            <input required type="password" minLength={8} placeholder="Password" value={newUser.password}
-              onChange={(e) => setNewUser((u) => ({ ...u, password: e.target.value }))}
-              className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm" />
-            <div className="space-y-2">
-              <p className="text-xs text-gray-500">Permissions</p>
-              {ALL_PERMS.map((perm) => (
-                <label key={perm} className="flex items-center gap-2 text-xs text-dark-text">
-                  <input type="checkbox" checked={newUser.permissions.includes(perm)}
-                    onChange={() => toggleNewUserPerm(perm)} />
-                  {PERM_LABELS[perm]}
-                </label>
-              ))}
-            </div>
-            <button type="submit" disabled={submitting}
-              className="w-full border border-lab-cyan py-2 text-sm text-lab-cyan">CREATE_USER</button>
-          </form>
-          <ul className="space-y-2 text-xs">
-            {staffUsers.map((u) => (
-              <li key={u.id} className="border border-lab-border p-3">
-                <span className="text-lab-cyan">{u.username}</span>
-                {u.is_superuser && <span className="ml-2 text-lab-copper">superuser</span>}
-                <p className="mt-1 text-gray-500">{(u.permissions || []).map((p) => PERM_LABELS[p] || p).join(' · ')}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <AdminStaff
+          isSuperuser={user.is_superuser}
+          onMessage={(type, text) => setMsg({ type, text })}
+        />
       )}
     </div>
     </div>

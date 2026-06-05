@@ -983,6 +983,69 @@ export async function adminUpdateStoreOrder(id, body) {
   })
 }
 
+async function downloadPdf(url, filename, useAdminAuth = false) {
+  const headers = useAdminAuth ? getAdminHeaders(false) : {}
+  let res = await fetch(url, { headers })
+  if (res.status === 401 && useAdminAuth) {
+    const ok = await refreshAdminAccessToken()
+    if (ok) {
+      res = await fetch(url, { headers: getAdminHeaders(false) })
+    }
+  }
+  if (!res.ok) {
+    let detail = 'Download failed.'
+    try {
+      const data = await res.json()
+      detail = data.detail || detail
+    } catch {
+      /* binary error body */
+    }
+    throw new Error(detail)
+  }
+  const blob = await res.blob()
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(link.href)
+}
+
+export async function adminDownloadStoreInvoice(orderId, orderNumber) {
+  const name = `invoice-${orderNumber || orderId}.pdf`
+  await downloadPdf(
+    `${API_BASE}/api/admin/store/orders/${orderId}/invoice/`,
+    name,
+    true,
+  )
+}
+
+export async function downloadStoreOrderInvoice(orderNumber, email) {
+  const params = new URLSearchParams({
+    order_number: orderNumber,
+    email,
+  })
+  await downloadPdf(
+    `${API_BASE}/api/store/orders/invoice/?${params}`,
+    `invoice-${orderNumber}.pdf`,
+    false,
+  )
+}
+
+export async function adminFetchDashboard() {
+  return adminRequest(`${API_BASE}/api/admin/dashboard/`)
+}
+
+export async function adminUpdateUser(id, body) {
+  return adminRequest(`${API_BASE}/api/admin/users/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function fetchMyOrders() {
+  return userFetch(`${API_BASE}/api/auth/me/orders/`)
+}
+
 export async function adminFetchWilayas() {
   return adminRequest(`${API_BASE}/api/admin/store/wilayas/`)
 }
@@ -1059,8 +1122,58 @@ export const PERM_LABELS = {
   edit_project: 'Edit projects',
   manage_categories: 'Manage categories',
   manage_packs: 'Manage subscription packs',
-  manage_store: 'Manage store catalog',
+  manage_store: 'Manage store (full)',
+  post_store: 'Post store products',
+  edit_store: 'Edit store catalog & shipping',
+  manage_store_orders: 'Manage store orders',
+  manage_command_layers: 'Manage command layers',
   view_commands: 'View commands',
   respond_commands: 'Respond to commands',
   moderate_comment: 'Delete comments',
+}
+
+export function staffHasPerm(user, perm) {
+  return Boolean(user?.is_superuser || user?.permissions?.includes(perm))
+}
+
+export function staffCanPostStore(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'manage_store')
+      || staffHasPerm(user, 'post_store'),
+  )
+}
+
+export function staffCanEditStore(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'manage_store')
+      || staffHasPerm(user, 'edit_store'),
+  )
+}
+
+export function staffCanManageStoreOrders(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'manage_store')
+      || staffHasPerm(user, 'manage_store_orders'),
+  )
+}
+
+export function staffHasStoreAccess(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'manage_store')
+      || staffHasPerm(user, 'post_store')
+      || staffHasPerm(user, 'edit_store')
+      || staffHasPerm(user, 'manage_store_orders'),
+  )
+}
+
+export function staffCanManageLayers(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'manage_command_layers')
+      || staffHasPerm(user, 'respond_commands'),
+  )
 }

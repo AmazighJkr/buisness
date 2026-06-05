@@ -235,6 +235,13 @@ def create_store_order(*, user, customer_data, items_data, reservation_key: str 
     if res_key:
         attach_reservations_to_order(res_key, order)
 
+    try:
+        from .notifications import notify_store_order_created
+
+        notify_store_order_created(order)
+    except Exception:
+        pass
+
     return order
 
 

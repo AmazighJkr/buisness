@@ -1,4 +1,5 @@
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -10,7 +11,8 @@ from .models import StoreOrder
 from .payment_routing import start_store_checkout
 from .store_region import require_algeria_store, store_cod_instructions
 from .payments import payment_instructions, payments_auto_confirm, site_base_url
-from .permissions import CanManageStore, IsCustomerUser
+from .permissions import CanManageStore, CanManageStoreOrders, IsCustomerUser
+from .store_invoice import invoice_pdf_response
 from .serializers import (
     AdminStoreOrderSerializer,
     StoreOrderCreateSerializer,
@@ -149,6 +151,21 @@ class StoreOrderTrackView(APIView):
         return Response(StoreOrderPublicSerializer(order).data)
 
 
+class StoreOrderInvoiceView(APIView):
+    """PDF invoice when order number + checkout email match."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        order_number = request.query_params.get('order_number') or request.query_params.get('number')
+        email = request.query_params.get('email') or request.query_params.get('customer_email')
+        try:
+            order = get_store_order_for_track(order_number, email)
+        except ValidationError as exc:
+            return Response({'detail': str(exc.detail if hasattr(exc, 'detail') else exc)}, status=400)
+        return invoice_pdf_response(order)
+
+
 class MyStoreOrdersListView(APIView):
     permission_classes = [IsCustomerUser]
     authentication_classes = [OptionalJWTAuthentication]
@@ -165,15 +182,28 @@ class MyStoreOrdersListView(APIView):
 class AdminStoreOrderViewSet(viewsets.ModelViewSet):
     queryset = StoreOrder.objects.select_related('user').prefetch_related('items').all()
     serializer_class = AdminStoreOrderSerializer
-    permission_classes = [CanManageStore]
+    permission_classes = [CanManageStoreOrders]
     http_method_names = ['get', 'patch', 'head', 'options']
+
+    @action(detail=True, methods=['get'], url_path='invoice')
+    def invoice(self, request, pk=None):
+        order = self.get_object()
+        return invoice_pdf_response(order)
 
     def perform_update(self, serializer):
         instance = self.get_object()
         old_payment = instance.payment_status
+        old_status = instance.status
         order = serializer.save()
         if (
             old_payment != StoreOrder.PaymentStatus.PAID
             and order.payment_status == StoreOrder.PaymentStatus.PAID
         ):
             fulfill_store_order(order.id)
+        if old_status != order.status:
+            try:
+                from .notifications import notify_store_order_status_change
+
+                notify_store_order_status_change(order, old_status, order.status)
+            except Exception:
+                pass

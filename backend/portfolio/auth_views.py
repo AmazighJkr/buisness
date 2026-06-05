@@ -113,6 +113,28 @@ class CustomerMeView(APIView):
         return Response(CustomerMeSerializer(request.user).data)
 
 
+class CustomerOrdersOverviewView(APIView):
+    """Unified custom commands + store orders for the signed-in client."""
+
+    permission_classes = [IsCustomerUser]
+
+    def get(self, request):
+        from .models import StoreOrder
+        from .serializers import ProjectCommandTrackBriefSerializer, StoreOrderPublicSerializer
+        from .tracking import commands_for_user
+
+        commands = commands_for_user(request.user).order_by('-created_at')[:30]
+        store_orders = (
+            StoreOrder.objects.filter(user=request.user)
+            .prefetch_related('items')
+            .order_by('-created_at')[:30]
+        )
+        return Response({
+            'commands': ProjectCommandTrackBriefSerializer(commands, many=True).data,
+            'store_orders': StoreOrderPublicSerializer(store_orders, many=True).data,
+        })
+
+
 class CustomerChangePasswordView(APIView):
     permission_classes = [IsCustomerUser]
 

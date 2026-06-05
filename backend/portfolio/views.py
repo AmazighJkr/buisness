@@ -25,12 +25,15 @@ from .models import (
 from .permissions import (
     CanDeleteComment,
     CanEditProject,
+    CanEditStore,
     CanManageCategories,
+    CanManageCommandLayers,
     CanManageCustomers,
     CanManagePacks,
     CanManageStore,
     CanManageUsers,
     CanPostProject,
+    CanPostStore,
     CanRespondCommands,
     CanViewCommands,
     IsCustomerUser,
@@ -44,6 +47,7 @@ from .serializers import (
     AdminProjectSerializer,
     AdminUserCreateSerializer,
     AdminUserSerializer,
+    AdminUserUpdateSerializer,
     AdminStoreCategorySerializer,
     AdminStoreProductSerializer,
     CategoryAdminSerializer,
@@ -387,7 +391,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 class AdminStoreCategoryViewSet(viewsets.ModelViewSet):
     queryset = StoreCategory.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminStoreCategorySerializer
-    permission_classes = [CanManageStore]
+    permission_classes = [CanEditStore]
     lookup_field = 'id'
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
@@ -395,15 +399,21 @@ class AdminStoreCategoryViewSet(viewsets.ModelViewSet):
 class AdminStoreProductViewSet(viewsets.ModelViewSet):
     queryset = StoreProduct.objects.select_related('category').prefetch_related('gallery').all()
     serializer_class = AdminStoreProductSerializer
-    permission_classes = [CanManageStore]
     lookup_field = 'id'
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [CanPostStore()]
+        if self.action in ('update', 'partial_update', 'destroy'):
+            return [CanEditStore()]
+        return [CanManageStore()]
 
 
 class AdminStoreProductGalleryView(APIView):
     """Upload extra product photos (shown in the store gallery)."""
 
-    permission_classes = [CanManageStore]
+    permission_classes = [CanEditStore]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, product_id):
@@ -430,7 +440,7 @@ class AdminStoreProductGalleryView(APIView):
 
 
 class AdminStoreProductGalleryImageView(APIView):
-    permission_classes = [CanManageStore]
+    permission_classes = [CanEditStore]
 
     def delete(self, request, product_id, image_id):
         from django.shortcuts import get_object_or_404
@@ -468,6 +478,7 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
     @action(detail=True, methods=['patch'], url_path='respond')
     def respond(self, request, id=None):
         command = self.get_object()
+        old_status = command.status
         serializer = ProjectCommandRespondSerializer(command, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         new_status = serializer.validated_data.get('status', command.status)
@@ -504,6 +515,19 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
         command.responded_by = request.user
         command.responded_at = timezone.now()
         command.save()
+        try:
+            from .notifications import notify_command_quote_ready, notify_command_status_change
+
+            if (
+                new_status == ProjectCommand.Status.ACCEPTED
+                and old_status != ProjectCommand.Status.ACCEPTED
+                and has_bill
+            ):
+                notify_command_quote_ready(command)
+            elif old_status != new_status:
+                notify_command_status_change(command, old_status, new_status)
+        except Exception:
+            pass
         return Response(ProjectCommandAdminSerializer(command).data)
 
     @action(detail=True, methods=['post'], url_path='messages', parser_classes=[MultiPartParser, FormParser])
@@ -550,6 +574,64 @@ class AdminUserListCreateView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return AdminUserCreateSerializer
         return AdminUserSerializer
+
+
+class AdminUserDetailView(generics.RetrieveUpdateAPIView):
+    permission_classes = [CanManageUsers]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return User.objects.filter(is_staff=True)
+
+    def get_serializer_class(self):
+        if self.request.method in ('PUT', 'PATCH'):
+            return AdminUserUpdateSerializer
+        return AdminUserSerializer
+
+    def get_serializer_context(self):
+        return {**super().get_serializer_context(), 'request': self.request}
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(AdminUserSerializer(user).data)
+
+
+class AdminDashboardView(APIView):
+    permission_classes = [IsStaffUser]
+
+    def get(self, request):
+        from django.conf import settings
+
+        from .models import StoreOrder, StoreProduct
+
+        pending_commands = ProjectCommand.objects.filter(
+            status=ProjectCommand.Status.PENDING,
+        ).count()
+        unpaid_orders = StoreOrder.objects.filter(
+            status__in=[StoreOrder.Status.PENDING, StoreOrder.Status.PROCESSING],
+        ).exclude(payment_status=StoreOrder.PaymentStatus.PAID).count()
+        threshold = getattr(settings, 'STORE_LOW_STOCK_THRESHOLD', 3)
+        low_stock = StoreProduct.objects.filter(
+            is_active=True,
+            stock_qty__gt=0,
+            stock_qty__lte=threshold,
+        ).count()
+        return Response({
+            'pending_commands': pending_commands,
+            'unpaid_orders': unpaid_orders,
+            'low_stock_products': low_stock,
+            'sla_command_reply_hours': getattr(settings, 'SLA_COMMAND_REPLY_HOURS', 48),
+            'sla_ship_days_after_payment': getattr(settings, 'SLA_SHIP_DAYS_AFTER_PAYMENT', 5),
+            'contact_email': getattr(settings, 'CONTACT_EMAIL', ''),
+            'whatsapp_url': getattr(settings, 'WHATSAPP_SUPPORT_URL', ''),
+            'cloudinary_enabled': 'cloudinary' in (
+                settings.STORAGES.get('default', {}).get('BACKEND', '')
+            ),
+        })
 
 
 def _customer_queryset():
@@ -615,14 +697,14 @@ class AdminMeView(APIView):
 class AdminCommandLayerViewSet(viewsets.ModelViewSet):
     queryset = CommandLayer.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminCommandLayerSerializer
-    permission_classes = [CanRespondCommands]
+    permission_classes = [CanManageCommandLayers]
     lookup_field = 'id'
 
 
 class AdminCommandLayerBundleViewSet(viewsets.ModelViewSet):
     queryset = CommandLayerBundle.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminCommandLayerBundleSerializer
-    permission_classes = [CanRespondCommands]
+    permission_classes = [CanManageCommandLayers]
     lookup_field = 'id'
 
 
