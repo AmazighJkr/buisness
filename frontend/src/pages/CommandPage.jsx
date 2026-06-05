@@ -5,7 +5,9 @@ import PageHeader from '../components/PageHeader.jsx'
 import CommandLayerPicker from '../components/CommandLayerPicker.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
-import { fetchProjects, submitCommand } from '../api/client.js'
+import CheckoutLegalConsent from '../components/checkout/CheckoutLegalConsent.jsx'
+import CheckoutRecaptcha from '../components/checkout/CheckoutRecaptcha.jsx'
+import { fetchPaymentConfig, fetchProjects, submitCommand } from '../api/client.js'
 
 export default function CommandPage() {
   const { t } = useTranslation()
@@ -27,6 +29,10 @@ export default function CommandPage() {
   const [status, setStatus] = useState({ type: '', message: '' })
   const [tracking, setTracking] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [recaptchaSiteKey, setRecaptchaSiteKey] = useState('')
+  const [recaptchaToken, setRecaptchaToken] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   useEffect(() => {
     fetchProjects().then(setProjects).catch(() => [])
@@ -37,6 +43,17 @@ export default function CommandPage() {
       setForm((f) => ({ ...f, associated_project: preselectedProject }))
     }
   }, [preselectedProject])
+
+  useEffect(() => {
+    const envKey = (import.meta.env.VITE_RECAPTCHA_SITE_KEY || '').trim()
+    if (envKey) {
+      setRecaptchaSiteKey(envKey)
+      return
+    }
+    fetchPaymentConfig()
+      .then((cfg) => setRecaptchaSiteKey(cfg.recaptcha_site_key || ''))
+      .catch(() => setRecaptchaSiteKey(''))
+  }, [])
 
   useEffect(() => {
     if (user?.email) {
@@ -52,15 +69,27 @@ export default function CommandPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!layerIds.length) {
-      setStatus({ type: 'error', message: t('commandLayers.pickOne') })
+    const errors = {}
+    if (!layerIds.length) errors.layers = t('commandLayers.pickOne')
+    if (!acceptedTerms) errors.terms = t('checkout.errTerms')
+    if (!recaptchaToken) errors.captcha = t('checkout.errCaptcha')
+    setFieldErrors(errors)
+    const firstErr = errors.layers || errors.terms || errors.captcha
+    if (firstErr) {
+      setStatus({ type: 'error', message: firstErr })
       return
     }
     setSubmitting(true)
     setStatus({ type: '', message: '' })
     setTracking(null)
     try {
-      const result = await submitCommand({ ...form, layer_ids: layerIds, attachment: file })
+      const result = await submitCommand({
+        ...form,
+        layer_ids: layerIds,
+        attachment: file,
+        accepted_terms: true,
+        recaptcha_response: recaptchaToken,
+      })
       setTracking(result)
       setStatus({
         type: 'success',
@@ -76,8 +105,14 @@ export default function CommandPage() {
       })
       setLayerIds([])
       setFile(null)
+      setAcceptedTerms(false)
+      setRecaptchaToken('')
     } catch (err) {
-      setStatus({ type: 'error', message: err.message })
+      const msg = err.message || t('command.submitFailed')
+      setStatus({ type: 'error', message: msg })
+      if (/captcha|recaptcha|vérification/i.test(msg)) {
+        setFieldErrors((prev) => ({ ...prev, captcha: msg }))
+      }
     } finally {
       setSubmitting(false)
     }
@@ -188,6 +223,23 @@ export default function CommandPage() {
             {file ? file.name : t('command.attachFile')}
           </label>
 
+          <CheckoutLegalConsent
+            accepted={acceptedTerms}
+            onChange={(v) => {
+              setAcceptedTerms(v)
+              setFieldErrors((fe) => ({ ...fe, terms: undefined }))
+            }}
+            error={fieldErrors.terms}
+          />
+          <CheckoutRecaptcha
+            siteKey={recaptchaSiteKey}
+            onChange={(v) => {
+              setRecaptchaToken(v)
+              setFieldErrors((fe) => ({ ...fe, captcha: undefined }))
+            }}
+            error={fieldErrors.captcha}
+          />
+
           {status.message && (
             <p className={`text-xs ${status.type === 'error' ? 'text-red-400' : 'text-dark-muted'}`}>
               {status.message}
@@ -229,7 +281,7 @@ export default function CommandPage() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !acceptedTerms || !recaptchaToken}
             className="flex w-full items-center justify-center gap-2 border border-dark-border py-3 text-sm font-medium panel-hover disabled:opacity-50"
           >
             <Send className="h-4 w-4" />

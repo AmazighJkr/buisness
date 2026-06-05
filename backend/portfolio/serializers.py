@@ -1061,6 +1061,13 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
     tracking_code = serializers.CharField(read_only=True)
     client_email = serializers.EmailField(required=False, allow_blank=True)
     layer_ids_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    accepted_terms = serializers.BooleanField(write_only=True)
+    recaptcha_response = serializers.CharField(
+        max_length=4096,
+        write_only=True,
+        required=False,
+        allow_blank=True,
+    )
 
     class Meta:
         model = ProjectCommand
@@ -1076,6 +1083,8 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
             'problems',
             'attachment',
             'layer_ids_json',
+            'accepted_terms',
+            'recaptcha_response',
             'selected_layers',
             'estimated_total_usd',
             'estimated_total_dzd',
@@ -1117,6 +1126,21 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
         attrs['_layer_rows'] = rows
         attrs['_layer_total_usd'] = total_usd
         attrs['_layer_total_dzd'] = total_dzd
+
+        if not attrs.get('accepted_terms'):
+            raise serializers.ValidationError({
+                'accepted_terms': 'Vous devez accepter les CGV et la politique de confidentialité.',
+            })
+        from .checkout_recaptcha import verify_recaptcha
+
+        ip = None
+        if request:
+            ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get(
+                'REMOTE_ADDR',
+            )
+        verify_recaptcha(attrs.get('recaptcha_response', ''), ip)
+        attrs.pop('accepted_terms', None)
+        attrs.pop('recaptcha_response', None)
         return attrs
 
     def create(self, validated_data):

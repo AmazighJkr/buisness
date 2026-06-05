@@ -129,6 +129,7 @@ export const translations = {
       attachFile: 'Attach schematics / datasheets (optional, max 5MB)',
       submit: 'Submit command',
       submitting: 'Submitting…',
+      submitFailed: 'Could not submit your command.',
       successLoggedIn: 'Command submitted. View progress on the Track page.',
       successGuest:
         'Command submitted. Save your tracking link below to follow progress and chat with us.',
@@ -634,6 +635,7 @@ export const translations = {
       attachFile: 'Joindre schémas / fiches techniques (facultatif, max 5 Mo)',
       submit: 'Envoyer la commande',
       submitting: 'Envoi…',
+      submitFailed: 'Impossible d\'envoyer la commande.',
       successLoggedIn: 'Commande envoyée. Suivez l\'avancement sur la page Suivi.',
       successGuest:
         'Commande envoyée. Conservez votre lien de suivi ci-dessous pour suivre et discuter avec nous.',

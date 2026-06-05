@@ -484,13 +484,19 @@ export async function fetchCommandLayerBundles() {
 export async function submitCommand(fields) {
   const form = new FormData()
   Object.entries(fields).forEach(([key, value]) => {
-    if (key === 'layer_ids') return
+    if (key === 'layer_ids' || key === 'accepted_terms' || key === 'recaptcha_response') return
     if (value !== undefined && value !== null && value !== '') {
       form.append(key, value)
     }
   })
   if (fields.layer_ids?.length) {
     form.append('layer_ids_json', JSON.stringify(fields.layer_ids))
+  }
+  if (fields.accepted_terms) {
+    form.append('accepted_terms', 'true')
+  }
+  if (fields.recaptcha_response) {
+    form.append('recaptcha_response', fields.recaptcha_response)
   }
   return authFetch(`${API_BASE}/api/commands/`, {
     method: 'POST',
