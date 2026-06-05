@@ -12,6 +12,8 @@ from .payment_routing import start_store_checkout
 from .store_region import require_algeria_store, store_cod_instructions
 from .payments import payment_instructions, payments_auto_confirm, site_base_url
 from .permissions import CanManageStore, CanManageStoreOrders, IsCustomerUser
+from .staff_audit import log_staff_action, snapshot_instance
+from .staff_audit_mixin import StaffAuditMixin, validated_data
 from .store_invoice import invoice_pdf_response
 from .serializers import (
     AdminStoreOrderSerializer,
@@ -179,7 +181,8 @@ class MyStoreOrdersListView(APIView):
         return Response(StoreOrderPublicSerializer(orders, many=True).data)
 
 
-class AdminStoreOrderViewSet(viewsets.ModelViewSet):
+class AdminStoreOrderViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'store/orders'
     queryset = StoreOrder.objects.select_related('user').prefetch_related('items').all()
     serializer_class = AdminStoreOrderSerializer
     permission_classes = [CanManageStoreOrders]
@@ -188,13 +191,33 @@ class AdminStoreOrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='invoice')
     def invoice(self, request, pk=None):
         order = self.get_object()
+        log_staff_action(
+            request,
+            action='invoice',
+            resource='store/orders',
+            object_label=order.order_number,
+            object_id=str(order.id),
+            subaction='invoice',
+        )
         return invoice_pdf_response(order)
 
     def perform_update(self, serializer):
-        instance = self.get_object()
+        instance = serializer.instance
         old_payment = instance.payment_status
         old_status = instance.status
+        before = snapshot_instance(instance)
         order = serializer.save()
+        order.refresh_from_db()
+        log_staff_action(
+            self.request,
+            action='update',
+            resource=self.audit_resource,
+            object_label=order.order_number,
+            object_id=str(order.id),
+            before=before,
+            after=snapshot_instance(order),
+            request_data=validated_data(serializer),
+        )
         if (
             old_payment != StoreOrder.PaymentStatus.PAID
             and order.payment_status == StoreOrder.PaymentStatus.PAID

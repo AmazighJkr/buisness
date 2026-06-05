@@ -132,6 +132,21 @@ export default function AdminActivityLog() {
                       <td colSpan={4} className="p-3 font-mono text-[10px] text-dark-muted">
                         <p>{row.method} {row.path}</p>
                         {row.ip_address && <p>IP: {row.ip_address}</p>}
+                        {row.metadata?.before && (
+                          <p className="mt-1">
+                            Before: {JSON.stringify(row.metadata.before)}
+                          </p>
+                        )}
+                        {row.metadata?.after && (
+                          <p className="mt-1">
+                            After: {JSON.stringify(row.metadata.after)}
+                          </p>
+                        )}
+                        {row.metadata?.request && (
+                          <p className="mt-1">
+                            Request: {JSON.stringify(row.metadata.request)}
+                          </p>
+                        )}
                         {row.metadata && Object.keys(row.metadata).length > 0 && (
                           <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap">
                             {JSON.stringify(row.metadata, null, 2)}

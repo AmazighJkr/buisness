@@ -20,6 +20,7 @@ import { validateCheckoutForm, firstCheckoutError } from '../utils/checkoutValid
 import {
   clearPendingStoreOrder,
   readPendingStoreOrder,
+  saveCheckoutEmail,
   savePendingStoreOrder,
 } from '../utils/storeCheckout.js'
 import { formatDzd } from '../utils/formatMoney.js'
@@ -294,6 +295,7 @@ export default function CheckoutPage() {
         })),
       })
       savePendingStoreOrder(order)
+      saveCheckoutEmail(form.customer_email)
       const result = await payStoreOrder(order.id, { payment_method: paymentMethod })
       if (result.checkout_url) {
         window.location.href = result.checkout_url

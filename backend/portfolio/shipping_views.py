@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 from .models import StorePostalCode, StoreWilaya
 from .permissions import CanEditStore
+from .staff_audit_mixin import StaffAuditMixin
 from .serializers import (
     AdminStorePostalCodeSerializer,
     AdminStoreWilayaSerializer,
@@ -123,7 +124,8 @@ class StoreCartValidateView(APIView):
         return Response(ser.validated_data)
 
 
-class AdminStorePostalCodeViewSet(viewsets.ModelViewSet):
+class AdminStorePostalCodeViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'store/postal-codes'
     queryset = StorePostalCode.objects.select_related('wilaya').all()
     serializer_class = AdminStorePostalCodeSerializer
     permission_classes = [CanEditStore]

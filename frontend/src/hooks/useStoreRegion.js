@@ -7,6 +7,8 @@ export function useStoreRegion() {
     loading: true,
     isAlgeria: false,
     chargily: false,
+    whatsappUrl: '',
+    contactEmail: '',
   })
 
   useEffect(() => {
@@ -17,6 +19,8 @@ export function useStoreRegion() {
         loading: false,
         isAlgeria: Boolean(cfg.store_available ?? cfg.is_algeria),
         chargily: Boolean(cfg.chargily),
+        whatsappUrl: cfg.whatsapp_support_url || '',
+        contactEmail: cfg.contact_email || '',
       })
     }
 
@@ -32,7 +36,9 @@ export function useStoreRegion() {
           }
         }
       }
-      if (!cancelled) setState({ loading: false, isAlgeria: false, chargily: false })
+      if (!cancelled) {
+        setState({ loading: false, isAlgeria: false, chargily: false, whatsappUrl: '', contactEmail: '' })
+      }
     }
 
     load()

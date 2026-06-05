@@ -23,11 +23,9 @@ def recaptcha_site_key() -> str:
 
 
 def verify_recaptcha(response: str, remote_ip: str | None = None) -> None:
+    if not recaptcha_configured():
+        return
     secret = getattr(settings, 'RECAPTCHA_SECRET_KEY', '').strip()
-    if not secret:
-        if settings.DEBUG:
-            return
-        raise ValidationError({'recaptcha': 'reCAPTCHA is not configured on the server.'})
 
     token = (response or '').strip()
     if not token:

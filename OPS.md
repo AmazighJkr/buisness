@@ -86,7 +86,25 @@ Superusers can create and edit all staff accounts.
 
 ## Staff activity log
 
-All successful **POST / PATCH / PUT / DELETE** requests to `/api/admin/*` by staff are stored in `StaffAuditLog` (who, what, when, summary, sanitized payload). Superusers review them in **Admin → Activity** or Django admin → Staff audit logs.
+All staff mutations are stored in `StaffAuditLog` with **field-level detail** (prices, stock/qty, status, quotes, materials count, permissions, etc.):
+
+| Area | Logged actions |
+|------|----------------|
+| Projects | create / update / delete (title, materials, featured, packs…) |
+| Project categories | create / update / delete |
+| Store products | create / update / delete (price USD/DZD, stock, name…) |
+| Product gallery | upload / delete images |
+| Store categories | create / update / delete |
+| Store orders | status, payment, notes |
+| Postal / shipping rates | home/bureau DZD prices |
+| Commands | respond (status, quote USD/DZD, payment), chat message |
+| Command layers & bundles | prices, layer sets |
+| Subscription packs | price changes |
+| Legal pages | content update |
+| Staff accounts | create / update (permissions) |
+| Comments | delete |
+
+Superusers review in **Admin → Activity** (click a row for before/after JSON) or Django admin → Staff audit logs.
 
 ## Invoice PDFs
 

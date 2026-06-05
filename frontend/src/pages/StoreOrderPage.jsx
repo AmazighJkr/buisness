@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import StoreHeader from '../components/StoreHeader.jsx'
 import { downloadStoreOrderInvoice, payStoreOrder, trackStoreOrder } from '../api/client.js'
-import { CONTACT } from '../config/contact.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useCart } from '../hooks/useCart.js'
 import { useStoreRegion } from '../hooks/useStoreRegion.js'
-import { clearPendingStoreOrder } from '../utils/storeCheckout.js'
+import { clearPendingStoreOrder, readCheckoutEmail } from '../utils/storeCheckout.js'
 import { formatDzd } from '../utils/formatMoney.js'
+import { buildWhatsappOrderUrl } from '../utils/whatsapp.js'
 
 const STATUS_LABEL = {
   pending: 'Pending',
@@ -17,14 +17,35 @@ const STATUS_LABEL = {
   cancelled: 'Cancelled',
 }
 
-function whatsappOrderUrl(orderNumber) {
-  const base = CONTACT.whatsappHref
-  if (!base) return ''
-  const text = encodeURIComponent(
-    `Bonjour / Hello — commande ${orderNumber}. Merci / Thank you.`,
+function OrderConfirmationActions({ orderNumber, email, whatsappUrl, t }) {
+  const wa = buildWhatsappOrderUrl(orderNumber, whatsappUrl)
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {wa && (
+        <a
+          href={wa}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center rounded border border-lab-green/50 px-3 py-2 text-sm text-lab-green hover:bg-lab-green/10"
+        >
+          {t('storeOrder.whatsapp')}
+        </a>
+      )}
+      {email && orderNumber && (
+        <button
+          type="button"
+          onClick={() =>
+            downloadStoreOrderInvoice(orderNumber, email).catch(() => {
+              /* shown via parent error state if needed */
+            })
+          }
+          className="rounded border border-dark-border px-3 py-2 text-sm hover:border-lab-cyan"
+        >
+          {t('storeOrder.downloadInvoice')}
+        </button>
+      )}
+    </div>
   )
-  const sep = base.includes('?') ? '&' : '?'
-  return `${base}${sep}text=${text}`
 }
 
 export default function StoreOrderPage() {
@@ -33,16 +54,34 @@ export default function StoreOrderPage() {
   const numberParam = searchParams.get('number') || ''
   const paidBanner = searchParams.get('paid') === '1'
   const codBanner = searchParams.get('cod') === '1'
-  const { chargily } = useStoreRegion()
+  const { chargily, whatsappUrl } = useStoreRegion()
   const { clearCart } = useCart()
 
   const [trackNumber, setTrackNumber] = useState(numberParam)
-  const [trackEmail, setTrackEmail] = useState('')
+  const [trackEmail, setTrackEmail] = useState(() => readCheckoutEmail())
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paying, setPaying] = useState(false)
   const [invoiceLoading, setInvoiceLoading] = useState(false)
+
+  const loadOrder = useCallback(async (number, email) => {
+    if (!number?.trim() || !email?.trim()) return
+    setLoading(true)
+    setError('')
+    try {
+      const data = await trackStoreOrder(number, email)
+      setOrder(data)
+      if (data.customer_email && !email) {
+        setTrackEmail(data.customer_email)
+      }
+    } catch (err) {
+      setError(err.message || 'Order not found.')
+      setOrder(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!numberParam) return
@@ -56,22 +95,22 @@ export default function StoreOrderPage() {
     }
   }, [paidBanner, codBanner, clearCart])
 
-  const loadOrder = async (e) => {
-    e?.preventDefault()
-    setLoading(true)
-    setError('')
-    setOrder(null)
-    try {
-      const data = await trackStoreOrder(trackNumber, trackEmail)
-      setOrder(data)
-      if (data.customer_email && !trackEmail) {
-        setTrackEmail(data.customer_email)
-      }
-    } catch (err) {
-      setError(err.message || 'Order not found.')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    const savedEmail = readCheckoutEmail()
+    if (savedEmail && !trackEmail) setTrackEmail(savedEmail)
+  }, [trackEmail])
+
+  useEffect(() => {
+    if (!numberParam) return
+    const email = trackEmail || readCheckoutEmail()
+    if (email && (paidBanner || codBanner || numberParam)) {
+      loadOrder(numberParam, email)
     }
+  }, [numberParam, paidBanner, codBanner, trackEmail, loadOrder])
+
+  const handleTrackSubmit = async (e) => {
+    e.preventDefault()
+    await loadOrder(trackNumber, trackEmail)
   }
 
   const retryPay = async (method) => {
@@ -97,27 +136,45 @@ export default function StoreOrderPage() {
     }
   }
 
+  const confirmNumber = order?.order_number || numberParam
+  const confirmEmail = trackEmail || order?.customer_email || readCheckoutEmail()
+
   return (
     <div className="page-shell">
       <StoreHeader highlight="/shop/order" />
       <main className="mx-auto max-w-2xl p-4 sm:p-6">
-        <h1 className="text-2xl font-semibold">Order status</h1>
+        <h1 className="text-2xl font-semibold">{t('storeOrder.title')}</h1>
 
         {paidBanner && (
-          <p className="mt-4 border border-lab-green/40 bg-lab-green/10 px-3 py-2 text-sm text-lab-green">
-            Thank you — payment received. We will process your order shortly.
-          </p>
+          <div className="mt-4 border border-lab-green/40 bg-lab-green/10 px-3 py-3 text-sm text-lab-green">
+            <p>{t('storeOrder.paidBanner')}</p>
+            {confirmNumber && (
+              <OrderConfirmationActions
+                orderNumber={confirmNumber}
+                email={confirmEmail}
+                whatsappUrl={whatsappUrl}
+                t={t}
+              />
+            )}
+          </div>
         )}
         {codBanner && (
-          <p className="mt-4 border border-lab-cyan/40 bg-lab-cyan/10 px-3 py-2 text-sm text-lab-cyan">
-            Order placed. Pay in cash when your package is delivered. We will contact you to confirm
-            shipping.
-          </p>
+          <div className="mt-4 border border-lab-cyan/40 bg-lab-cyan/10 px-3 py-3 text-sm text-lab-cyan">
+            <p>{t('storeOrder.codBanner')}</p>
+            {confirmNumber && (
+              <OrderConfirmationActions
+                orderNumber={confirmNumber}
+                email={confirmEmail}
+                whatsappUrl={whatsappUrl}
+                t={t}
+              />
+            )}
+          </div>
         )}
 
-        <form onSubmit={loadOrder} className="panel mt-6 space-y-3 p-4">
+        <form onSubmit={handleTrackSubmit} className="panel mt-6 space-y-3 p-4">
           <label className="block text-xs text-dark-muted">
-            Order number
+            {t('storeOrder.orderNumber')}
             <input
               required
               value={trackNumber}
@@ -127,7 +184,7 @@ export default function StoreOrderPage() {
             />
           </label>
           <label className="block text-xs text-dark-muted">
-            Email used at checkout
+            {t('storeOrder.checkoutEmail')}
             <input
               type="email"
               required
@@ -137,7 +194,7 @@ export default function StoreOrderPage() {
             />
           </label>
           <button type="submit" disabled={loading} className="btn-primary w-full">
-            {loading ? 'Looking up…' : 'Track order'}
+            {loading ? t('storeOrder.loading') : t('storeOrder.track')}
           </button>
         </form>
 
@@ -147,12 +204,13 @@ export default function StoreOrderPage() {
 
         {order && (
           <section className="panel mt-6 p-4">
-            <p className="text-xs text-dark-muted">Order</p>
+            <p className="text-xs text-dark-muted">{t('storeOrder.orderLabel')}</p>
             <h2 className="text-lg font-semibold">{order.order_number}</h2>
             <p className="mt-2 text-sm">
-              Status: <span className="text-lab-cyan">{STATUS_LABEL[order.status] || order.status}</span>
+              {t('storeOrder.status')}:{' '}
+              <span className="text-lab-cyan">{STATUS_LABEL[order.status] || order.status}</span>
               {' · '}
-              Payment:{' '}
+              {t('storeOrder.payment')}:{' '}
               <span className={order.payment_status === 'paid' ? 'text-lab-green' : ''}>
                 {order.payment_status}
               </span>
@@ -171,9 +229,9 @@ export default function StoreOrderPage() {
             </ul>
 
             <div className="mt-4 flex flex-wrap gap-2 border-t border-dark-border pt-4">
-              {whatsappOrderUrl(order.order_number) && (
+              {buildWhatsappOrderUrl(order.order_number, whatsappUrl) && (
                 <a
-                  href={whatsappOrderUrl(order.order_number)}
+                  href={buildWhatsappOrderUrl(order.order_number, whatsappUrl)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center rounded border border-lab-green/50 px-3 py-2 text-sm text-lab-green hover:bg-lab-green/10"
@@ -188,7 +246,10 @@ export default function StoreOrderPage() {
                   setInvoiceLoading(true)
                   setError('')
                   try {
-                    await downloadStoreOrderInvoice(order.order_number, trackEmail || order.customer_email)
+                    await downloadStoreOrderInvoice(
+                      order.order_number,
+                      trackEmail || order.customer_email,
+                    )
                   } catch (err) {
                     setError(err.message)
                   } finally {
@@ -210,7 +271,7 @@ export default function StoreOrderPage() {
                     disabled={paying}
                     className="btn-primary w-full"
                   >
-                    {paying ? 'Starting…' : 'Pay now with card (Chargily)'}
+                    {paying ? t('storeOrder.paying') : t('storeOrder.payCard')}
                   </button>
                 )}
                 <button
@@ -219,7 +280,7 @@ export default function StoreOrderPage() {
                   disabled={paying}
                   className="w-full rounded border border-dark-border px-4 py-2 text-sm hover:border-lab-cyan"
                 >
-                  Confirm pay on delivery
+                  {t('storeOrder.payCod')}
                 </button>
               </div>
             )}
@@ -227,7 +288,7 @@ export default function StoreOrderPage() {
         )}
 
         <Link to="/shop" className="mt-6 inline-block text-sm text-dark-muted hover:underline">
-          Continue shopping
+          {t('storeOrder.continueShopping')}
         </Link>
       </main>
     </div>

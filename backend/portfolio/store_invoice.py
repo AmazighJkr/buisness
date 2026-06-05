@@ -18,11 +18,18 @@ def build_order_invoice_pdf(order) -> bytes:
     c = canvas.Canvas(buffer, pagesize=A4)
     w, h = A4
     y = h - 25 * mm
-    company = 'EmbeddedGrid'
+    from django.conf import settings
+
+    company = getattr(settings, 'ENTERPRISE_DISPLAY_NAME', 'EmbeddedGrid')
+    contact = getattr(settings, 'CONTACT_EMAIL', '') or ''
 
     c.setFont('Helvetica-Bold', 16)
     c.drawString(20 * mm, y, company)
-    y -= 8 * mm
+    y -= 6 * mm
+    if contact:
+        c.setFont('Helvetica', 9)
+        c.drawString(20 * mm, y, contact)
+        y -= 6 * mm
     c.setFont('Helvetica', 10)
     c.drawString(20 * mm, y, f'Invoice / Facture — {order.order_number}')
     y -= 12 * mm

@@ -123,10 +123,17 @@ class CustomerOrdersOverviewView(APIView):
         from .serializers import ProjectCommandTrackBriefSerializer, StoreOrderPublicSerializer
         from .tracking import commands_for_user
 
+        from django.db.models import Q
+
         commands = commands_for_user(request.user).order_by('-created_at')[:30]
+        email = (request.user.email or '').strip().lower()
+        store_filter = Q(user=request.user)
+        if email:
+            store_filter |= Q(customer_email__iexact=email)
         store_orders = (
-            StoreOrder.objects.filter(user=request.user)
+            StoreOrder.objects.filter(store_filter)
             .prefetch_related('items')
+            .distinct()
             .order_by('-created_at')[:30]
         )
         return Response({

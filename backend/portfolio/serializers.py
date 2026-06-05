@@ -1119,15 +1119,22 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
         raw_layers = attrs.pop('layer_ids_json', None)
         if raw_layers is None and 'layer_ids_json' in self.initial_data:
             raw_layers = self.initial_data.get('layer_ids_json')
+        has_layer_field = (
+            raw_layers is not None
+            or 'layer_ids_json' in (self.initial_data or {})
+        )
         try:
-            layer_ids = parse_layer_ids(raw_layers)
+            layer_ids = parse_layer_ids(raw_layers) if has_layer_field else []
         except ValueError as exc:
             raise serializers.ValidationError({'layer_ids_json': str(exc)}) from exc
-        rows, total_usd, total_dzd = build_command_layers_snapshot(layer_ids)
-        if not rows:
-            raise serializers.ValidationError(
-                {'layer_ids_json': 'Select at least one project layer.'},
-            )
+        if layer_ids:
+            rows, total_usd, total_dzd = build_command_layers_snapshot(layer_ids)
+            if not rows:
+                raise serializers.ValidationError(
+                    {'layer_ids_json': 'Select at least one project layer.'},
+                )
+        else:
+            rows, total_usd, total_dzd = [], None, None
         attrs['_layer_rows'] = rows
         attrs['_layer_total_usd'] = total_usd
         attrs['_layer_total_dzd'] = total_dzd

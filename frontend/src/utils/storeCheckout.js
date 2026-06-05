@@ -1,4 +1,22 @@
 const PENDING_KEY = 'eg_store_pending_order'
+const CHECKOUT_EMAIL_KEY = 'eg_store_checkout_email'
+
+export function saveCheckoutEmail(email) {
+  try {
+    const v = (email || '').trim()
+    if (v) sessionStorage.setItem(CHECKOUT_EMAIL_KEY, v)
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readCheckoutEmail() {
+  try {
+    return sessionStorage.getItem(CHECKOUT_EMAIL_KEY) || ''
+  } catch {
+    return ''
+  }
+}
 
 /** Saved when redirecting to Chargily — cart stays until payment succeeds. */
 export function savePendingStoreOrder(order) {

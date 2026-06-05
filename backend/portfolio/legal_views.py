@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from .legal_defaults import LEGAL_SEED
 from .models import LegalPage
 from .permissions import CanManageLegalPages
+from .staff_audit import log_staff_action
 
 
 def _pick_locale(content: dict, lang: str) -> dict:
@@ -86,6 +87,15 @@ class AdminLegalPageDetailView(APIView):
         page, _ = LegalPage.objects.get_or_create(slug=slug, defaults={'content': {}})
         page.content = content
         page.save(update_fields=['content', 'updated_at'])
+        log_staff_action(
+            request,
+            action='update',
+            resource='legal',
+            object_label=slug,
+            object_id=slug,
+            request_data={'locales': list(content.keys())},
+            subaction='content',
+        )
         return Response({
             'slug': page.slug,
             'content': page.content,

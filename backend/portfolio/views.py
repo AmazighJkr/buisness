@@ -23,6 +23,8 @@ from .models import (
     StoreProduct,
     UserSubscription,
 )
+from .staff_audit import log_staff_action, snapshot_instance
+from .staff_audit_mixin import StaffAuditMixin
 from .permissions import (
     CanDeleteComment,
     CanEditProject,
@@ -369,7 +371,8 @@ class CommandTrackMessageView(APIView):
         return Response(message_response(message, request), status=status.HTTP_201_CREATED)
 
 
-class AdminProjectViewSet(viewsets.ModelViewSet):
+class AdminProjectViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'projects'
     queryset = Project.objects.select_related('subcategory').prefetch_related('packs').all()
     serializer_class = AdminProjectSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -383,14 +386,16 @@ class AdminProjectViewSet(viewsets.ModelViewSet):
         return [IsStaffUser()]
 
 
-class AdminCategoryViewSet(viewsets.ModelViewSet):
+class AdminCategoryViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'categories'
     queryset = ProjectCategory.objects.select_related('parent').all()
     serializer_class = CategoryAdminSerializer
     permission_classes = [CanManageCategories]
     lookup_field = 'id'
 
 
-class AdminStoreCategoryViewSet(viewsets.ModelViewSet):
+class AdminStoreCategoryViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'store/categories'
     queryset = StoreCategory.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminStoreCategorySerializer
     permission_classes = [CanEditStore]
@@ -398,7 +403,8 @@ class AdminStoreCategoryViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 
-class AdminStoreProductViewSet(viewsets.ModelViewSet):
+class AdminStoreProductViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'store/products'
     queryset = StoreProduct.objects.select_related('category').prefetch_related('gallery').all()
     serializer_class = AdminStoreProductSerializer
     lookup_field = 'id'
@@ -436,6 +442,16 @@ class AdminStoreProductGalleryView(APIView):
                 sort_order=start + i,
             )
         product = StoreProduct.objects.prefetch_related('gallery').get(id=product.id)
+        log_staff_action(
+            request,
+            action='upload',
+            resource='store/products',
+            object_label=product.name,
+            object_id=str(product.id),
+            after={'gallery_count': product.gallery.count()},
+            request_data={'images': len(files)},
+            subaction='gallery',
+        )
         return Response(
             AdminStoreProductSerializer(product, context={'request': request}).data,
         )
@@ -450,6 +466,17 @@ class AdminStoreProductGalleryImageView(APIView):
         from .models import StoreProductImage
 
         image = get_object_or_404(StoreProductImage, id=image_id, product_id=product_id)
+        product_name = image.product.name
+        log_staff_action(
+            request,
+            action='delete',
+            resource='store/products',
+            object_label=product_name,
+            object_id=str(product_id),
+            before={'gallery_image': str(image_id)},
+            subaction='gallery-image',
+            status_code=204,
+        )
         image.delete()
         return Response(status=204)
 
@@ -481,6 +508,8 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
     def respond(self, request, id=None):
         command = self.get_object()
         old_status = command.status
+        before = snapshot_instance(command)
+        before['status'] = old_status
         serializer = ProjectCommandRespondSerializer(command, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         new_status = serializer.validated_data.get('status', command.status)
@@ -530,6 +559,17 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
                 notify_command_status_change(command, old_status, new_status)
         except Exception:
             pass
+        log_staff_action(
+            request,
+            action='respond',
+            resource='commands',
+            object_label=command.tracking_code or str(command.id),
+            object_id=str(command.id),
+            before=before,
+            after=snapshot_instance(command),
+            request_data=dict(serializer.validated_data),
+            subaction='respond',
+        )
         return Response(ProjectCommandAdminSerializer(command).data)
 
     @action(detail=True, methods=['post'], url_path='messages', parser_classes=[MultiPartParser, FormParser])
@@ -551,6 +591,16 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
         command.responded_by = request.user
         command.responded_at = timezone.now()
         command.save(update_fields=['responded_by', 'responded_at'])
+        log_staff_action(
+            request,
+            action='message',
+            resource='commands',
+            object_label=command.tracking_code or str(command.id),
+            object_id=str(command.id),
+            request_data={'has_text': bool(text), 'has_link': bool(link_url), 'has_image': bool(image)},
+            subaction='messages',
+            status_code=201,
+        )
         return Response(message_response(message, request, admin=True), status=status.HTTP_201_CREATED)
 
 
@@ -565,6 +615,17 @@ class AdminCommentDestroyView(generics.DestroyAPIView):
     permission_classes = [CanDeleteComment]
     lookup_field = 'id'
 
+    def perform_destroy(self, instance):
+        log_staff_action(
+            self.request,
+            action='delete',
+            resource='comments',
+            object_label=instance.project.title if instance.project_id else str(instance.id),
+            object_id=str(instance.id),
+            before={'author': instance.author_name},
+        )
+        super().perform_destroy(instance)
+
 
 class AdminUserListCreateView(generics.ListCreateAPIView):
     permission_classes = [CanManageUsers]
@@ -576,6 +637,18 @@ class AdminUserListCreateView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return AdminUserCreateSerializer
         return AdminUserSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        log_staff_action(
+            self.request,
+            action='create',
+            resource='users',
+            object_label=user.username,
+            object_id=str(user.id),
+            after={'permissions': serializer.validated_data.get('permissions', [])},
+            request_data=dict(serializer.validated_data),
+        )
 
 
 class AdminUserDetailView(generics.RetrieveUpdateAPIView):
@@ -596,9 +669,23 @@ class AdminUserDetailView(generics.RetrieveUpdateAPIView):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
+        before = {'username': instance.username, 'email': instance.email}
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        log_staff_action(
+            request,
+            action='update',
+            resource='users',
+            object_label=user.username,
+            object_id=str(user.id),
+            before=before,
+            after={
+                'email': user.email,
+                'permissions': serializer.validated_data.get('permissions'),
+            },
+            request_data=dict(serializer.validated_data),
+        )
         return Response(AdminUserSerializer(user).data)
 
 
@@ -609,31 +696,64 @@ class AdminDashboardView(APIView):
         from django.conf import settings
 
         from .models import StoreOrder, StoreProduct
+        from .staff_permissions import (
+            staff_can_edit_store,
+            staff_can_manage_store_orders,
+            staff_has_any_perm,
+            staff_has_perm,
+        )
 
-        pending_commands = ProjectCommand.objects.filter(
-            status=ProjectCommand.Status.PENDING,
-        ).count()
-        unpaid_orders = StoreOrder.objects.filter(
-            status__in=[StoreOrder.Status.PENDING, StoreOrder.Status.PROCESSING],
-        ).exclude(payment_status=StoreOrder.PaymentStatus.PAID).count()
-        threshold = getattr(settings, 'STORE_LOW_STOCK_THRESHOLD', 3)
-        low_stock = StoreProduct.objects.filter(
-            is_active=True,
-            stock_qty__gt=0,
-            stock_qty__lte=threshold,
-        ).count()
-        return Response({
-            'pending_commands': pending_commands,
-            'unpaid_orders': unpaid_orders,
-            'low_stock_products': low_stock,
-            'sla_command_reply_hours': getattr(settings, 'SLA_COMMAND_REPLY_HOURS', 48),
-            'sla_ship_days_after_payment': getattr(settings, 'SLA_SHIP_DAYS_AFTER_PAYMENT', 5),
-            'contact_email': getattr(settings, 'CONTACT_EMAIL', ''),
-            'whatsapp_url': getattr(settings, 'WHATSAPP_SUPPORT_URL', ''),
-            'cloudinary_enabled': 'cloudinary' in (
+        user = request.user
+        can_commands = staff_has_perm(user, 'view_commands')
+        can_orders = staff_can_manage_store_orders(user)
+        can_catalog = staff_can_edit_store(user)
+        can_projects = staff_has_any_perm(user, 'post_project', 'edit_project')
+        can_ops = user.is_superuser or staff_has_perm(user, 'manage_store')
+
+        payload = {
+            'access': {
+                'commands': can_commands,
+                'store_orders': can_orders,
+                'store_catalog': can_catalog,
+                'projects': can_projects,
+                'operations': can_ops,
+            },
+        }
+
+        if can_commands:
+            payload['pending_commands'] = ProjectCommand.objects.filter(
+                status=ProjectCommand.Status.PENDING,
+            ).count()
+            payload['sla_command_reply_hours'] = getattr(
+                settings, 'SLA_COMMAND_REPLY_HOURS', 48,
+            )
+
+        if can_orders:
+            payload['unpaid_orders'] = StoreOrder.objects.filter(
+                status__in=[StoreOrder.Status.PENDING, StoreOrder.Status.PROCESSING],
+            ).exclude(payment_status=StoreOrder.PaymentStatus.PAID).count()
+            payload['sla_ship_days_after_payment'] = getattr(
+                settings, 'SLA_SHIP_DAYS_AFTER_PAYMENT', 5,
+            )
+
+        if can_catalog:
+            threshold = getattr(settings, 'STORE_LOW_STOCK_THRESHOLD', 3)
+            payload['low_stock_products'] = StoreProduct.objects.filter(
+                is_active=True,
+                stock_qty__gt=0,
+                stock_qty__lte=threshold,
+            ).count()
+
+        if can_ops or can_commands or can_orders:
+            payload['contact_email'] = getattr(settings, 'CONTACT_EMAIL', '')
+            payload['whatsapp_url'] = getattr(settings, 'WHATSAPP_SUPPORT_URL', '')
+
+        if can_ops or can_catalog or can_projects:
+            payload['cloudinary_enabled'] = 'cloudinary' in (
                 settings.STORAGES.get('default', {}).get('BACKEND', '')
-            ),
-        })
+            )
+
+        return Response(payload)
 
 
 def _customer_queryset():
@@ -696,14 +816,16 @@ class AdminMeView(APIView):
         })
 
 
-class AdminCommandLayerViewSet(viewsets.ModelViewSet):
+class AdminCommandLayerViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'command-layers'
     queryset = CommandLayer.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminCommandLayerSerializer
     permission_classes = [CanManageCommandLayers]
     lookup_field = 'id'
 
 
-class AdminCommandLayerBundleViewSet(viewsets.ModelViewSet):
+class AdminCommandLayerBundleViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'command-layer-bundles'
     queryset = CommandLayerBundle.objects.all().order_by('sort_order', 'name')
     serializer_class = AdminCommandLayerBundleSerializer
     permission_classes = [CanManageCommandLayers]
@@ -727,7 +849,8 @@ class AdminAmazonSearchView(APIView):
         return Response({'results': results})
 
 
-class AdminSubscriptionPackViewSet(viewsets.ModelViewSet):
+class AdminSubscriptionPackViewSet(StaffAuditMixin, viewsets.ModelViewSet):
+    audit_resource = 'packs'
     queryset = SubscriptionPack.objects.prefetch_related('projects').all()
     serializer_class = SubscriptionPackAdminSerializer
     lookup_field = 'id'

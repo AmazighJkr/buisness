@@ -621,6 +621,7 @@ export default function AdminPanelPage() {
 
       {tab === 'dashboard' && (
         <AdminDashboard
+          user={user}
           onNavigate={(id) => {
             setTab(id)
             window.scrollTo(0, 0)

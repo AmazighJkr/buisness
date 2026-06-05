@@ -24,6 +24,7 @@ urlpatterns += [
 # React app (same IP as API) — must be after /api/ and /media/
 if getattr(settings, 'SERVE_FRONTEND', False):
     urlpatterns += [
+        re_path(r'^assets/.+', serve_frontend, name='spa-assets'),
         path('', serve_frontend, name='spa-index'),
-        re_path(r'^(?!api/|media/|static/|admin/).+', serve_frontend, name='spa-catchall'),
+        re_path(r'^(?!api/|media/|static/|admin/|assets/).+', serve_frontend, name='spa-catchall'),
     ]

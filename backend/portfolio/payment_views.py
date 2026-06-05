@@ -123,6 +123,8 @@ class PaymentConfigView(APIView):
         is_dz = is_algeria_request(request)
         from .checkout_recaptcha import recaptcha_configured, recaptcha_site_key
 
+        from django.conf import settings
+
         return Response({
             'stripe': stripe_enabled(),
             'chargily': chargily_enabled(),
@@ -135,6 +137,8 @@ class PaymentConfigView(APIView):
             'chargily_public_key': chargily_public_key() if chargily_enabled() else '',
             'recaptcha_site_key': recaptcha_site_key(),
             'recaptcha_enabled': recaptcha_configured(),
+            'contact_email': getattr(settings, 'CONTACT_EMAIL', '') or '',
+            'whatsapp_support_url': getattr(settings, 'WHATSAPP_SUPPORT_URL', '') or '',
         })
 
 

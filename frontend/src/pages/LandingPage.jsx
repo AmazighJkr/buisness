@@ -1,16 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Mail, MessageCircle } from 'lucide-react'
 import LandingNav from '../components/LandingNav.jsx'
+import CheckoutLegalConsent from '../components/checkout/CheckoutLegalConsent.jsx'
+import CheckoutRecaptcha from '../components/checkout/CheckoutRecaptcha.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { CONTACT } from '../config/contact.js'
-import { submitCommand } from '../api/client.js'
+import { fetchPaymentConfig, submitCommand } from '../api/client.js'
 
 export default function LandingPage() {
   const { t } = useTranslation()
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState('')
   const [tracking, setTracking] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [recaptchaSiteKey, setRecaptchaSiteKey] = useState('')
+  const [recaptchaToken, setRecaptchaToken] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   const pillars = [
     { title: t('landing.pillarSector'), text: t('landing.pillarSectorText') },
@@ -25,22 +32,52 @@ export default function LandingPage() {
     { title: t('landing.svcConsulting'), text: t('landing.svcConsultingText') },
   ]
 
+  useEffect(() => {
+    const envKey = (import.meta.env.VITE_RECAPTCHA_SITE_KEY || '').trim()
+    if (envKey) {
+      setRecaptchaSiteKey(envKey)
+      return
+    }
+    fetchPaymentConfig()
+      .then((cfg) => setRecaptchaSiteKey(cfg.recaptcha_site_key || ''))
+      .catch(() => setRecaptchaSiteKey(''))
+  }, [])
+
   const handleContact = async (e) => {
     e.preventDefault()
     setStatus('')
     setTracking(null)
+    const errors = {}
+    if (!acceptedTerms) errors.terms = t('checkout.errTerms')
+    if (recaptchaSiteKey && !recaptchaToken) errors.captcha = t('checkout.errCaptcha')
+    setFieldErrors(errors)
+    const firstErr = errors.terms || errors.captcha
+    if (firstErr) {
+      setStatus(firstErr)
+      return
+    }
+    setSubmitting(true)
     try {
       const result = await submitCommand({
         client_name: form.name,
         client_email: form.email,
         idea_description: form.message,
         objectives: 'Contact form — website inquiry',
+        accepted_terms: true,
+        recaptcha_response: recaptchaToken,
       })
       setTracking(result)
       setStatus(t('landing.formSuccess'))
       setForm({ name: '', email: '', message: '' })
+      setAcceptedTerms(false)
+      setRecaptchaToken('')
     } catch (err) {
       setStatus(err.message)
+      if (/captcha|recaptcha|vérification/i.test(err.message)) {
+        setFieldErrors((prev) => ({ ...prev, captcha: err.message }))
+      }
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -130,8 +167,20 @@ export default function LandingPage() {
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                 className="input-field resize-y min-h-[8rem]"
               />
-              <button type="submit" className="btn-primary w-full sm:w-auto">
-                {t('landing.formSend')}
+              <CheckoutLegalConsent
+                accepted={acceptedTerms}
+                onChange={setAcceptedTerms}
+                error={fieldErrors.terms}
+              />
+              {recaptchaSiteKey ? (
+                <CheckoutRecaptcha
+                  siteKey={recaptchaSiteKey}
+                  onChange={setRecaptchaToken}
+                  error={fieldErrors.captcha}
+                />
+              ) : null}
+              <button type="submit" disabled={submitting} className="btn-primary w-full sm:w-auto">
+                {submitting ? t('landing.formSending') : t('landing.formSend')}
               </button>
               {status && <p className="text-xs text-dark-muted">{status}</p>}
               {tracking?.tracking_code && (

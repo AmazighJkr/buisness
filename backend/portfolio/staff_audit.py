@@ -7,6 +7,7 @@ import re
 from typing import Any
 
 from django.contrib.auth import get_user_model
+from django.http import QueryDict
 
 User = get_user_model()
 
@@ -15,6 +16,7 @@ SKIP_PATH_SUFFIXES = (
     '/api/admin/me/',
     '/api/admin/dashboard/',
     '/api/admin/amazon/search/',
+    '/api/admin/audit-log/',
 )
 SENSITIVE_KEYS = frozenset({
     'password',
@@ -25,11 +27,16 @@ SENSITIVE_KEYS = frozenset({
     'access',
     'recaptcha_response',
     'credential',
+    'content',
+    'description',
+    'idea_description',
+    'staff_response',
+    'text',
 })
 
 RESOURCE_LABELS = {
     'projects': 'project',
-    'categories': 'category',
+    'categories': 'project category',
     'commands': 'command',
     'comments': 'comment',
     'users': 'staff account',
@@ -45,6 +52,48 @@ RESOURCE_LABELS = {
     'gallery': 'product gallery',
 }
 
+FIELD_LABELS = {
+    'title': 'title',
+    'name': 'name',
+    'slug': 'slug',
+    'status': 'status',
+    'payment_status': 'payment',
+    'quoted_price': 'quote USD',
+    'quoted_price_dzd': 'quote DZD',
+    'price_usd': 'USD',
+    'price_dzd': 'DZD',
+    'price': 'price',
+    'stock_qty': 'stock',
+    'quantity': 'qty',
+    'price_bureau_dzd': 'bureau DZD',
+    'price_home_dzd': 'home DZD',
+    'price_domicile_dzd': 'domicile DZD',
+    'is_active': 'active',
+    'is_featured': 'featured',
+    'is_free': 'free',
+    'is_required': 'required',
+    'sort_order': 'sort',
+    'featured_order': 'featured order',
+    'permissions': 'permissions',
+    'layer_ids': 'layers',
+    'materials': 'materials',
+    'materials_json': 'materials',
+    'materials_count': 'materials',
+    'layer_ids_count': 'layers',
+    'admin_notes': 'notes',
+    'shipping_dzd': 'shipping DZD',
+    'total_dzd': 'total DZD',
+    'wilaya': 'wilaya',
+    'postal_code': 'postal',
+}
+
+SNAPSHOT_ATTRS = tuple(FIELD_LABELS.keys()) + (
+    'order_number',
+    'tracking_code',
+    'username',
+    'client_email',
+)
+
 ACTION_BY_METHOD = {
     'POST': 'create',
     'PUT': 'update',
@@ -56,12 +105,50 @@ _GALLERY_IMAGE_RE = re.compile(
     r'^/api/admin/store/products/(?P<object_id>[^/]+)/gallery/(?P<image_id>[^/]+)/?$',
     re.IGNORECASE,
 )
+_GALLERY_UPLOAD_RE = re.compile(
+    r'^/api/admin/store/products/(?P<object_id>[^/]+)/gallery/?$',
+    re.IGNORECASE,
+)
 _ADMIN_PATH_RE = re.compile(
     r'^/api/admin/(?P<resource>command-layer-bundles|command-layers|projects|categories|commands|comments|users|customers|packs|legal|store/categories|store/products|store/orders|store/postal-codes)'
     r'(?:/(?P<object_id>[^/]+))?'
     r'(?:/(?P<subaction>respond|messages|gallery|invoice))?/?$',
     re.IGNORECASE,
 )
+
+_AUDIT_FLAG = '_staff_audit_logged'
+
+
+def mark_audit_logged(request) -> None:
+    setattr(request, _AUDIT_FLAG, True)
+
+
+def is_audit_logged(request) -> bool:
+    return bool(getattr(request, _AUDIT_FLAG, False))
+
+
+def snapshot_instance(obj) -> dict[str, Any]:
+    if obj is None:
+        return {}
+    out: dict[str, Any] = {}
+    for attr in SNAPSHOT_ATTRS:
+        if not hasattr(obj, attr):
+            continue
+        val = getattr(obj, attr)
+        if val is None or val == '':
+            continue
+        if isinstance(val, (list, tuple)):
+            if attr == 'permissions':
+                out[attr] = list(val)[:20]
+            elif attr == 'layer_ids':
+                out['layer_ids_count'] = len(val)
+            elif attr == 'materials':
+                out['materials_count'] = len(val)
+            else:
+                out[attr] = val[:10] if len(val) > 10 else val
+        else:
+            out[attr] = val
+    return out
 
 
 def _client_ip(request) -> str:
@@ -82,11 +169,39 @@ def _redact(data: Any) -> Any:
     return data
 
 
+def _querydict_to_dict(qd: QueryDict) -> dict:
+    return {k: qd.getlist(k)[0] if len(qd.getlist(k)) == 1 else qd.getlist(k) for k in qd}
+
+
+def _extract_request_data(request) -> dict:
+    data: dict[str, Any] = {}
+    if request.POST:
+        data.update(_redact(_querydict_to_dict(request.POST)))
+    content_type = (request.META.get('CONTENT_TYPE') or '').lower()
+    if request.body and 'application/json' in content_type:
+        try:
+            raw = json.loads(request.body.decode('utf-8'))
+            if isinstance(raw, dict):
+                data.update(_redact(raw))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            pass
+    # materials_json etc. from multipart
+    for key in ('materials_json', 'wiring_json', 'code_files_json', 'pack_ids_json'):
+        if key in data and isinstance(data[key], str):
+            try:
+                parsed = json.loads(data[key])
+                if isinstance(parsed, list):
+                    data[f'{key}_count'] = len(parsed)
+            except json.JSONDecodeError:
+                pass
+    return data
+
+
 def _parse_response_json(response) -> dict | list | None:
     try:
         if not hasattr(response, 'content') or not response.content:
             return None
-        if len(response.content) > 32_000:
+        if len(response.content) > 64_000:
             return None
         data = json.loads(response.content.decode('utf-8'))
         if isinstance(data, (dict, list)):
@@ -96,38 +211,97 @@ def _parse_response_json(response) -> dict | list | None:
     return None
 
 
-def _request_payload(request) -> dict:
-    payload: dict[str, Any] = {}
-    if request.POST:
-        payload['form'] = _redact(request.POST.dict())
-    if request.FILES:
-        payload['files'] = list(request.FILES.keys())[:10]
-    content_type = (request.META.get('CONTENT_TYPE') or '').lower()
-    if 'application/json' in content_type and request.body:
-        try:
-            raw = json.loads(request.body.decode('utf-8'))
-            if isinstance(raw, dict):
-                payload['json'] = _redact(raw)
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            pass
-    return payload
+def _format_value(val: Any) -> str:
+    if val is None:
+        return '—'
+    if isinstance(val, bool):
+        return 'yes' if val else 'no'
+    if isinstance(val, list):
+        return f'[{len(val)} items]'
+    s = str(val)
+    return s[:40] + '…' if len(s) > 40 else s
+
+
+def _diff_fields(
+    before: dict | None,
+    after: dict | None,
+    request_data: dict | None = None,
+) -> list[str]:
+    parts: list[str] = []
+    before = before or {}
+    after = after or {}
+    request_data = request_data or {}
+
+    keys = set(before) | set(after) | set(request_data)
+    for key in sorted(keys):
+        if key in SENSITIVE_KEYS or key.endswith('_json'):
+            continue
+        label = FIELD_LABELS.get(key, key)
+        b = before.get(key)
+        a = after.get(key)
+        r = request_data.get(key)
+        if b != a and (a is not None or b is not None):
+            parts.append(f'{label} {_format_value(b)}→{_format_value(a)}')
+        elif r is not None and not before and not after:
+            parts.append(f'{label}={_format_value(r)}')
+        elif r is not None and b == a and key in request_data:
+            parts.append(f'{label}={_format_value(r)}')
+
+    for key in ('materials_json', 'materials_json_count', 'materials_count'):
+        if key in request_data or key in after:
+            count = request_data.get('materials_json_count') or after.get('materials_count')
+            if count is not None:
+                parts.append(f'materials ({count} rows)')
+                break
+
+    return parts[:12]
+
+
+def _build_summary(
+    username: str,
+    action: str,
+    resource: str,
+    object_label: str,
+    change_parts: list[str],
+) -> str:
+    resource_name = RESOURCE_LABELS.get(resource, resource.replace('/', ' '))
+    label = object_label or 'item'
+    verb = {
+        'create': 'created',
+        'update': 'updated',
+        'delete': 'deleted',
+        'respond': 'responded to',
+        'message': 'messaged',
+        'upload': 'uploaded gallery image for',
+        'invoice': 'downloaded invoice for',
+    }.get(action, action)
+    base = f'{username} {verb} {resource_name} {label}'
+    if change_parts:
+        return f'{base}: {", ".join(change_parts)}'[:500]
+    return base[:500]
 
 
 def _parse_admin_path(path: str, method: str) -> tuple[str, str, str, str]:
-    """Return action, resource_key, object_id, subaction."""
     normalized = path if path.endswith('/') else f'{path}/'
     gallery_match = _GALLERY_IMAGE_RE.match(normalized)
     if gallery_match:
         action = ACTION_BY_METHOD.get(method, method.lower())
         return action, 'store/products', gallery_match.group('object_id'), 'gallery-image'
 
+    gallery_upload = _GALLERY_UPLOAD_RE.match(normalized)
+    if gallery_upload and method == 'POST':
+        return 'upload', 'store/products', gallery_upload.group('object_id'), 'gallery'
+
     match = _ADMIN_PATH_RE.match(normalized)
     if not match:
-        # Fallback for odd paths
         parts = [p for p in path.replace('/api/admin/', '').split('/') if p]
-        resource = parts[0] if parts else 'admin'
-        object_id = parts[1] if len(parts) > 1 else ''
-        subaction = parts[2] if len(parts) > 2 else ''
+        resource = '/'.join(parts[:2]) if len(parts) >= 2 and parts[0] == 'store' else (parts[0] if parts else 'admin')
+        if len(parts) >= 2 and parts[0] == 'store':
+            object_id = parts[2] if len(parts) > 2 else ''
+            subaction = parts[3] if len(parts) > 3 else ''
+        else:
+            object_id = parts[1] if len(parts) > 1 else ''
+            subaction = parts[2] if len(parts) > 2 else ''
         if method == 'GET' and subaction == 'invoice':
             action = 'invoice'
         else:
@@ -154,62 +328,124 @@ def _parse_admin_path(path: str, method: str) -> tuple[str, str, str, str]:
     return action, resource, object_id, subaction
 
 
-def _object_label(response_data: dict | list | None, object_id: str) -> str:
-    if not isinstance(response_data, dict):
-        return object_id[:36] if object_id else ''
-    for key in (
-        'order_number',
-        'title',
-        'name',
-        'username',
-        'slug',
-        'tracking_code',
-        'client_email',
-    ):
-        val = response_data.get(key)
-        if val:
-            return str(val)[:120]
+def _object_label(
+    response_data: dict | list | None,
+    object_id: str,
+    request_data: dict | None = None,
+) -> str:
+    if isinstance(response_data, dict):
+        for key in (
+            'order_number',
+            'title',
+            'name',
+            'username',
+            'slug',
+            'tracking_code',
+            'client_email',
+        ):
+            val = response_data.get(key)
+            if val:
+                return str(val)[:120]
+    if request_data:
+        for key in ('title', 'name', 'slug', 'order_number', 'tracking_code'):
+            val = request_data.get(key)
+            if val:
+                return str(val)[:120]
     if object_id:
-        return object_id[:36]
-    rid = response_data.get('id')
-    return str(rid)[:36] if rid else ''
+        return object_id[:120]
+    if isinstance(response_data, dict):
+        rid = response_data.get('id')
+        return str(rid)[:120] if rid else ''
+    return ''
 
 
-def _build_summary(
-    username: str,
+def _persist_audit(
+    request,
+    *,
     action: str,
     resource: str,
     object_label: str,
-    payload: dict,
-) -> str:
-    resource_name = RESOURCE_LABELS.get(resource, resource.replace('/', ' '))
-    label = object_label or 'item'
-    verb = {
-        'create': 'created',
-        'update': 'updated',
-        'delete': 'deleted',
-        'respond': 'responded to',
-        'message': 'messaged',
-        'upload': 'uploaded gallery image for',
-        'invoice': 'downloaded invoice for',
-    }.get(action, action)
+    object_id: str,
+    summary: str,
+    metadata: dict,
+    status_code: int = 200,
+) -> None:
+    from .models import StaffAuditLog
 
-    extra = ''
-    form = payload.get('json') or payload.get('form') or {}
-    if isinstance(form, dict):
-        if form.get('status'):
-            extra = f" → status {form['status']}"
-        elif form.get('payment_status'):
-            extra = f" → payment {form['payment_status']}"
+    StaffAuditLog.objects.create(
+        actor=request.user,
+        action=action[:32],
+        resource=resource[:64],
+        object_id=str(object_id)[:64] if object_id else '',
+        object_label=object_label[:255],
+        summary=summary[:500],
+        metadata=metadata,
+        method=request.method[:8],
+        path=request.path[:255],
+        status_code=status_code,
+        ip_address=_client_ip(request),
+    )
 
-    return f'{username} {verb} {resource_name} {label}{extra}'.strip()
+
+def log_staff_action(
+    request,
+    *,
+    action: str,
+    resource: str,
+    object_label: str = '',
+    object_id: str = '',
+    before: dict | None = None,
+    after: dict | None = None,
+    request_data: dict | None = None,
+    response_data: dict | None = None,
+    subaction: str = '',
+    status_code: int = 200,
+) -> None:
+    """Explicit audit entry (viewsets / custom actions). Skips middleware duplicate."""
+    user = getattr(request, 'user', None)
+    if not user or not getattr(user, 'is_authenticated', False) or not user.is_staff:
+        return
+    try:
+        mark_audit_logged(request)
+        req_data = _redact(request_data or {})
+        change_parts = _diff_fields(before, after, req_data)
+        label = object_label or _object_label(response_data, object_id, req_data)
+        summary = _build_summary(user.username, action, resource, label, change_parts)
+        metadata: dict[str, Any] = {}
+        if before:
+            metadata['before'] = _redact(before)
+        if after:
+            metadata['after'] = _redact(after)
+        if req_data:
+            metadata['request'] = req_data
+        if response_data and isinstance(response_data, dict):
+            metadata['response'] = _redact({
+                k: response_data[k]
+                for k in SNAPSHOT_ATTRS
+                if k in response_data
+            })
+        if subaction:
+            metadata['subaction'] = subaction
+        _persist_audit(
+            request,
+            action=action,
+            resource=resource,
+            object_label=label,
+            object_id=object_id,
+            summary=summary,
+            metadata=metadata,
+            status_code=status_code,
+        )
+    except Exception:
+        pass
 
 
 def should_audit_request(request, response) -> bool:
+    if is_audit_logged(request):
+        return False
     method = request.method
     path = request.path
     if method not in MUTATING_METHODS:
-        # Log sensitive reads (e.g. invoice download) for staff accountability.
         if method == 'GET' and '/invoice' in path and '/api/admin/' in path:
             pass
         else:
@@ -228,53 +464,36 @@ def should_audit_request(request, response) -> bool:
 
 
 def record_staff_audit(request, response) -> None:
-    """Persist one audit row; never raises."""
+    """Middleware fallback for admin routes not covered by explicit logging."""
     if not should_audit_request(request, response):
         return
     try:
-        from .models import StaffAuditLog
-
         user = request.user
         action, resource, object_id, subaction = _parse_admin_path(request.path, request.method)
-        payload = _request_payload(request)
+        request_data = _extract_request_data(request)
         response_data = _parse_response_json(response)
-        label = _object_label(response_data, object_id)
-        summary = _build_summary(user.username, action, resource, label, payload)
-
-        metadata: dict[str, Any] = {}
-        if payload:
-            metadata['request'] = payload
+        label = _object_label(response_data, object_id, request_data)
+        after = {}
         if isinstance(response_data, dict):
-            metadata['response'] = _redact({
-                k: response_data[k]
-                for k in (
-                    'id',
-                    'status',
-                    'payment_status',
-                    'order_number',
-                    'title',
-                    'name',
-                    'username',
-                    'slug',
-                    'tracking_code',
-                )
-                if k in response_data
-            })
+            after = {k: response_data[k] for k in SNAPSHOT_ATTRS if k in response_data}
+        change_parts = _diff_fields(None, after, request_data)
+        summary = _build_summary(user.username, action, resource, label, change_parts)
+        metadata: dict[str, Any] = {}
+        if request_data:
+            metadata['request'] = request_data
+        if after:
+            metadata['after'] = after
         if subaction:
             metadata['subaction'] = subaction
-
-        StaffAuditLog.objects.create(
-            actor=user,
-            action=action[:32],
-            resource=resource[:64],
-            object_id=str(object_id)[:64] if object_id else '',
-            object_label=label[:255],
-            summary=summary[:500],
+        _persist_audit(
+            request,
+            action=action,
+            resource=resource,
+            object_label=label,
+            object_id=object_id,
+            summary=summary,
             metadata=metadata,
-            method=request.method[:8],
-            path=request.path[:255],
             status_code=response.status_code,
-            ip_address=_client_ip(request),
         )
     except Exception:
         pass

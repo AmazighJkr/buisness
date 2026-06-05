@@ -236,6 +236,7 @@ export default function AccountPage() {
                         </Link>
                         <span className="text-dark-muted"> · {o.status}</span>
                         <span className="block">{formatDzd(Number(o.total_dzd))}</span>
+                        <span className="text-dark-muted">{o.payment_status}</span>
                       </li>
                     ))}
                   </ul>

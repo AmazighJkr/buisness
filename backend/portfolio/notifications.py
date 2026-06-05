@@ -9,7 +9,22 @@ logger = logging.getLogger(__name__)
 
 
 def _can_send() -> bool:
-    return bool(getattr(settings, 'DEFAULT_FROM_EMAIL', None))
+    if not getattr(settings, 'DEFAULT_FROM_EMAIL', None):
+        return False
+    if getattr(settings, 'EMAIL_HOST', ''):
+        return True
+    backend = getattr(settings, 'EMAIL_BACKEND', '') or ''
+    return 'console' in backend
+
+
+def _whatsapp_line_fr_en() -> tuple[str, str]:
+    url = getattr(settings, 'WHATSAPP_SUPPORT_URL', '') or ''
+    if not url:
+        return '', ''
+    return (
+        f'\nQuestions? WhatsApp: {url}',
+        f'\nQuestions ? WhatsApp : {url}',
+    )
 
 
 def _staff_inbox() -> str:
@@ -76,12 +91,14 @@ def notify_command_created(command) -> None:
     ) or '  (none)'
     title = _command_project_title(command)
     sla_h = getattr(settings, 'SLA_COMMAND_REPLY_HOURS', 48)
+    wa_en, wa_fr = _whatsapp_line_fr_en()
     body_en = (
         f'Tracking code: {command.tracking_code}\n'
         f'Project: {title}\n\n'
         f'Layers:\n{layer_lines}\n\n'
         f'We received your request and will respond within {sla_h} hours.\n'
         f'Track: {settings.PUBLIC_SITE_URL}/track?code={command.tracking_code}'
+        f'{wa_en}'
     )
     body_fr = (
         f'Code de suivi : {command.tracking_code}\n'
@@ -89,6 +106,7 @@ def notify_command_created(command) -> None:
         f'Couches :\n{layer_lines}\n\n'
         f'Nous avons bien reçu votre demande et répondrons sous {sla_h} h.\n'
         f'Suivi : {settings.PUBLIC_SITE_URL}/track?code={command.tracking_code}'
+        f'{wa_fr}'
     )
     _send_client(
         command.client_email,
@@ -130,13 +148,16 @@ def notify_command_quote_ready(command) -> None:
 def notify_command_status_change(command, old_status: str, new_status: str) -> None:
     if old_status == new_status:
         return
+    wa_en, wa_fr = _whatsapp_line_fr_en()
     body_en = (
         f'Command {command.tracking_code} status: {old_status} → {new_status}\n'
         f'Track: {settings.PUBLIC_SITE_URL}/track?code={command.tracking_code}'
+        f'{wa_en}'
     )
     body_fr = (
         f'Commande {command.tracking_code} : {old_status} → {new_status}\n'
         f'Suivi : {settings.PUBLIC_SITE_URL}/track?code={command.tracking_code}'
+        f'{wa_fr}'
     )
     _send_client(
         command.client_email,
@@ -148,15 +169,18 @@ def notify_command_status_change(command, old_status: str, new_status: str) -> N
 
 
 def notify_store_order_created(order) -> None:
+    wa_en, wa_fr = _whatsapp_line_fr_en()
     body_en = (
         f'Order {order.order_number}\n'
         f'Total: {order.total_dzd} DZD\n\n'
         f'Track: {settings.PUBLIC_SITE_URL}/shop/order?number={order.order_number}'
+        f'{wa_en}'
     )
     body_fr = (
         f'Commande {order.order_number}\n'
         f'Total : {order.total_dzd} DZD\n\n'
         f'Suivi : {settings.PUBLIC_SITE_URL}/shop/order?number={order.order_number}'
+        f'{wa_fr}'
     )
     _send_client(
         order.customer_email,
@@ -171,28 +195,41 @@ def notify_store_order_created(order) -> None:
 def notify_store_order_status_change(order, old_status: str, new_status: str) -> None:
     if old_status == new_status:
         return
+    from .models import StoreOrder
+
     ship_days = getattr(settings, 'SLA_SHIP_DAYS_AFTER_PAYMENT', 5)
+    wa_en, wa_fr = _whatsapp_line_fr_en()
     extra_en = ''
     extra_fr = ''
-    if new_status == 'shipped':
+    subject_en = f'Order update — {order.order_number}'
+    subject_fr = f'Mise à jour commande — {order.order_number}'
+
+    if new_status == StoreOrder.Status.SHIPPED:
+        subject_en = f'Order shipped — {order.order_number}'
+        subject_fr = f'Commande expédiée — {order.order_number}'
         extra_en = '\nYour package is on its way.'
         extra_fr = '\nVotre colis est en route.'
-    elif new_status == 'processing' and order.payment_status == 'paid':
+    elif (
+        new_status == StoreOrder.Status.PROCESSING
+        and order.payment_status == StoreOrder.PaymentStatus.PAID
+    ):
         extra_en = f'\nWe aim to ship within {ship_days} business days after payment.'
         extra_fr = f'\nExpédition prévue sous {ship_days} jours ouvrables après paiement.'
 
     body_en = (
         f'Order {order.order_number}: {old_status} → {new_status}{extra_en}\n'
         f'{settings.PUBLIC_SITE_URL}/shop/order?number={order.order_number}'
+        f'{wa_en}'
     )
     body_fr = (
         f'Commande {order.order_number} : {old_status} → {new_status}{extra_fr}\n'
         f'{settings.PUBLIC_SITE_URL}/shop/order?number={order.order_number}'
+        f'{wa_fr}'
     )
     _send_client(
         order.customer_email,
-        f'Order update — {order.order_number}',
-        f'Mise à jour commande — {order.order_number}',
+        subject_en,
+        subject_fr,
         body_en,
         body_fr,
     )
