@@ -75,7 +75,7 @@ export default function LandingNav() {
 
         <div className="site-header-actions">
           {storeVisible && (
-            <Link to="/shop" className="store-entry-btn">
+            <Link to="/shop" className="store-entry-btn hidden sm:inline-flex">
               {t('nav.store')}
             </Link>
           )}
