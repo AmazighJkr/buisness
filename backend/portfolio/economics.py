@@ -52,11 +52,14 @@ def chargily_fee(gross_dzd: Decimal) -> Decimal:
 
 def _money_summary(bucket: MoneyBucket, *, currency: str) -> dict[str, Any]:
     gross = bucket.gross.quantize(Decimal('0.01'))
-    if currency == 'USD':
-        fees = sum(stripe_fee(amount) for amount in bucket.amounts)
+    if bucket.amounts:
+        if currency == 'USD':
+            fees = sum(stripe_fee(amount) for amount in bucket.amounts)
+        else:
+            fees = sum(chargily_fee(amount) for amount in bucket.amounts)
     else:
-        fees = sum(chargily_fee(amount) for amount in bucket.amounts)
-    fees = fees.quantize(Decimal('0.01'))
+        fees = Decimal('0')
+    fees = Decimal(str(fees)).quantize(Decimal('0.01'))
     net = max(Decimal('0'), gross - fees).quantize(Decimal('0.01'))
     return {
         'count': bucket.count,
@@ -71,24 +74,20 @@ def _region_totals(*buckets: MoneyBucket, currency: str) -> dict[str, Any]:
     for bucket in buckets:
         for amount in bucket.amounts:
             combined.add(amount)
+    if combined.amounts:
+        fee_total = sum(
+            stripe_fee(a) if currency == 'USD' else chargily_fee(a)
+            for a in combined.amounts
+        )
+    else:
+        fee_total = Decimal('0')
+    fee_total = Decimal(str(fee_total)).quantize(Decimal('0.01'))
     return {
         'count': combined.count,
         'gross': str(combined.gross.quantize(Decimal('0.01'))),
-        'fees': str(
-            sum(
-                stripe_fee(a) if currency == 'USD' else chargily_fee(a)
-                for a in combined.amounts
-            ).quantize(Decimal('0.01')),
-        ),
+        'fees': str(fee_total),
         'net': str(
-            max(
-                Decimal('0'),
-                combined.gross
-                - sum(
-                    stripe_fee(a) if currency == 'USD' else chargily_fee(a)
-                    for a in combined.amounts
-                ),
-            ).quantize(Decimal('0.01')),
+            max(Decimal('0'), combined.gross - fee_total).quantize(Decimal('0.01')),
         ),
     }
 
@@ -191,10 +190,10 @@ def build_economics_report(
         'quoted_price',
         'quoted_price_dzd',
         'paid_at',
-        'updated_at',
+        'created_at',
         'payment_status',
     ):
-        paid_at = cmd.paid_at or cmd.updated_at
+        paid_at = cmd.paid_at or cmd.created_at
         if not _in_range(paid_at, start, end):
             continue
         row = _command_paid_amount(cmd)

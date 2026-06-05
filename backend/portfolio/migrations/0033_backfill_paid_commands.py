@@ -16,7 +16,7 @@ def backfill_paid_commands(apps, schema_editor):
         elif usd > 0 and dzd <= 0:
             updates = {'paid_currency': 'usd', 'paid_amount': usd}
         if updates and not cmd.paid_at:
-            updates['paid_at'] = cmd.updated_at or timezone.now()
+            updates['paid_at'] = cmd.created_at or timezone.now()
         if updates:
             ProjectCommand.objects.filter(pk=cmd.pk).update(**updates)
 
