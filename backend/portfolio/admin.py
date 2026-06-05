@@ -35,6 +35,8 @@ PORTFOLIO_PERMS = (
     'view_commands',
     'respond_commands',
     'manage_command_layers',
+    'view_contact_messages',
+    'respond_contact_messages',
     'moderate_comment',
     'manage_packs',
     'manage_store',

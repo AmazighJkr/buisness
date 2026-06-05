@@ -6,6 +6,7 @@ const RESOURCE_OPTIONS = [
   'projects',
   'categories',
   'commands',
+  'contact/messages',
   'comments',
   'users',
   'packs',

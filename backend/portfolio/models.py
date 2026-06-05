@@ -148,6 +148,19 @@ class ProjectCommand(models.Model):
         choices=PaymentStatus.choices,
         default=PaymentStatus.NONE,
     )
+    paid_currency = models.CharField(
+        max_length=3,
+        blank=True,
+        help_text='usd or dzd — set when payment completes',
+    )
+    paid_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Amount actually charged',
+    )
+    paid_at = models.DateTimeField(null=True, blank=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
     staff_response = models.TextField(blank=True)
     responded_at = models.DateTimeField(null=True, blank=True)
@@ -623,6 +636,8 @@ class UserSubscription(models.Model):
         related_name='subscriptions',
     )
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    paid_currency = models.CharField(max_length=3, blank=True)
+    paid_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     started_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -650,6 +665,42 @@ class LegalPage(models.Model):
 
     def __str__(self):
         return self.get_slug_display()
+
+
+class ContactMessage(models.Model):
+    """Website contact form — not a project command (no tracking code)."""
+
+    class Status(models.TextChoices):
+        NEW = 'new', 'New'
+        REPLIED = 'replied', 'Replied'
+        CLOSED = 'closed', 'Closed'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client_name = models.CharField(max_length=120)
+    client_email = models.EmailField()
+    body = models.TextField()
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.NEW)
+    staff_reply = models.TextField(blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    replied_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact_replies',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        permissions = [
+            ('view_contact_messages', 'Can view contact messages'),
+            ('respond_contact_messages', 'Can respond to contact messages'),
+        ]
+
+    def __str__(self):
+        return f'{self.client_email} — {self.created_at:%Y-%m-%d}'
 
 
 class StaffAuditLog(models.Model):

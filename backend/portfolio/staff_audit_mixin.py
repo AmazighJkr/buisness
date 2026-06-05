@@ -36,6 +36,7 @@ class StaffAuditMixin:
     def perform_update(self, serializer):
         instance = serializer.instance
         before = snapshot_instance(instance)
+        req_data = validated_data(serializer)
         super().perform_update(serializer)
         instance.refresh_from_db()
         log_staff_action(
@@ -46,7 +47,7 @@ class StaffAuditMixin:
             object_id=self._audit_object_id(instance),
             before=before,
             after=snapshot_instance(instance),
-            request_data=validated_data(serializer),
+            request_data=req_data,
         )
 
     def perform_destroy(self, instance):

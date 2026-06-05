@@ -245,6 +245,12 @@ class SubscribePackView(APIView):
                 return Response(payload)
 
         if charge <= 0 or payments_auto_confirm():
+            from .payment_fulfillment import mark_subscription_paid
+
+            paid_currency = 'dzd' if provider == 'chargily' else 'usd' if provider == 'stripe' else ''
+            paid_amount = charge_dzd if paid_currency == 'dzd' else charge
+            if paid_amount and paid_amount > 0:
+                mark_subscription_paid(subscription, currency=paid_currency, amount=paid_amount)
             activate_subscription(
                 subscription,
                 expires_at=quote.expires_at if quote.is_upgrade else None,

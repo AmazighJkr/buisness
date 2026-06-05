@@ -6,13 +6,13 @@ import CheckoutLegalConsent from '../components/checkout/CheckoutLegalConsent.js
 import CheckoutRecaptcha from '../components/checkout/CheckoutRecaptcha.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { CONTACT } from '../config/contact.js'
-import { fetchPaymentConfig, submitCommand } from '../api/client.js'
+import { fetchPaymentConfig, submitContactMessage } from '../api/client.js'
 
 export default function LandingPage() {
   const { t } = useTranslation()
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState('')
-  const [tracking, setTracking] = useState(null)
+  const [sent, setSent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [recaptchaSiteKey, setRecaptchaSiteKey] = useState('')
@@ -46,7 +46,7 @@ export default function LandingPage() {
   const handleContact = async (e) => {
     e.preventDefault()
     setStatus('')
-    setTracking(null)
+    setSent(false)
     const errors = {}
     if (!acceptedTerms) errors.terms = t('checkout.errTerms')
     if (recaptchaSiteKey && !recaptchaToken) errors.captcha = t('checkout.errCaptcha')
@@ -58,15 +58,13 @@ export default function LandingPage() {
     }
     setSubmitting(true)
     try {
-      const result = await submitCommand({
+      await submitContactMessage({
         client_name: form.name,
         client_email: form.email,
-        idea_description: form.message,
-        objectives: 'Contact form — website inquiry',
-        accepted_terms: true,
+        body: form.message,
         recaptcha_response: recaptchaToken,
       })
-      setTracking(result)
+      setSent(true)
       setStatus(t('landing.formSuccess'))
       setForm({ name: '', email: '', message: '' })
       setAcceptedTerms(false)
@@ -183,17 +181,8 @@ export default function LandingPage() {
                 {submitting ? t('landing.formSending') : t('landing.formSend')}
               </button>
               {status && <p className="text-xs text-dark-muted">{status}</p>}
-              {tracking?.tracking_code && (
-                <div className="mt-3 border border-dark-border bg-dark-bg p-3 text-xs">
-                  <p className="text-dark-muted">{t('landing.trackingLabel')}</p>
-                  <p className="mt-1 font-mono text-base text-dark-text">{tracking.tracking_code}</p>
-                  <Link
-                    to={`/track?code=${encodeURIComponent(tracking.tracking_code)}`}
-                    className="mt-2 inline-block text-dark-text underline"
-                  >
-                    {t('landing.trackProgress')}
-                  </Link>
-                </div>
+              {sent && (
+                <p className="mt-2 text-xs text-dark-muted">{t('landing.formSuccessDetail')}</p>
               )}
             </form>
           </div>

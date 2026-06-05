@@ -5,6 +5,7 @@ import {
   staffCanManageLayers,
   staffCanManageStoreOrders,
   staffCanPostStore,
+  staffCanViewContactMessages,
 } from '../../api/client.js'
 
 function hasPerm(user, perm) {
@@ -18,6 +19,7 @@ function buildQuickLinks(user) {
     links.push({ tab: 'projects', label: 'Project list' })
   }
   if (hasPerm(user, 'view_commands')) links.push({ tab: 'commands', label: 'Commands' })
+  if (staffCanViewContactMessages(user)) links.push({ tab: 'messages', label: 'Messages' })
   if (staffCanManageLayers(user)) links.push({ tab: 'command-layers', label: 'Command layers' })
   if (hasPerm(user, 'moderate_comment')) links.push({ tab: 'comments', label: 'Comments' })
   if (hasPerm(user, 'manage_categories')) links.push({ tab: 'categories', label: 'Categories' })
@@ -32,6 +34,7 @@ function buildQuickLinks(user) {
     links.push({ tab: 'legal', label: 'Legal pages' })
   }
   if (user?.is_superuser) {
+    links.push({ tab: 'economics', label: 'Economics' })
     links.push({ tab: 'clients', label: 'Clients' })
     links.push({ tab: 'users', label: 'Staff accounts' })
     links.push({ tab: 'activity', label: 'Staff activity' })
@@ -72,6 +75,14 @@ export default function AdminDashboard({ user, onNavigate }) {
       tab: 'commands',
     })
   }
+  if (access.contact_messages && data.new_contact_messages != null) {
+    cards.push({
+      key: 'messages',
+      count: data.new_contact_messages,
+      label: 'new contact messages',
+      tab: 'messages',
+    })
+  }
   if (access.store_orders && data.unpaid_orders != null) {
     cards.push({
       key: 'orders',
@@ -93,6 +104,11 @@ export default function AdminDashboard({ user, onNavigate }) {
   if (access.commands && data.pending_commands != null) {
     summaryParts.push(
       `${data.pending_commands} pending command${data.pending_commands === 1 ? '' : 's'}`,
+    )
+  }
+  if (access.contact_messages && data.new_contact_messages != null) {
+    summaryParts.push(
+      `${data.new_contact_messages} new message${data.new_contact_messages === 1 ? '' : 's'}`,
     )
   }
   if (access.store_orders && data.unpaid_orders != null) {

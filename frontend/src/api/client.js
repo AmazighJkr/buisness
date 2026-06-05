@@ -504,6 +504,19 @@ export async function submitCommand(fields) {
   })
 }
 
+export async function submitContactMessage(fields) {
+  return authFetch(`${API_BASE}/api/contact/`, {
+    method: 'POST',
+    body: JSON.stringify({
+      client_name: fields.client_name,
+      client_email: fields.client_email,
+      body: fields.body || fields.message,
+      accepted_terms: true,
+      recaptcha_response: fields.recaptcha_response || '',
+    }),
+  })
+}
+
 export async function fetchMyCommands() {
   return userFetch(`${API_BASE}/api/commands/mine/`)
 }
@@ -862,6 +875,22 @@ export async function adminRespondCommand(id, body) {
   })
 }
 
+export async function adminFetchContactMessages() {
+  const data = await adminRequest(`${API_BASE}/api/admin/contact/messages/`)
+  return data.results ?? data
+}
+
+export async function adminFetchContactMessage(id) {
+  return adminRequest(`${API_BASE}/api/admin/contact/messages/${id}/`)
+}
+
+export async function adminRespondContactMessage(id, body) {
+  return adminRequest(`${API_BASE}/api/admin/contact/messages/${id}/respond/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
 export async function adminFetchUsers() {
   const data = await adminRequest(`${API_BASE}/api/admin/users/`)
   return data.results ?? data
@@ -1035,6 +1064,15 @@ export async function adminFetchDashboard() {
   return adminRequest(`${API_BASE}/api/admin/dashboard/`)
 }
 
+export async function adminFetchEconomics({ period = 'all', from = '', to = '' } = {}) {
+  const q = new URLSearchParams()
+  if (period) q.set('period', period)
+  if (from) q.set('from', from)
+  if (to) q.set('to', to)
+  const qs = q.toString()
+  return adminRequest(`${API_BASE}/api/admin/economics${qs ? `?${qs}` : ''}`)
+}
+
 export async function adminFetchStaffActivity({ staff = '', resource = '', action = '' } = {}) {
   const params = new URLSearchParams()
   if (staff) params.set('staff', staff)
@@ -1139,6 +1177,8 @@ export const PERM_LABELS = {
   manage_command_layers: 'Manage command layers',
   view_commands: 'View commands',
   respond_commands: 'Respond to commands',
+  view_contact_messages: 'View contact messages',
+  respond_contact_messages: 'Respond to contact messages',
   moderate_comment: 'Delete comments',
 }
 
@@ -1184,6 +1224,22 @@ export function staffCanManageLayers(user) {
   return Boolean(
     user?.is_superuser
       || staffHasPerm(user, 'manage_command_layers')
+      || staffHasPerm(user, 'respond_commands'),
+  )
+}
+
+export function staffCanViewContactMessages(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'view_contact_messages')
+      || staffHasPerm(user, 'view_commands'),
+  )
+}
+
+export function staffCanRespondContactMessages(user) {
+  return Boolean(
+    user?.is_superuser
+      || staffHasPerm(user, 'respond_contact_messages')
       || staffHasPerm(user, 'respond_commands'),
   )
 }

@@ -38,6 +38,7 @@ from .store_views import (
     StoreOrderInvoiceView,
     StoreOrderTrackView,
 )
+from .contact_views import AdminContactMessageViewSet, ContactMessageCreateView
 from .views import (
     AdminAmazonSearchView,
     AdminCommandLayerBundleViewSet,
@@ -56,6 +57,7 @@ from .views import (
     AdminStoreProductViewSet,
     AdminSubscriptionPackViewSet,
     AdminDashboardView,
+    AdminEconomicsView,
     AdminStaffAuditLogListView,
     AdminUserDetailView,
     AdminUserListCreateView,
@@ -86,6 +88,7 @@ admin_router.register(
 admin_router.register(r'projects', AdminProjectViewSet, basename='admin-project')
 admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-category')
 admin_router.register(r'commands', AdminCommandViewSet, basename='admin-command')
+admin_router.register(r'contact/messages', AdminContactMessageViewSet, basename='admin-contact-message')
 admin_router.register(r'packs', AdminSubscriptionPackViewSet, basename='admin-pack')
 admin_router.register(r'store/categories', AdminStoreCategoryViewSet, basename='admin-store-category')
 admin_router.register(r'store/products', AdminStoreProductViewSet, basename='admin-store-product')
@@ -111,6 +114,7 @@ urlpatterns = [
     path('commands/layers/', CommandLayerListView.as_view(), name='command-layer-list'),
     path('commands/layer-bundles/', CommandLayerBundleListView.as_view(), name='command-layer-bundle-list'),
     path('commands/', ProjectCommandCreateView.as_view(), name='command-create'),
+    path('contact/', ContactMessageCreateView.as_view(), name='contact-create'),
     path('commands/mine/', MyCommandsListView.as_view(), name='command-mine-list'),
     path('commands/mine/<uuid:command_id>/', MyCommandDetailView.as_view(), name='command-mine-detail'),
     path('commands/track/', CommandTrackView.as_view(), name='command-track'),
@@ -136,6 +140,7 @@ urlpatterns = [
     path('admin/users/', AdminUserListCreateView.as_view(), name='admin-users'),
     path('admin/users/<int:id>/', AdminUserDetailView.as_view(), name='admin-user-detail'),
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
+    path('admin/economics/', AdminEconomicsView.as_view(), name='admin-economics'),
     path('admin/audit-log/', AdminStaffAuditLogListView.as_view(), name='admin-audit-log'),
     path('admin/customers/', AdminCustomerListView.as_view(), name='admin-customers'),
     path('admin/customers/<int:id>/', AdminCustomerDetailView.as_view(), name='admin-customer-detail'),

@@ -95,8 +95,10 @@ class CommandPayView(APIView):
             })
 
         if payments_auto_confirm() or request.data.get('confirm') is True:
-            command.payment_status = ProjectCommand.PaymentStatus.PAID
-            command.save(update_fields=['payment_status'])
+            from .payment_fulfillment import mark_command_paid
+
+            paid_currency = 'dzd' if provider == 'chargily' else 'usd' if provider == 'stripe' else ''
+            mark_command_paid(command, currency=paid_currency)
             return Response(
                 ProjectCommandTrackSerializer(command, context={'request': request}).data,
             )
@@ -171,7 +173,14 @@ class StripeWebhookView(APIView):
 
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
-            fulfill_payment_metadata(session.get('metadata') or {})
+            meta = session.get('metadata') or {}
+            amount = None
+            if session.get('amount_total') is not None:
+                from decimal import Decimal
+
+                amount = Decimal(str(session['amount_total'])) / Decimal('100')
+            currency = (session.get('currency') or 'usd').lower()
+            fulfill_payment_metadata(meta, currency=currency, amount=amount)
 
         return Response({'received': True})
 
@@ -196,6 +205,7 @@ class ChargilyWebhookView(APIView):
         if event.get('type') == 'checkout.paid':
             checkout = event.get('data') or {}
             meta = checkout.get('metadata') or {}
-            fulfill_payment_metadata(meta)
+            amount = checkout.get('amount')
+            fulfill_payment_metadata(meta, currency='dzd', amount=amount)
 
         return Response({'received': True})

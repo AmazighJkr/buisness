@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from decimal import Decimal
 from typing import Any
 
 from django.contrib.auth import get_user_model
@@ -38,6 +39,7 @@ RESOURCE_LABELS = {
     'projects': 'project',
     'categories': 'project category',
     'commands': 'command',
+    'contact/messages': 'contact message',
     'comments': 'comment',
     'users': 'staff account',
     'customers': 'customer',
@@ -110,7 +112,7 @@ _GALLERY_UPLOAD_RE = re.compile(
     re.IGNORECASE,
 )
 _ADMIN_PATH_RE = re.compile(
-    r'^/api/admin/(?P<resource>command-layer-bundles|command-layers|projects|categories|commands|comments|users|customers|packs|legal|store/categories|store/products|store/orders|store/postal-codes)'
+    r'^/api/admin/(?P<resource>command-layer-bundles|command-layers|contact/messages|projects|categories|commands|comments|users|customers|packs|legal|store/categories|store/products|store/orders|store/postal-codes)'
     r'(?:/(?P<object_id>[^/]+))?'
     r'(?:/(?P<subaction>respond|messages|gallery|invoice))?/?$',
     re.IGNORECASE,
@@ -125,6 +127,12 @@ def mark_audit_logged(request) -> None:
 
 def is_audit_logged(request) -> bool:
     return bool(getattr(request, _AUDIT_FLAG, False))
+
+
+def _normalize_snapshot_value(val: Any) -> Any:
+    if isinstance(val, Decimal):
+        return float(val)
+    return val
 
 
 def snapshot_instance(obj) -> dict[str, Any]:
@@ -147,7 +155,7 @@ def snapshot_instance(obj) -> dict[str, Any]:
             else:
                 out[attr] = val[:10] if len(val) > 10 else val
         else:
-            out[attr] = val
+            out[attr] = _normalize_snapshot_value(val)
     return out
 
 
@@ -237,9 +245,9 @@ def _diff_fields(
         if key in SENSITIVE_KEYS or key.endswith('_json'):
             continue
         label = FIELD_LABELS.get(key, key)
-        b = before.get(key)
-        a = after.get(key)
-        r = request_data.get(key)
+        b = _normalize_snapshot_value(before.get(key))
+        a = _normalize_snapshot_value(after.get(key))
+        r = _normalize_snapshot_value(request_data.get(key))
         if b != a and (a is not None or b is not None):
             parts.append(f'{label} {_format_value(b)}→{_format_value(a)}')
         elif r is not None and not before and not after:

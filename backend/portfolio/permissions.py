@@ -134,3 +134,25 @@ class CanManageLegalPages(BasePermission):
         if request.user.is_superuser:
             return True
         return request.user.has_perm('portfolio.manage_store')
+
+
+class CanViewContactMessages(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return request.user.has_perm('portfolio.view_contact_messages') or request.user.has_perm(
+            'portfolio.view_commands',
+        )
+
+
+class CanRespondContactMessages(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return request.user.has_perm('portfolio.respond_contact_messages') or request.user.has_perm(
+            'portfolio.respond_commands',
+        )

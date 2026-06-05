@@ -22,11 +22,14 @@ import {
   staffCanManageLayers,
   staffCanManageStoreOrders,
   staffCanPostStore,
+  staffCanViewContactMessages,
   staffHasStoreAccess,
   validateUploadFile,
 } from '../api/client.js'
 import AdminActivityLog from '../components/admin/AdminActivityLog.jsx'
+import AdminContactMessages from '../components/admin/AdminContactMessages.jsx'
 import AdminDashboard from '../components/admin/AdminDashboard.jsx'
+import AdminEconomics from '../components/admin/AdminEconomics.jsx'
 import AdminStaff from '../components/admin/AdminStaff.jsx'
 import AdminCategories from '../components/AdminCategories.jsx'
 import AdminCommandLayers from '../components/AdminCommandLayers.jsx'
@@ -392,6 +395,7 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'post_project') || hasPerm(user, 'edit_project')) tabs.push(['post', 'Post / Edit'])
   if (hasPerm(user, 'edit_project') || hasPerm(user, 'post_project')) tabs.push(['projects', 'Projects'])
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
+  if (staffCanViewContactMessages(user)) tabs.push(['messages', 'Messages'])
   if (staffCanManageLayers(user)) tabs.push(['command-layers', 'Layers'])
   if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
@@ -399,6 +403,7 @@ export default function AdminPanelPage() {
   if (staffHasStoreAccess(user)) tabs.push(['store', 'Store'])
   if (staffCanManageStoreOrders(user)) tabs.push(['store-orders', 'Orders'])
   if (hasPerm(user, 'manage_store') || user.is_superuser) tabs.push(['legal', 'Legal'])
+  if (user.is_superuser) tabs.push(['economics', 'Economics'])
   if (user.is_superuser) tabs.push(['clients', 'Clients'])
   if (user.is_superuser) tabs.push(['users', 'Staff'])
   if (user.is_superuser) tabs.push(['activity', 'Activity'])
@@ -645,6 +650,8 @@ export default function AdminPanelPage() {
 
       {tab === 'store-orders' && staffCanManageStoreOrders(user) && <AdminStoreOrders />}
 
+      {tab === 'economics' && user.is_superuser && <AdminEconomics />}
+
       {tab === 'clients' && user.is_superuser && <AdminCustomers />}
 
       {tab === 'projects' && (
@@ -689,6 +696,10 @@ export default function AdminPanelPage() {
 
       {tab === 'command-layers' && staffCanManageLayers(user) && <AdminCommandLayers />}
 
+      {tab === 'messages' && staffCanViewContactMessages(user) && (
+        <AdminContactMessages user={user} onMessage={(type, text) => setMsg({ type, text })} />
+      )}
+
       {tab === 'commands' && hasPerm(user, 'view_commands') && (
         <div className="grid gap-6 lg:grid-cols-2 max-w-5xl">
           <ul className="space-y-2">
@@ -707,6 +718,9 @@ export default function AdminPanelPage() {
                     <span className="text-dark-text">{c.client_name || c.client_email || 'Anonymous'}</span>
                     <span className="text-lab-copper shrink-0">{c.status}</span>
                   </div>
+                  <p className="mt-1 text-[10px] text-gray-500">
+                    {c.created_at ? new Date(c.created_at).toLocaleString() : '—'}
+                  </p>
                   <p className="mt-1 line-clamp-2 text-gray-500">{c.idea_description}</p>
                 </button>
               </li>
@@ -719,6 +733,11 @@ export default function AdminPanelPage() {
                 <div>
                   <p className="text-lab-cyan">{selectedCommand.client_name || 'Client'}</p>
                   <p className="text-gray-500">{selectedCommand.client_email}</p>
+                  <p className="mt-1 text-[10px] text-gray-500">
+                    Submitted {selectedCommand.created_at
+                      ? new Date(selectedCommand.created_at).toLocaleString()
+                      : '—'}
+                  </p>
                 </div>
                 <button type="button" onClick={() => setSelectedCommand(null)} className="text-gray-500">
                   Close

@@ -489,6 +489,15 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
     lookup_field = 'id'
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def get_queryset(self):
+        from django.db.models import Q
+
+        qs = super().get_queryset()
+        return qs.exclude(
+            Q(objectives__icontains='Contact form')
+            | Q(objectives__icontains='website inquiry'),
+        )
+
     def get_serializer_context(self):
         return {**super().get_serializer_context(), 'request': self.request}
 
@@ -705,6 +714,7 @@ class AdminDashboardView(APIView):
 
         user = request.user
         can_commands = staff_has_perm(user, 'view_commands')
+        can_contact = staff_has_perm(user, 'view_contact_messages') or can_commands
         can_orders = staff_can_manage_store_orders(user)
         can_catalog = staff_can_edit_store(user)
         can_projects = staff_has_any_perm(user, 'post_project', 'edit_project')
@@ -713,6 +723,7 @@ class AdminDashboardView(APIView):
         payload = {
             'access': {
                 'commands': can_commands,
+                'contact_messages': can_contact,
                 'store_orders': can_orders,
                 'store_catalog': can_catalog,
                 'projects': can_projects,
@@ -727,6 +738,13 @@ class AdminDashboardView(APIView):
             payload['sla_command_reply_hours'] = getattr(
                 settings, 'SLA_COMMAND_REPLY_HOURS', 48,
             )
+
+        if can_contact:
+            from .models import ContactMessage
+
+            payload['new_contact_messages'] = ContactMessage.objects.filter(
+                status=ContactMessage.Status.NEW,
+            ).count()
 
         if can_orders:
             payload['unpaid_orders'] = StoreOrder.objects.filter(
@@ -754,6 +772,23 @@ class AdminDashboardView(APIView):
             )
 
         return Response(payload)
+
+
+class AdminEconomicsView(APIView):
+    """Superuser-only revenue summary with estimated payment-provider fees."""
+
+    permission_classes = [CanManageUsers]
+
+    def get(self, request):
+        from .economics import build_economics_report
+
+        return Response(
+            build_economics_report(
+                period=request.query_params.get('period', 'all'),
+                date_from=request.query_params.get('from', ''),
+                date_to=request.query_params.get('to', ''),
+            ),
+        )
 
 
 def _customer_queryset():

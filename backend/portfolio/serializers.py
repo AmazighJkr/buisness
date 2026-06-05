@@ -15,6 +15,7 @@ from .models import (
     CommandLayer,
     CommandLayerBundle,
     CommandMessage,
+    ContactMessage,
     Project,
     ProjectCategory,
     ProjectCommand,
@@ -42,6 +43,8 @@ PORTFOLIO_PERMS = [
     'view_commands',
     'respond_commands',
     'manage_command_layers',
+    'view_contact_messages',
+    'respond_contact_messages',
     'moderate_comment',
     'manage_packs',
     'manage_store',
@@ -1119,22 +1122,15 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
         raw_layers = attrs.pop('layer_ids_json', None)
         if raw_layers is None and 'layer_ids_json' in self.initial_data:
             raw_layers = self.initial_data.get('layer_ids_json')
-        has_layer_field = (
-            raw_layers is not None
-            or 'layer_ids_json' in (self.initial_data or {})
-        )
         try:
-            layer_ids = parse_layer_ids(raw_layers) if has_layer_field else []
+            layer_ids = parse_layer_ids(raw_layers)
         except ValueError as exc:
             raise serializers.ValidationError({'layer_ids_json': str(exc)}) from exc
-        if layer_ids:
-            rows, total_usd, total_dzd = build_command_layers_snapshot(layer_ids)
-            if not rows:
-                raise serializers.ValidationError(
-                    {'layer_ids_json': 'Select at least one project layer.'},
-                )
-        else:
-            rows, total_usd, total_dzd = [], None, None
+        rows, total_usd, total_dzd = build_command_layers_snapshot(layer_ids)
+        if not rows:
+            raise serializers.ValidationError(
+                {'layer_ids_json': 'Select at least one project layer.'},
+            )
         attrs['_layer_rows'] = rows
         attrs['_layer_total_usd'] = total_usd
         attrs['_layer_total_dzd'] = total_dzd
@@ -1749,6 +1745,79 @@ class AdminCustomerSerializer(serializers.ModelSerializer):
             and sub.expires_at
             and sub.expires_at > now
         )
+
+
+class ContactMessageCreateSerializer(serializers.ModelSerializer):
+    accepted_terms = serializers.BooleanField(write_only=True)
+    recaptcha_response = serializers.CharField(
+        max_length=4096,
+        write_only=True,
+        required=False,
+        allow_blank=True,
+    )
+
+    class Meta:
+        model = ContactMessage
+        fields = [
+            'client_name',
+            'client_email',
+            'body',
+            'accepted_terms',
+            'recaptcha_response',
+        ]
+
+    def validate(self, attrs):
+        if not attrs.get('accepted_terms'):
+            raise serializers.ValidationError({
+                'accepted_terms': 'Vous devez accepter les CGV et la politique de confidentialité.',
+            })
+        from .checkout_recaptcha import verify_recaptcha
+
+        request = self.context.get('request')
+        ip = None
+        if request:
+            ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get(
+                'REMOTE_ADDR',
+            )
+        verify_recaptcha(attrs.get('recaptcha_response', ''), ip)
+        attrs.pop('accepted_terms', None)
+        attrs.pop('recaptcha_response', None)
+        attrs['client_email'] = (attrs.get('client_email') or '').strip().lower()
+        attrs['client_name'] = (attrs.get('client_name') or '').strip()
+        attrs['body'] = (attrs.get('body') or '').strip()
+        if not attrs['body']:
+            raise serializers.ValidationError({'body': 'Message is required.'})
+        return attrs
+
+
+class AdminContactMessageSerializer(serializers.ModelSerializer):
+    replied_by_name = serializers.CharField(
+        source='replied_by.username',
+        read_only=True,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = ContactMessage
+        fields = [
+            'id',
+            'client_name',
+            'client_email',
+            'body',
+            'status',
+            'staff_reply',
+            'replied_at',
+            'replied_by_name',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = fields
+
+
+class ContactMessageRespondSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['status', 'staff_reply']
 
 
 class StaffAuditLogSerializer(serializers.ModelSerializer):

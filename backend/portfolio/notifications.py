@@ -233,3 +233,58 @@ def notify_store_order_status_change(order, old_status: str, new_status: str) ->
         body_en,
         body_fr,
     )
+
+
+def notify_contact_message_received(message) -> None:
+    preview = (message.body or '').strip().replace('\n', ' ')
+    if len(preview) > 200:
+        preview = preview[:200] + '…'
+    _send_staff(
+        f'Contact message from {message.client_name or message.client_email}',
+        (
+            f'From: {message.client_name} <{message.client_email}>\n'
+            f'Message ID: {message.id}\n\n'
+            f'{message.body}'
+        ),
+    )
+    wa_en, wa_fr = _whatsapp_line_fr_en()
+    _send_client(
+        message.client_email,
+        'We received your message',
+        'Message bien reçu',
+        (
+            f'Hi {message.client_name or "there"},\n\n'
+            f'We received your message and will reply to this email shortly.\n\n'
+            f'Your message:\n{preview}'
+            f'{wa_en}'
+        ),
+        (
+            f'Bonjour {message.client_name or ""},\n\n'
+            f'Nous avons bien reçu votre message et vous répondrons bientôt à cette adresse.\n\n'
+            f'Votre message :\n{preview}'
+            f'{wa_fr}'
+        ),
+    )
+
+
+def notify_contact_message_reply(message) -> None:
+    if not (message.staff_reply or '').strip():
+        return
+    wa_en, wa_fr = _whatsapp_line_fr_en()
+    _send_client(
+        message.client_email,
+        'Reply from EmbeddedGrid',
+        'Réponse de EmbeddedGrid',
+        (
+            f'Hi {message.client_name or "there"},\n\n'
+            f'{message.staff_reply.strip()}\n\n'
+            f'— EmbeddedGrid team'
+            f'{wa_en}'
+        ),
+        (
+            f'Bonjour {message.client_name or ""},\n\n'
+            f'{message.staff_reply.strip()}\n\n'
+            f'— L\'équipe EmbeddedGrid'
+            f'{wa_fr}'
+        ),
+    )
