@@ -4,6 +4,7 @@
  */
 import { useEffect, useRef } from 'react'
 import { Mesh, Program, Renderer, Triangle } from 'ogl'
+import { waitForElementSize } from './webglUtils.js'
 
 const MAX_COLORS = 8
 
@@ -212,6 +213,7 @@ export default function Ferrofluid({
   mouseStrength = 0.85,
   mouseRadius = 0.38,
   mouseDampening = 0.18,
+  onUnavailable,
 }) {
   const containerRef = useRef(null)
   const rafRef = useRef(null)
@@ -226,27 +228,65 @@ export default function Ferrofluid({
     const container = containerRef.current
     if (!container) return undefined
 
-    const maxDpr = typeof window !== 'undefined'
-      ? Math.min(window.devicePixelRatio || 1, 1.75)
-      : 1
+    let disposed = false
+    let renderer = null
+    let canvas = null
+    let ro = null
+    let onPointerMove = null
 
-    const renderer = new Renderer({
-      dpr: dpr ?? maxDpr,
-      alpha: true,
-      antialias: true,
-    })
-    rendererRef.current = renderer
-    const { gl } = renderer
-    const canvas = gl.canvas
-    gl.clearColor(0, 0, 0, 0)
-    canvas.style.width = '100%'
-    canvas.style.height = '100%'
-    canvas.style.display = 'block'
-    container.appendChild(canvas)
+    const fail = () => {
+      if (!disposed) onUnavailable?.()
+    }
 
-    const { arr, count, avg } = prepColors(colors)
+    const init = async () => {
+      await waitForElementSize(container)
+      if (disposed) return
 
-    const uniforms = {
+      const maxDpr = Math.min(window.devicePixelRatio || 1, 1.5)
+
+      canvas = document.createElement('canvas')
+      canvas.style.width = '100%'
+      canvas.style.height = '100%'
+      canvas.style.display = 'block'
+      container.appendChild(canvas)
+
+      try {
+        try {
+          renderer = new Renderer({
+            canvas,
+            dpr: dpr ?? maxDpr,
+            alpha: true,
+            antialias: true,
+            webgl: 2,
+          })
+        } catch {
+          renderer = new Renderer({
+            canvas,
+            dpr: dpr ?? maxDpr,
+            alpha: true,
+            antialias: true,
+            webgl: 1,
+          })
+        }
+      } catch {
+        if (canvas.parentElement === container) container.removeChild(canvas)
+        fail()
+        return
+      }
+
+      const { gl } = renderer
+      if (!gl) {
+        if (canvas.parentElement === container) container.removeChild(canvas)
+        fail()
+        return
+      }
+
+      rendererRef.current = renderer
+      gl.clearColor(0, 0, 0, 0)
+
+      const { arr, count, avg } = prepColors(colors)
+
+      const uniforms = {
       iResolution: { value: [gl.drawingBufferWidth, gl.drawingBufferHeight, 1] },
       iMouse: { value: [0, 0] },
       iTime: { value: 0 },
@@ -273,72 +313,79 @@ export default function Ferrofluid({
       uMouseEnabled: { value: mouseInteraction ? 1 : 0 },
       uMouseStrength: { value: mouseStrength },
       uMouseRadius: { value: mouseRadius },
-    }
-
-    const program = new Program(gl, { vertex, fragment, uniforms })
-    programRef.current = program
-
-    const geometry = new Triangle(gl)
-    geometryRef.current = geometry
-    const mesh = new Mesh(gl, { geometry, program })
-    meshRef.current = mesh
-
-    const resize = () => {
-      const rect = container.getBoundingClientRect()
-      renderer.setSize(rect.width, rect.height)
-      uniforms.iResolution.value = [gl.drawingBufferWidth, gl.drawingBufferHeight, 1]
-    }
-
-    resize()
-    const ro = new ResizeObserver(resize)
-    ro.observe(container)
-
-    const onPointerMove = (e) => {
-      const rect = canvas.getBoundingClientRect()
-      const sc = renderer.dpr || 1
-      const x = (e.clientX - rect.left) * sc
-      const y = (rect.height - (e.clientY - rect.top)) * sc
-      mouseTargetRef.current = [x, y]
-      if (mouseDampening <= 0) {
-        uniforms.iMouse.value = [x, y]
       }
-    }
-    if (mouseInteraction) {
-      canvas.addEventListener('pointermove', onPointerMove)
-    }
 
-    const loop = (t) => {
-      rafRef.current = requestAnimationFrame(loop)
-      uniforms.iTime.value = t * 0.001
-      if (mouseDampening > 0) {
-        if (!lastTimeRef.current) lastTimeRef.current = t
-        const dt = (t - lastTimeRef.current) / 1000
-        lastTimeRef.current = t
-        const tau = Math.max(1e-4, mouseDampening)
-        let factor = 1 - Math.exp(-dt / tau)
-        if (factor > 1) factor = 1
-        const target = mouseTargetRef.current
-        const cur = uniforms.iMouse.value
-        cur[0] += (target[0] - cur[0]) * factor
-        cur[1] += (target[1] - cur[1]) * factor
-      } else {
-        lastTimeRef.current = t
+      const program = new Program(gl, { vertex, fragment, uniforms })
+      programRef.current = program
+
+      const geometry = new Triangle(gl)
+      geometryRef.current = geometry
+      const mesh = new Mesh(gl, { geometry, program })
+      meshRef.current = mesh
+
+      const resize = () => {
+        const rect = container.getBoundingClientRect()
+        renderer.setSize(rect.width, rect.height)
+        uniforms.iResolution.value = [gl.drawingBufferWidth, gl.drawingBufferHeight, 1]
       }
-      if (!paused && programRef.current && meshRef.current) {
-        try {
-          renderer.render({ scene: meshRef.current })
-        } catch (err) {
-          console.error(err)
+
+      resize()
+      ro = new ResizeObserver(resize)
+      ro.observe(container)
+
+      onPointerMove = (e) => {
+        const rect = canvas.getBoundingClientRect()
+        const sc = renderer.dpr || 1
+        const x = (e.clientX - rect.left) * sc
+        const y = (rect.height - (e.clientY - rect.top)) * sc
+        mouseTargetRef.current = [x, y]
+        if (mouseDampening <= 0) {
+          uniforms.iMouse.value = [x, y]
         }
       }
+      if (mouseInteraction) {
+        canvas.addEventListener('pointermove', onPointerMove)
+      }
+
+      const loop = (t) => {
+        if (disposed) return
+        rafRef.current = requestAnimationFrame(loop)
+        uniforms.iTime.value = t * 0.001
+        if (mouseDampening > 0) {
+          if (!lastTimeRef.current) lastTimeRef.current = t
+          const dt = (t - lastTimeRef.current) / 1000
+          lastTimeRef.current = t
+          const tau = Math.max(1e-4, mouseDampening)
+          let factor = 1 - Math.exp(-dt / tau)
+          if (factor > 1) factor = 1
+          const target = mouseTargetRef.current
+          const cur = uniforms.iMouse.value
+          cur[0] += (target[0] - cur[0]) * factor
+          cur[1] += (target[1] - cur[1]) * factor
+        } else {
+          lastTimeRef.current = t
+        }
+        if (!paused && programRef.current && meshRef.current) {
+          try {
+            renderer.render({ scene: meshRef.current })
+          } catch {
+            fail()
+          }
+        }
+      }
+      rafRef.current = requestAnimationFrame(loop)
     }
-    rafRef.current = requestAnimationFrame(loop)
+
+    init()
 
     return () => {
+      disposed = true
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      if (mouseInteraction) canvas.removeEventListener('pointermove', onPointerMove)
-      ro.disconnect()
-      if (canvas.parentElement === container) {
+      if (mouseInteraction && canvas && onPointerMove) {
+        canvas.removeEventListener('pointermove', onPointerMove)
+      }
+      ro?.disconnect()
+      if (canvas && canvas.parentElement === container) {
         container.removeChild(canvas)
       }
       const callIfFn = (obj, key) => {
@@ -372,6 +419,7 @@ export default function Ferrofluid({
     mouseStrength,
     mouseRadius,
     mouseDampening,
+    onUnavailable,
   ])
 
   return <div ref={containerRef} className={className} aria-hidden />
