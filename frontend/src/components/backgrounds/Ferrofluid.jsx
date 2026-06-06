@@ -1,24 +1,24 @@
 /**
- * Ferrofluid WebGL background — adapted from React Bits (DavidHDev/react-bits).
+ * Ferrofluid — official React Bits source (DavidHDev/react-bits).
  * https://reactbits.dev/backgrounds/ferrofluid
  */
 import { useEffect, useRef } from 'react'
 import { Mesh, Program, Renderer, Triangle } from 'ogl'
-import { waitForElementSize } from './webglUtils.js'
+import { createOglRenderer, waitForElementSize } from './webglUtils.js'
+import './Ferrofluid.css'
 
 const MAX_COLORS = 8
 
 const hexToRGB = (hex) => {
   const c = hex.replace('#', '').padEnd(6, '0')
-  return [
-    parseInt(c.slice(0, 2), 16) / 255,
-    parseInt(c.slice(2, 4), 16) / 255,
-    parseInt(c.slice(4, 6), 16) / 255,
-  ]
+  const r = parseInt(c.slice(0, 2), 16) / 255
+  const g = parseInt(c.slice(2, 4), 16) / 255
+  const b = parseInt(c.slice(4, 6), 16) / 255
+  return [r, g, b]
 }
 
 const prepColors = (input) => {
-  const base = (input?.length ? input : ['#22d3ee', '#0891b2', '#0c1017']).slice(0, MAX_COLORS)
+  const base = (input && input.length ? input : ['#4F46E5', '#06B6D4', '#E0F2FE']).slice(0, MAX_COLORS)
   const count = base.length
   const arr = []
   for (let i = 0; i < MAX_COLORS; i += 1) {
@@ -64,22 +64,22 @@ void main() {
 const fragment = `
 precision highp float;
 
-uniform vec3 iResolution;
-uniform vec2 iMouse;
+uniform vec3  iResolution;
+uniform vec2  iMouse;
 uniform float iTime;
 
-uniform vec3 uColor0;
-uniform vec3 uColor1;
-uniform vec3 uColor2;
-uniform vec3 uColor3;
-uniform vec3 uColor4;
-uniform vec3 uColor5;
-uniform vec3 uColor6;
-uniform vec3 uColor7;
-uniform int uColorCount;
+uniform vec3  uColor0;
+uniform vec3  uColor1;
+uniform vec3  uColor2;
+uniform vec3  uColor3;
+uniform vec3  uColor4;
+uniform vec3  uColor5;
+uniform vec3  uColor6;
+uniform vec3  uColor7;
+uniform int   uColorCount;
 
-uniform vec3 uMouseColor;
-uniform vec2 uFlow;
+uniform vec3  uMouseColor;
+uniform vec2  uFlow;
 uniform float uSpeed;
 uniform float uScale;
 uniform float uTurbulence;
@@ -195,24 +195,25 @@ void main() {
 `
 
 export default function Ferrofluid({
-  className = 'ferrofluid-container',
+  className,
   dpr,
   paused = false,
-  colors,
-  speed = 0.45,
-  scale = 1.5,
+  colors = ['#ffffff', '#ffffff', '#ffffff'],
+  speed = 0.5,
+  scale = 1.6,
   turbulence = 1,
-  fluidity = 0.12,
-  rimWidth = 0.22,
-  sharpness = 2.4,
-  shimmer = 1.4,
-  glow = 1.8,
-  flowDirection = 'up',
-  opacity = 0.92,
+  fluidity = 0.1,
+  rimWidth = 0.2,
+  sharpness = 2.5,
+  shimmer = 1.5,
+  glow = 2,
+  flowDirection = 'down',
+  opacity = 1,
   mouseInteraction = true,
-  mouseStrength = 0.85,
-  mouseRadius = 0.38,
-  mouseDampening = 0.18,
+  mouseStrength = 1,
+  mouseRadius = 0.35,
+  mouseDampening = 0.15,
+  mixBlendMode,
   onUnavailable,
 }) {
   const containerRef = useRef(null)
@@ -223,14 +224,33 @@ export default function Ferrofluid({
   const rendererRef = useRef(null)
   const mouseTargetRef = useRef([0, 0])
   const lastTimeRef = useRef(0)
+  const colorsRef = useRef(colors)
+  colorsRef.current = colors
+
+  useEffect(() => {
+    const program = programRef.current
+    if (!program?.uniforms) return
+    const { arr, count, avg } = prepColors(colors)
+    const u = program.uniforms
+    u.uColor0.value = arr[0]
+    u.uColor1.value = arr[1]
+    u.uColor2.value = arr[2]
+    u.uColor3.value = arr[3]
+    u.uColor4.value = arr[4]
+    u.uColor5.value = arr[5]
+    u.uColor6.value = arr[6]
+    u.uColor7.value = arr[7]
+    u.uColorCount.value = count
+    u.uMouseColor.value = avg
+  }, [colors])
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return undefined
 
     let disposed = false
-    let renderer = null
     let canvas = null
+    let renderer = null
     let ro = null
     let onPointerMove = null
 
@@ -242,51 +262,28 @@ export default function Ferrofluid({
       await waitForElementSize(container)
       if (disposed) return
 
-      const maxDpr = Math.min(window.devicePixelRatio || 1, 1.5)
-
       canvas = document.createElement('canvas')
       canvas.style.width = '100%'
       canvas.style.height = '100%'
       canvas.style.display = 'block'
       container.appendChild(canvas)
 
-      try {
-        try {
-          renderer = new Renderer({
-            canvas,
-            dpr: dpr ?? maxDpr,
-            alpha: true,
-            antialias: true,
-            webgl: 2,
-          })
-        } catch {
-          renderer = new Renderer({
-            canvas,
-            dpr: dpr ?? maxDpr,
-            alpha: true,
-            antialias: true,
-            webgl: 1,
-          })
-        }
-      } catch {
-        if (canvas.parentElement === container) container.removeChild(canvas)
-        fail()
-        return
-      }
+      const pixelRatio = dpr ?? (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1)
+      renderer = createOglRenderer(Renderer, { canvas, dpr: pixelRatio })
 
-      const { gl } = renderer
-      if (!gl) {
+      if (!renderer?.gl) {
         if (canvas.parentElement === container) container.removeChild(canvas)
         fail()
         return
       }
 
       rendererRef.current = renderer
+      const { gl } = renderer
       gl.clearColor(0, 0, 0, 0)
 
-      const { arr, count, avg } = prepColors(colors)
+      const { arr, count, avg } = prepColors(colorsRef.current)
 
-      const uniforms = {
+    const uniforms = {
       iResolution: { value: [gl.drawingBufferWidth, gl.drawingBufferHeight, 1] },
       iMouse: { value: [0, 0] },
       iTime: { value: 0 },
@@ -313,35 +310,35 @@ export default function Ferrofluid({
       uMouseEnabled: { value: mouseInteraction ? 1 : 0 },
       uMouseStrength: { value: mouseStrength },
       uMouseRadius: { value: mouseRadius },
-      }
+    }
 
-      const program = new Program(gl, { vertex, fragment, uniforms })
-      programRef.current = program
+    const program = new Program(gl, { vertex, fragment, uniforms })
+    programRef.current = program
 
-      const geometry = new Triangle(gl)
-      geometryRef.current = geometry
-      const mesh = new Mesh(gl, { geometry, program })
-      meshRef.current = mesh
+    const geometry = new Triangle(gl)
+    geometryRef.current = geometry
+    const mesh = new Mesh(gl, { geometry, program })
+    meshRef.current = mesh
 
-      const resize = () => {
-        const rect = container.getBoundingClientRect()
-        renderer.setSize(rect.width, rect.height)
-        uniforms.iResolution.value = [gl.drawingBufferWidth, gl.drawingBufferHeight, 1]
-      }
+    const resize = () => {
+      const rect = container.getBoundingClientRect()
+      renderer.setSize(rect.width, rect.height)
+      uniforms.iResolution.value = [gl.drawingBufferWidth, gl.drawingBufferHeight, 1]
+    }
 
       resize()
       ro = new ResizeObserver(resize)
       ro.observe(container)
 
       onPointerMove = (e) => {
-        const rect = canvas.getBoundingClientRect()
-        const sc = renderer.dpr || 1
-        const x = (e.clientX - rect.left) * sc
-        const y = (rect.height - (e.clientY - rect.top)) * sc
-        mouseTargetRef.current = [x, y]
-        if (mouseDampening <= 0) {
-          uniforms.iMouse.value = [x, y]
-        }
+      const rect = canvas.getBoundingClientRect()
+      const sc = renderer.dpr || 1
+      const x = (e.clientX - rect.left) * sc
+      const y = (rect.height - (e.clientY - rect.top)) * sc
+      mouseTargetRef.current = [x, y]
+      if (mouseDampening <= 0) {
+        uniforms.iMouse.value = [x, y]
+      }
       }
       if (mouseInteraction) {
         canvas.addEventListener('pointermove', onPointerMove)
@@ -422,5 +419,14 @@ export default function Ferrofluid({
     onUnavailable,
   ])
 
-  return <div ref={containerRef} className={className} aria-hidden />
+  return (
+    <div
+      ref={containerRef}
+      className={`ferrofluid-container ${className ?? ''}`}
+      style={{
+        ...(mixBlendMode && { mixBlendMode }),
+      }}
+      aria-hidden
+    />
+  )
 }

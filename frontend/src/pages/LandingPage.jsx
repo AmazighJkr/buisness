@@ -88,9 +88,8 @@ export default function LandingPage() {
         id="home"
         className="hero-section relative flex min-h-screen items-center justify-center overflow-hidden pt-16"
       >
-        <div className="hero-bg-base absolute inset-0 bg-dark-bg" aria-hidden />
+        <div className="hero-bg-base absolute inset-0" aria-hidden />
         <HeroFerrofluid />
-        <div className="hero-overlay absolute inset-0 z-[1]" aria-hidden />
         <div className="hero-copy relative z-10 mx-auto max-w-4xl px-4 py-20 text-center sm:py-24">
           <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
             EmbeddedGrid
