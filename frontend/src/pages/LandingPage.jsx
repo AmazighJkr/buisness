@@ -90,16 +90,12 @@ export default function LandingPage() {
       >
         <div className="hero-bg-base absolute inset-0" aria-hidden />
         <HeroFerrofluid />
-        <div className="hero-copy relative z-10 mx-auto w-[92%] px-4 py-20 text-center sm:py-24 lg:w-1/2">
-          <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
-            EmbeddedGrid
+        <div className="hero-copy relative z-10 mx-auto w-[94%] px-4 py-20 text-center sm:py-24 lg:w-1/2">
+          <h1 className="hero-title font-display font-bold tracking-tight">
+            Embedded<span className="hero-title-accent">Grid</span>
           </h1>
-          <p className="mt-4 text-base text-dark-muted sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
-            {t('landing.tagline')}
-          </p>
-          <p className="mx-auto mt-6 text-sm text-dark-muted sm:text-base md:text-lg lg:text-xl">
-            {t('landing.subtitle')}
-          </p>
+          <p className="hero-tagline mt-4 text-dark-muted">{t('landing.tagline')}</p>
+          <p className="hero-subtitle mx-auto mt-6 text-dark-muted">{t('landing.subtitle')}</p>
         </div>
       </section>
 

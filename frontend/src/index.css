@@ -784,19 +784,35 @@ html[data-theme='dark'] .hero-bg-base {
   }
 }
 
-.hero-copy h1 {
+.hero-title {
+  font-size: clamp(2.75rem, 12vw, 6rem);
+  line-height: 1.05;
   text-shadow: 0 2px 28px rgb(15 23 42 / 0.12);
 }
 
-html[data-theme='dark'] .hero-copy h1 {
+.hero-title-accent {
+  color: var(--eg-accent);
+}
+
+html[data-theme='dark'] .hero-title {
   text-shadow: 0 4px 32px rgb(0 0 0 / 0.55), 0 0 48px rgb(34 211 238 / 0.15);
 }
 
-.hero-copy p {
+.hero-tagline {
+  font-size: clamp(1.25rem, 4.5vw, 2.25rem);
+  line-height: 1.35;
   text-shadow: 0 1px 12px rgb(15 23 42 / 0.08);
 }
 
-html[data-theme='dark'] .hero-copy p {
+.hero-subtitle {
+  font-size: clamp(1.0625rem, 3.5vw, 1.5rem);
+  line-height: 1.5;
+  max-width: 42em;
+  text-shadow: 0 1px 12px rgb(15 23 42 / 0.08);
+}
+
+html[data-theme='dark'] .hero-tagline,
+html[data-theme='dark'] .hero-subtitle {
   text-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
 }
 
