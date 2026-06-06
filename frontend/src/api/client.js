@@ -29,6 +29,50 @@ let adminRefreshInFlight = null
 let userRefreshInFlight = null
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
+function parseJwtPayload(token) {
+  try {
+    const segment = token.split('.')[1]
+    if (!segment) return null
+    const json = atob(segment.replace(/-/g, '+').replace(/_/g, '/'))
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
+function isAdminAccessExpired(bufferSec = 60) {
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY)
+  if (!token) return true
+  const payload = parseJwtPayload(token)
+  if (!payload?.exp) return false
+  return payload.exp * 1000 < Date.now() + bufferSec * 1000
+}
+
+/** True when admin access or refresh token is stored locally. */
+export function hasAdminSession() {
+  if (typeof window === 'undefined') return false
+  return Boolean(
+    localStorage.getItem(ADMIN_TOKEN_KEY) || localStorage.getItem(ADMIN_REFRESH_KEY),
+  )
+}
+
+/** Refresh access token when expired; returns false if admin must log in again. */
+export async function ensureAdminSession() {
+  if (typeof window === 'undefined') return false
+  const refresh = localStorage.getItem(ADMIN_REFRESH_KEY)
+  const access = localStorage.getItem(ADMIN_TOKEN_KEY)
+  if (!refresh && !access) return false
+  if (refresh && (!access || isAdminAccessExpired())) {
+    const ok = await refreshAdminAccessToken()
+    if (!ok) {
+      adminLogout()
+      return false
+    }
+    return true
+  }
+  return Boolean(localStorage.getItem(ADMIN_TOKEN_KEY))
+}
+
 async function apiFetch(url, options = {}) {
   let res
   try {
@@ -191,6 +235,9 @@ async function refreshAdminAccessToken() {
 
 /** Admin API with JWT refresh on 401. */
 export async function adminRequest(url, options = {}, retried = false) {
+  if (!retried && hasAdminSession()) {
+    await ensureAdminSession()
+  }
   const isForm = options.body instanceof FormData
   const headers = { ...(options.headers || {}) }
   const method = (options.method || 'GET').toUpperCase()
@@ -753,10 +800,20 @@ export function adminLogout() {
 }
 
 export async function fetchAdminMe() {
+  if (!hasAdminSession()) return null
+  if (!(await ensureAdminSession())) return null
   try {
     return await adminRequest(`${API_BASE}/api/admin/me/`)
   } catch (err) {
-    if (err.message?.includes('expired') || err.message?.includes('credentials')) return null
+    const msg = err.message || ''
+    if (
+      msg.includes('expired')
+      || msg.includes('credentials')
+      || msg.includes('log in')
+      || msg.includes('Invalid')
+    ) {
+      return null
+    }
     throw err
   }
 }
