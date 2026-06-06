@@ -777,6 +777,13 @@ html[data-theme='dark'] .hero-bg-base {
   padding: 2rem 1rem;
 }
 
+@media (min-width: 1024px) {
+  .hero-copy {
+    width: 50%;
+    padding: 2.5rem 1.5rem;
+  }
+}
+
 .hero-copy h1 {
   text-shadow: 0 2px 28px rgb(15 23 42 / 0.12);
 }
