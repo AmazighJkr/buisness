@@ -62,6 +62,8 @@ export const translations = {
       model3dUnsupported: 'Format .{ext} is not supported. Use {supported} for web preview.',
       model3dWebgl:
         '3D preview needs WebGL. Enable hardware acceleration in your browser, or open this page in Chrome or Firefox.',
+      model3dLoadFailed:
+        'Could not load this 3D file. Try exporting as GLB (recommended) or a smaller OBJ with fewer polygons.',
     },
     landing: {
       tagline: 'IT, Electronics, Maintenance & Consulting',
@@ -616,6 +618,8 @@ export const translations = {
       model3dUnsupported: 'Format .{ext} non pris en charge. Utilisez {supported} pour l’aperçu web.',
       model3dWebgl:
         'L’aperçu 3D nécessite WebGL. Activez l’accélération matérielle ou ouvrez cette page dans Chrome ou Firefox.',
+      model3dLoadFailed:
+        'Impossible de charger ce fichier 3D. Exportez en GLB (recommandé) ou un OBJ plus léger.',
     },
     landing: {
       tagline: 'Informatique, Électronique, Maintenance & Conseil',

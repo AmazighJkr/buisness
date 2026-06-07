@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react/no-unknown-property */
 import { Suspense, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useLoader, useThree, invalidate } from '@react-three/fiber';
@@ -16,13 +15,67 @@ const PARALLAX_EASE = 0.12;
 const HOVER_MAG = deg2rad(6);
 const HOVER_EASE = 0.15;
 
+const DEFAULT_OBJ_MATERIAL = new THREE.MeshStandardMaterial({
+  color: 0xb8c4d0,
+  metalness: 0.12,
+  roughness: 0.62,
+});
+
+function extensionFromUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const clean = url.split('?')[0].split('#')[0];
+  const parts = clean.split('.');
+  return parts.length >= 2 ? parts.pop().toLowerCase() : '';
+}
+
+function ensureMeshMaterial(mat) {
+  if (!mat || !mat.isMaterial) {
+    return DEFAULT_OBJ_MATERIAL.clone();
+  }
+  if (mat.isMeshBasicMaterial) {
+    const std = new THREE.MeshStandardMaterial({
+      color: mat.color?.clone?.() ?? new THREE.Color(0xb8c4d0),
+      metalness: 0.12,
+      roughness: 0.62,
+      map: mat.map ?? null,
+      transparent: mat.transparent,
+      opacity: mat.opacity ?? 1,
+    });
+    return std;
+  }
+  return mat;
+}
+
+/** OBJ exports often ship without materials or with legacy Phong mats — normalize for PBR lights. */
+export function prepareLoadedScene(root) {
+  root.traverse(o => {
+    if (!o.isMesh) return;
+    const geo = o.geometry;
+    if (geo) {
+      if (!geo.attributes.normal) geo.computeVertexNormals();
+      geo.computeBoundingSphere();
+    }
+    o.castShadow = true;
+    o.receiveShadow = true;
+    if (Array.isArray(o.material)) {
+      o.material = o.material.map(ensureMeshMaterial);
+    } else {
+      o.material = ensureMeshMaterial(o.material);
+    }
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    mats.forEach(m => {
+      if (m) m.side = THREE.DoubleSide;
+    });
+  });
+}
+
 const Loader = ({ placeholderSrc }) => {
   const { progress, active } = useProgress();
   if (!active && placeholderSrc) return null;
   return (
     <Html center>
       {placeholderSrc ? (
-        <img src={placeholderSrc} width={128} height={128} className="blur-lg rounded-lg" />
+        <img src={placeholderSrc} width={128} height={128} className="blur-lg rounded-lg" alt="" />
       ) : (
         `${Math.round(progress)} %`
       )}
@@ -46,8 +99,8 @@ const DesktopControls = ({ pivot, min, max, zoomEnabled }) => {
   );
 };
 
-const ModelInner = ({
-  url,
+const ModelRig = ({
+  scene,
   xOff,
   yOff,
   pivot,
@@ -74,49 +127,53 @@ const ModelInner = ({
   const cPar = useRef({ x: 0, y: 0 });
   const tHov = useRef({ x: 0, y: 0 });
   const cHov = useRef({ x: 0, y: 0 });
-
-  const ext = useMemo(() => url.split('.').pop().toLowerCase(), [url]);
-  const content = useMemo(() => {
-    if (ext === 'glb' || ext === 'gltf') return useGLTF(url).scene.clone();
-    if (ext === 'fbx') return useFBX(url).clone();
-    if (ext === 'obj') return useLoader(OBJLoader, url).clone();
-    console.error('Unsupported format:', ext);
-    return null;
-  }, [url, ext]);
-
   const pivotW = useRef(new THREE.Vector3());
-  useLayoutEffect(() => {
-    if (!content) return;
-    const g = inner.current;
-    g.updateWorldMatrix(true, true);
 
-    const sphere = new THREE.Box3().setFromObject(g).getBoundingSphere(new THREE.Sphere());
-    const s = 1 / (sphere.radius * 2);
+  useLayoutEffect(() => {
+    const g = inner.current;
+    if (!g || !scene) return;
+
+    g.updateWorldMatrix(true, true);
+    const box = new THREE.Box3().setFromObject(g);
+    if (box.isEmpty()) {
+      onLoaded?.();
+      return;
+    }
+
+    const sphere = box.getBoundingSphere(new THREE.Sphere());
+    const radius = sphere.radius;
+    if (!radius || !Number.isFinite(radius)) {
+      onLoaded?.();
+      return;
+    }
+
+    const s = 1 / (radius * 2);
     g.position.set(-sphere.center.x, -sphere.center.y, -sphere.center.z);
     g.scale.setScalar(s);
 
-    g.traverse(o => {
-      if (o.isMesh) {
-        o.castShadow = true;
-        o.receiveShadow = true;
-        if (fadeIn) {
-          o.material.transparent = true;
-          o.material.opacity = 0;
-        }
-      }
-    });
+    if (fadeIn) {
+      g.traverse(o => {
+        if (!o.isMesh || !o.material) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        mats.forEach(m => {
+          if (!m) return;
+          m.transparent = true;
+          m.opacity = 0;
+        });
+      });
+    }
 
     g.getWorldPosition(pivotW.current);
     pivot.copy(pivotW.current);
-    outer.current.rotation.set(initPitch, initYaw, 0);
+    if (outer.current) outer.current.rotation.set(initPitch, initYaw, 0);
 
     if (autoFrame && camera.isPerspectiveCamera) {
       const persp = camera;
-      const fitR = sphere.radius * s;
+      const fitR = radius * s;
       const d = (fitR * 1.2) / Math.sin((persp.fov * Math.PI) / 180 / 2);
       persp.position.set(pivotW.current.x, pivotW.current.y, pivotW.current.z + d);
-      persp.near = d / 10;
-      persp.far = d * 10;
+      persp.near = Math.max(d / 100, 0.01);
+      persp.far = d * 100;
       persp.updateProjectionMatrix();
     }
 
@@ -126,7 +183,11 @@ const ModelInner = ({
         t += 0.05;
         const v = Math.min(t, 1);
         g.traverse(o => {
-          if (o.isMesh) o.material.opacity = v;
+          if (!o.isMesh || !o.material) return;
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          mats.forEach(m => {
+            if (m) m.opacity = v;
+          });
         });
         invalidate();
         if (v === 1) {
@@ -135,9 +196,11 @@ const ModelInner = ({
         }
       }, 16);
       return () => clearInterval(id);
-    } else onLoaded?.();
+    }
+
+    onLoaded?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [scene]);
 
   useEffect(() => {
     if (!enableManualRotation || isTouch) return;
@@ -153,7 +216,7 @@ const ModelInner = ({
       window.addEventListener('pointerup', up);
     };
     const move = e => {
-      if (!drag) return;
+      if (!drag || !outer.current) return;
       const dx = e.clientX - lx;
       const dy = e.clientY - ly;
       lx = e.clientX;
@@ -223,7 +286,7 @@ const ModelInner = ({
         }
       }
 
-      if (mode === 'rotate') {
+      if (mode === 'rotate' && outer.current) {
         e.preventDefault();
         const dx = e.clientX - lx;
         const dy = e.clientY - ly;
@@ -277,6 +340,7 @@ const ModelInner = ({
   }, [enableMouseParallax, enableHoverRotation]);
 
   useFrame((_, dt) => {
+    if (!outer.current) return;
     let need = false;
     cPar.current.x += (tPar.current.x - cPar.current.x) * PARALLAX_EASE;
     cPar.current.y += (tPar.current.y - cPar.current.y) * PARALLAX_EASE;
@@ -315,15 +379,44 @@ const ModelInner = ({
     if (need) invalidate();
   });
 
-  if (!content) return null;
   return (
     <group ref={outer}>
       <group ref={inner}>
-        <primitive object={content} />
+        <primitive object={scene} />
       </group>
     </group>
   );
 };
+
+function GlbModel(props) {
+  const { scene } = useGLTF(props.url);
+  const cloned = useMemo(() => scene.clone(true), [scene]);
+  return <ModelRig scene={cloned} {...props} />;
+}
+
+function FbxModel(props) {
+  const fbx = useFBX(props.url);
+  const cloned = useMemo(() => fbx.clone(true), [fbx]);
+  return <ModelRig scene={cloned} {...props} />;
+}
+
+function ObjModel(props) {
+  const obj = useLoader(OBJLoader, props.url);
+  const scene = useMemo(() => {
+    const cloned = obj.clone(true);
+    prepareLoadedScene(cloned);
+    return cloned;
+  }, [obj]);
+  return <ModelRig scene={scene} {...props} />;
+}
+
+function ModelContent(props) {
+  const ext = extensionFromUrl(props.url);
+  if (ext === 'glb' || ext === 'gltf') return <GlbModel {...props} />;
+  if (ext === 'fbx') return <FbxModel {...props} />;
+  if (ext === 'obj') return <ObjModel {...props} />;
+  return null;
+}
 
 const ModelViewer = ({
   url,
@@ -345,6 +438,7 @@ const ModelViewer = ({
   fillLightIntensity = 0.5,
   rimLightIntensity = 0.8,
   environmentPreset = 'forest',
+  enableShadows = true,
   autoFrame = false,
   placeholderSrc,
   showScreenshotButton = true,
@@ -354,11 +448,12 @@ const ModelViewer = ({
   onModelLoaded
 }) => {
   useEffect(() => {
-    const ext = url.split('?')[0].split('#')[0].split('.').pop()?.toLowerCase();
+    const ext = extensionFromUrl(url);
     if (ext === 'glb' || ext === 'gltf') {
-      void useGLTF.preload(url);
+      useGLTF.preload(url);
     }
   }, [url]);
+
   const pivot = useRef(new THREE.Vector3()).current;
   const contactRef = useRef(null);
   const rendererRef = useRef(null);
@@ -389,7 +484,7 @@ const ModelViewer = ({
     a.download = 'model.png';
     a.href = urlPNG;
     a.click();
-    g.shadowMap.enabled = true;
+    g.shadowMap.enabled = enableShadows;
     tmp.forEach(({ l, cast }) => (l.castShadow = cast));
     if (contactRef.current) contactRef.current.visible = true;
     invalidate();
@@ -406,6 +501,7 @@ const ModelViewer = ({
     >
       {showScreenshotButton && (
         <button
+          type="button"
           onClick={capture}
           className="absolute top-4 right-4 z-10 cursor-pointer px-4 py-2 border border-white rounded-xl bg-transparent text-white hover:bg-white hover:text-black transition-colors"
         >
@@ -414,15 +510,25 @@ const ModelViewer = ({
       )}
 
       <Canvas
-        shadows
+        shadows={enableShadows}
         frameloop="demand"
-        gl={{ preserveDrawingBuffer: true }}
+        dpr={[1, 1.5]}
+        gl={{
+          preserveDrawingBuffer: true,
+          powerPreference: 'default',
+          antialias: true,
+        }}
         onCreated={({ gl, scene, camera }) => {
           rendererRef.current = gl;
           sceneRef.current = scene;
           cameraRef.current = camera;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.outputColorSpace = THREE.SRGBColorSpace;
+          const canvas = gl.domElement;
+          const onLost = e => {
+            e.preventDefault();
+          };
+          canvas.addEventListener('webglcontextlost', onLost, false);
         }}
         camera={{ fov: 50, position: [0, 0, camZ], near: 0.01, far: 100 }}
         style={{ touchAction: 'pan-y pinch-zoom' }}
@@ -430,14 +536,16 @@ const ModelViewer = ({
         {environmentPreset !== 'none' && <Environment preset={environmentPreset} background={false} />}
 
         <ambientLight intensity={ambientIntensity} />
-        <directionalLight position={[5, 5, 5]} intensity={keyLightIntensity} castShadow />
+        <directionalLight position={[5, 5, 5]} intensity={keyLightIntensity} castShadow={enableShadows} />
         <directionalLight position={[-5, 2, 5]} intensity={fillLightIntensity} />
         <directionalLight position={[0, 4, -5]} intensity={rimLightIntensity} />
 
-        <ContactShadows ref={contactRef} position={[0, -0.5, 0]} opacity={0.35} scale={10} blur={2} />
+        {enableShadows ? (
+          <ContactShadows ref={contactRef} position={[0, -0.5, 0]} opacity={0.35} scale={10} blur={2} />
+        ) : null}
 
         <Suspense fallback={<Loader placeholderSrc={placeholderSrc} />}>
-          <ModelInner
+          <ModelContent
             url={url}
             xOff={modelXOffset}
             yOff={modelYOffset}

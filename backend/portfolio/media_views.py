@@ -22,6 +22,13 @@ def serve_media(request, path: str):
         raise Http404()
 
     content_type, _ = mimetypes.guess_type(target.name)
+    ext = target.suffix.lower()
+    if ext == '.obj':
+        content_type = 'text/plain; charset=utf-8'
+    elif ext == '.glb':
+        content_type = 'model/gltf-binary'
+    elif ext == '.gltf':
+        content_type = 'model/gltf+json'
     return FileResponse(
         target.open('rb'),
         content_type=content_type or 'application/octet-stream',
