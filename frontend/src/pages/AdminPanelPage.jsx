@@ -118,6 +118,7 @@ export default function AdminPanelPage() {
   const [schematic, setSchematic] = useState(null)
   const [model3d, setModel3d] = useState(null)
   const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
+  const [existingModel3dPending, setExistingModel3dPending] = useState(false)
   const [editId, setEditId] = useState(null)
 
   const [selectedCommand, setSelectedCommand] = useState(null)
@@ -212,6 +213,7 @@ export default function AdminPanelPage() {
     setSchematic(null)
     setModel3d(null)
     setExistingModel3dUrl('')
+    setExistingModel3dPending(false)
     setSelectedPackIds([])
     setEditId(null)
   }
@@ -234,12 +236,23 @@ export default function AdminPanelPage() {
     }
     try {
       const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, selectedPackIds)
+      let saved
       if (editId) {
-        await adminUpdateProject(editId, fd)
-        setMsg({ type: 'success', text: 'Project updated.' })
+        saved = await adminUpdateProject(editId, fd)
+        setMsg({
+          type: saved?.model_3d_pending ? 'error' : 'success',
+          text: saved?.model_3d_pending
+            ? 'Project saved, but GLB preview failed — try STL or GLB export, or run convert_project_models_glb on the server.'
+            : 'Project updated.',
+        })
       } else {
-        await adminCreateProject(fd)
-        setMsg({ type: 'success', text: 'Project published.' })
+        saved = await adminCreateProject(fd)
+        setMsg({
+          type: saved?.model_3d_pending ? 'error' : 'success',
+          text: saved?.model_3d_pending
+            ? 'Project published, but GLB preview failed — try STL or GLB export.'
+            : 'Project published.',
+        })
       }
       resetProjectForm()
       const p = await adminFetchProjects()
@@ -269,6 +282,7 @@ export default function AdminPanelPage() {
     })
     setModel3d(null)
     setExistingModel3dUrl(p.model_3d_url || '')
+    setExistingModel3dPending(!!p.model_3d_pending)
     setSelectedPackIds(p.pack_ids || [])
     setMaterials(
       p.materials?.length
@@ -586,8 +600,13 @@ export default function AdminPanelPage() {
           </span>
         )}
         {!model3d && existingModel3dUrl && (
-          <span className="mt-1 block text-[10px] text-dark-muted">
-            Current file on server — upload a new file to replace
+          <span className="mt-1 block text-[10px] text-lab-cyan">
+            GLB preview ready — upload a new file to replace
+          </span>
+        )}
+        {!model3d && existingModel3dPending && (
+          <span className="mt-1 block text-[10px] text-amber-400">
+            File saved but GLB preview missing — re-upload as STL or GLB
           </span>
         )}
       </label>

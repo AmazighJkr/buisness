@@ -68,12 +68,8 @@ export default function HardwareModelViewer({ url, className = '' }) {
   if (!isSupportedModelUrl(resolvedUrl)) {
     return (
       <div className={`model-viewer-notice ${className}`.trim()}>
-        <p className="text-sm text-dark-muted">
-          {t('projects.model3dUnsupported', {
-            ext: ext || '?',
-            supported: SUPPORTED_MODEL_EXTENSIONS.join(', ').toUpperCase(),
-          })}
-        </p>
+        <p className="text-sm font-medium text-dark-text">{t('projects.model3dPendingTitle')}</p>
+        <p className="mt-2 text-xs text-dark-muted">{t('projects.model3dPendingBody')}</p>
       </div>
     )
   }

@@ -64,6 +64,9 @@ export const translations = {
         '3D preview needs WebGL. Enable hardware acceleration in your browser, or open this page in Chrome or Firefox.',
       model3dLoadFailed:
         'Could not load this 3D file. Try exporting as GLB (recommended) or a smaller OBJ with fewer polygons.',
+      model3dPendingTitle: '3D preview not ready',
+      model3dPendingBody:
+        'The file was saved but GLB conversion did not finish. Re-upload as STL or GLB, or run: python manage.py convert_project_models_glb',
     },
     landing: {
       tagline: 'IT, Electronics, Maintenance & Consulting',
@@ -620,6 +623,9 @@ export const translations = {
         'L’aperçu 3D nécessite WebGL. Activez l’accélération matérielle ou ouvrez cette page dans Chrome ou Firefox.',
       model3dLoadFailed:
         'Impossible de charger ce fichier 3D. Exportez en GLB (recommandé) ou un OBJ plus léger.',
+      model3dPendingTitle: 'Aperçu 3D non disponible',
+      model3dPendingBody:
+        'Le fichier est enregistré mais la conversion GLB a échoué. Téléversez un STL ou GLB, ou exécutez convert_project_models_glb sur le serveur.',
     },
     landing: {
       tagline: 'Informatique, Électronique, Maintenance & Conseil',

@@ -85,9 +85,16 @@ export default function ProjectDetailContent({ project, onBack }) {
         </SectionBox>
       )}
 
-      {project.model_3d_url?.trim() && (
+      {(project.model_3d_url?.trim() || project.model_3d_pending) && (
         <SectionBox title={t('materials.model3d')} noPadding>
-          <HardwareModelViewer url={project.model_3d_url.trim()} />
+          {project.model_3d_url?.trim() ? (
+            <HardwareModelViewer url={project.model_3d_url.trim()} />
+          ) : (
+            <div className="model-viewer-notice">
+              <p className="text-sm font-medium text-dark-text">{t('projects.model3dPendingTitle')}</p>
+              <p className="mt-2 text-xs text-dark-muted">{t('projects.model3dPendingBody')}</p>
+            </div>
+          )}
         </SectionBox>
       )}
 

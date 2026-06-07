@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from decimal import Decimal
 
@@ -36,6 +37,7 @@ from .command_layers import build_command_layers_snapshot, parse_layer_ids
 from .validators import validate_upload_extension
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 PORTFOLIO_PERMS = [
     'post_project',
@@ -65,22 +67,21 @@ def normalize_simulation_url(value):
 
 
 def project_model_3d_url(obj):
-    """GLB preview URL (converted), direct GLB upload, or legacy external URL."""
+    """Browser preview URL — GLB only (never raw STEP/OBJ)."""
+    from .model3d_convert import extension_from_name, is_glb_name
+
     url = media_url(getattr(obj, 'model_3d_glb', None))
     if url:
         return url
     source = getattr(obj, 'model_3d_file', None)
-    if source and getattr(source, 'name', None):
-        from .model3d_convert import is_glb_name
-
-        if is_glb_name(source.name):
-            url = media_url(source)
-            if url:
-                return url
+    if source and getattr(source, 'name', None) and is_glb_name(source.name):
         url = media_url(source)
         if url:
             return url
-    return (getattr(obj, 'model_3d_url', None) or '').strip()
+    legacy = (getattr(obj, 'model_3d_url', None) or '').strip()
+    if legacy and extension_from_name(legacy.split('?')[0]) in {'.glb', '.gltf'}:
+        return legacy
+    return ''
 
 
 def media_url(file_field):
@@ -281,6 +282,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     schematic_file_missing = serializers.SerializerMethodField()
     simulation_embed_url = serializers.SerializerMethodField()
     model_3d_url = serializers.SerializerMethodField()
+    model_3d_pending = serializers.SerializerMethodField()
     libraries_list = serializers.SerializerMethodField()
     code_files = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -309,6 +311,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'simulation_url',
             'simulation_embed_url',
             'model_3d_url',
+            'model_3d_pending',
             'video_url',
             'libraries_list',
             'code_files',
@@ -330,6 +333,14 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
         if obj.is_free:
             return []
         return required_packs_for(obj)
+
+    def get_model_3d_url(self, obj):
+        return project_model_3d_url(obj)
+
+    def get_model_3d_pending(self, obj):
+        from .model3d_convert import project_model_3d_pending
+
+        return project_model_3d_pending(obj)
 
     def to_representation(self, instance):
         user = self._user()
@@ -354,6 +365,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
                 'simulation_url': '',
                 'simulation_embed_url': None,
                 'model_3d_url': '',
+                'model_3d_pending': False,
                 'video_url': '',
                 'libraries_list': [],
                 'code_files': [],
@@ -367,9 +379,6 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
 
     def get_schematic_file_missing(self, obj):
         return schematic_file_missing(obj)
-
-    def get_model_3d_url(self, obj):
-        return project_model_3d_url(obj)
 
     def get_simulation_embed_url(self, obj):
         return resolve_simulation_embed_url(obj.simulation_url)
@@ -810,6 +819,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     code_files_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
     model_3d_url = serializers.SerializerMethodField(read_only=True)
+    model_3d_pending = serializers.SerializerMethodField(read_only=True)
     model_3d_file = serializers.FileField(write_only=True, required=False, allow_null=True)
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
     schematic_url = serializers.SerializerMethodField(read_only=True)
@@ -831,6 +841,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'schematic_url',
             'simulation_url',
             'model_3d_url',
+            'model_3d_pending',
             'model_3d_file',
             'video_url',
             'libraries',
@@ -886,6 +897,11 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     def get_model_3d_url(self, obj):
         return project_model_3d_url(obj)
 
+    def get_model_3d_pending(self, obj):
+        from .model3d_convert import project_model_3d_pending
+
+        return project_model_3d_pending(obj)
+
     def get_pack_ids(self, obj):
         return [str(p.id) for p in obj.packs.all()]
 
@@ -940,7 +956,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         try:
             convert_project_model_to_glb(instance)
         except Model3dConversionError as exc:
-            raise serializers.ValidationError({'model_3d_file': str(exc)}) from exc
+            # Soft-fail: keep the upload, avoid 502 when conversion is heavy or missing deps.
+            logger.warning('3D GLB conversion failed for project %s: %s', instance.pk, exc)
 
     def create(self, validated_data):
         pack_ids = validated_data.pop('pack_ids', None)

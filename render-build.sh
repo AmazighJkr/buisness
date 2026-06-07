@@ -25,6 +25,7 @@ echo "  OK: $(wc -c < backend/frontend_dist/index.html) bytes index.html"
 echo "[3/5] Python packages..."
 cd backend
 pip install -r requirements.txt
+python -c "import trimesh; import cascadio; print('  OK: trimesh', trimesh.__version__, '+ cascadio')"
 
 echo "[4/5] collectstatic + migrate..."
 mkdir -p "${MEDIA_ROOT:-./media}"
