@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
+import { Suspense, useRef, useLayoutEffect, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useLoader, useThree, invalidate } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useFBX, useProgress, Html, Environment, ContactShadows } from '@react-three/drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
@@ -47,6 +47,43 @@ function ensureMeshMaterial(mat) {
   return mat;
 }
 
+/** Tight bounds from visible meshes only (ignores lights/cameras/empty nodes in GLB). */
+function computeMeshBounds(root) {
+  const box = new THREE.Box3();
+  let hasMesh = false;
+  root.traverse(o => {
+    if (!o.isMesh || !o.visible) return;
+    const geo = o.geometry;
+    if (!geo?.attributes?.position) return;
+    if (!geo.boundingBox) geo.computeBoundingBox();
+    if (geo.boundingBox.isEmpty()) return;
+    const meshBox = geo.boundingBox.clone().applyMatrix4(o.matrixWorld);
+    if (hasMesh) box.union(meshBox);
+    else {
+      box.copy(meshBox);
+      hasMesh = true;
+    }
+  });
+  return hasMesh ? box : null;
+}
+
+function frameCameraToBox(camera, box, size, padding = 1.35) {
+  if (!camera.isPerspectiveCamera) return 2;
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const radius = Math.max(sphere.radius, 1e-6);
+  const aspect = size.width / Math.max(size.height, 1);
+  const fovRad = (camera.fov * Math.PI) / 180;
+  const fitHeight = radius / Math.tan(fovRad / 2);
+  const fitWidth = radius / Math.tan(Math.atan(Math.tan(fovRad / 2) * aspect));
+  const d = Math.max(fitHeight, fitWidth) * padding;
+  camera.position.set(0, 0, d);
+  camera.lookAt(0, 0, 0);
+  camera.near = Math.max(d / 200, 0.001);
+  camera.far = Math.max(d * 200, 100);
+  camera.updateProjectionMatrix();
+  return d;
+}
+
 /** OBJ exports often ship without materials or with legacy Phong mats — normalize for PBR lights. */
 export function prepareLoadedScene(root) {
   root.traverse(o => {
@@ -86,7 +123,13 @@ const Loader = ({ placeholderSrc }) => {
 
 const DesktopControls = ({ pivot, min, max, zoomEnabled }) => {
   const ref = useRef(null);
-  useFrame(() => ref.current?.target.copy(pivot));
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.target.copy(pivot);
+      ref.current.minDistance = min;
+      ref.current.maxDistance = max;
+    }
+  });
   return (
     <OrbitControls
       ref={ref}
@@ -117,11 +160,13 @@ const ModelRig = ({
   fadeIn,
   autoRotate,
   autoRotateSpeed,
-  onLoaded
+  onLoaded,
+  onFramed,
 }) => {
   const outer = useRef(null);
   const inner = useRef(null);
-  const { camera, gl } = useThree();
+  const { camera, gl, size } = useThree();
+  const fixedPosition = !enableMouseParallax && !xOff && !yOff;
 
   const vel = useRef({ x: 0, y: 0 });
   const tPar = useRef({ x: 0, y: 0 });
@@ -135,13 +180,14 @@ const ModelRig = ({
     if (!g || !scene) return;
 
     g.updateWorldMatrix(true, true);
-    const box = new THREE.Box3().setFromObject(g);
-    if (box.isEmpty()) {
+    const box = computeMeshBounds(g);
+    if (!box) {
       onLoaded?.();
       invalidate();
       return;
     }
 
+    const center = box.getCenter(new THREE.Vector3());
     const sphere = box.getBoundingSphere(new THREE.Sphere());
     const radius = sphere.radius;
     if (!radius || !Number.isFinite(radius)) {
@@ -150,9 +196,11 @@ const ModelRig = ({
       return;
     }
 
-    const s = 1 / (radius * 2);
-    g.position.set(-sphere.center.x, -sphere.center.y, -sphere.center.z);
+    const targetRadius = 0.5;
+    const s = targetRadius / radius;
+    g.position.set(-center.x, -center.y, -center.z);
     g.scale.setScalar(s);
+    g.updateWorldMatrix(true, true);
 
     if (fadeIn) {
       g.traverse(o => {
@@ -166,18 +214,19 @@ const ModelRig = ({
       });
     }
 
-    g.getWorldPosition(pivotW.current);
-    pivot.copy(pivotW.current);
-    if (outer.current) outer.current.rotation.set(initPitch, initYaw, 0);
+    if (outer.current) {
+      outer.current.position.set(0, 0, 0);
+      outer.current.rotation.set(initPitch, initYaw, 0);
+    }
 
-    if (autoFrame && camera.isPerspectiveCamera) {
-      const persp = camera;
-      const fitR = radius * s;
-      const d = (fitR * 1.2) / Math.sin((persp.fov * Math.PI) / 180 / 2);
-      persp.position.set(pivotW.current.x, pivotW.current.y, pivotW.current.z + d);
-      persp.near = Math.max(d / 100, 0.01);
-      persp.far = d * 100;
-      persp.updateProjectionMatrix();
+    pivotW.current.set(0, 0, 0);
+    pivot.set(0, 0, 0);
+
+    let framedDistance = null;
+    if (autoFrame) {
+      const framed = new THREE.Box3().setFromObject(g);
+      framedDistance = frameCameraToBox(camera, framed, size);
+      onFramed?.(framedDistance);
     }
 
     if (fadeIn) {
@@ -204,7 +253,7 @@ const ModelRig = ({
     onLoaded?.();
     invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene]);
+  }, [scene, size.width, size.height]);
 
   useEffect(() => {
     invalidate();
@@ -254,8 +303,8 @@ const ModelRig = ({
       sy = 0,
       lx = 0,
       ly = 0,
-      startDist = 0,
-      startZ = 0;
+      pinchFingerDist = 0,
+      pinchCameraDist = 0;
 
     const down = e => {
       if (e.pointerType !== 'touch') return;
@@ -267,8 +316,8 @@ const ModelRig = ({
       } else if (pts.size === 2 && enableManualZoom) {
         mode = 'pinch';
         const [p1, p2] = [...pts.values()];
-        startDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-        startZ = camera.position.z;
+        pinchFingerDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        pinchCameraDist = camera.position.length();
         e.preventDefault();
       }
       invalidate();
@@ -307,9 +356,11 @@ const ModelRig = ({
       } else if (mode === 'pinch' && pts.size === 2) {
         e.preventDefault();
         const [p1, p2] = [...pts.values()];
-        const d = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-        const ratio = startDist / d;
-        camera.position.z = THREE.MathUtils.clamp(startZ * ratio, minZoom, maxZoom);
+        const fingerDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        const ratio = pinchFingerDist / fingerDist;
+        const next = THREE.MathUtils.clamp(pinchCameraDist * ratio, minZoom, maxZoom);
+        camera.position.set(0, 0, next);
+        camera.lookAt(0, 0, 0);
         invalidate();
       }
     };
@@ -357,10 +408,14 @@ const ModelRig = ({
     cHov.current.x += (tHov.current.x - cHov.current.x) * HOVER_EASE;
     cHov.current.y += (tHov.current.y - cHov.current.y) * HOVER_EASE;
 
-    const ndc = pivotW.current.clone().project(camera);
-    ndc.x += xOff + cPar.current.x;
-    ndc.y += yOff + cPar.current.y;
-    outer.current.position.copy(ndc.unproject(camera));
+    if (fixedPosition) {
+      outer.current.position.set(0, 0, 0);
+    } else {
+      const ndc = pivotW.current.clone().project(camera);
+      ndc.x += xOff + cPar.current.x;
+      ndc.y += yOff + cPar.current.y;
+      outer.current.position.copy(ndc.unproject(camera));
+    }
 
     outer.current.rotation.x += cHov.current.x - phx;
     outer.current.rotation.y += cHov.current.y - phy;
@@ -477,8 +532,10 @@ const ModelViewer = ({
   fadeIn = false,
   autoRotate = false,
   autoRotateSpeed = 0.35,
-  onModelLoaded
+  onModelLoaded,
 }) => {
+  const [zoomLimits, setZoomLimits] = useState(null);
+
   useEffect(() => {
     const ext = extensionFromUrl(url);
     if (ext === 'glb' || ext === 'gltf') {
@@ -495,6 +552,8 @@ const ModelViewer = ({
   const initYaw = deg2rad(defaultRotationX);
   const initPitch = deg2rad(defaultRotationY);
   const camZ = Math.min(Math.max(defaultZoom, minZoomDistance), maxZoomDistance);
+  const effectiveMinZoom = zoomLimits?.min ?? minZoomDistance;
+  const effectiveMaxZoom = zoomLimits?.max ?? maxZoomDistance;
 
   const capture = () => {
     const g = rendererRef.current,
@@ -584,8 +643,8 @@ const ModelViewer = ({
             pivot={pivot}
             initYaw={initYaw}
             initPitch={initPitch}
-            minZoom={minZoomDistance}
-            maxZoom={maxZoomDistance}
+            minZoom={effectiveMinZoom}
+            maxZoom={effectiveMaxZoom}
             enableMouseParallax={enableMouseParallax}
             enableManualRotation={enableManualRotation}
             enableHoverRotation={enableHoverRotation}
@@ -595,11 +654,20 @@ const ModelViewer = ({
             autoRotate={autoRotate}
             autoRotateSpeed={autoRotateSpeed}
             onLoaded={onModelLoaded}
+            onFramed={d => {
+              if (!d || !Number.isFinite(d)) return;
+              setZoomLimits({ min: d * 0.55, max: d * 2.2 });
+            }}
           />
         </Suspense>
 
         {!isTouch && (
-          <DesktopControls pivot={pivot} min={minZoomDistance} max={maxZoomDistance} zoomEnabled={enableManualZoom} />
+          <DesktopControls
+            pivot={pivot}
+            min={effectiveMinZoom}
+            max={effectiveMaxZoom}
+            zoomEnabled={enableManualZoom}
+          />
         )}
       </Canvas>
     </div>

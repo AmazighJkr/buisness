@@ -100,10 +100,11 @@ export default function HardwareModelViewer({ url, className = '' }) {
               defaultRotationX={-35}
               defaultRotationY={25}
               defaultZoom={1.2}
+              minZoomDistance={0.4}
+              maxZoomDistance={8}
               enableManualRotation
               enableManualZoom
-              autoRotate
-              autoRotateSpeed={0.25}
+              autoRotate={false}
             />
           ) : (
             <p className="py-12 text-center text-sm text-dark-muted">{t('projects.model3dLoading')}</p>
