@@ -56,7 +56,14 @@ class Project(models.Model):
         upload_to='projects/models/',
         blank=True,
         null=True,
-        help_text='GLB, GLTF, FBX, or OBJ (max 25 MB). Convert STEP/STP/SLDPRT in CAD first.',
+        help_text='Source upload: GLB, STL, OBJ, STEP, STP, FBX (max 25 MB). Non-GLB files are auto-converted.',
+    )
+    model_3d_glb = models.FileField(
+        upload_to='projects/models/glb/',
+        blank=True,
+        null=True,
+        editable=False,
+        help_text='Auto-generated GLB preview (do not upload manually).',
     )
     video_url = models.URLField(blank=True)
     libraries = models.TextField(blank=True)

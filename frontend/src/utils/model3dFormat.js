@@ -1,15 +1,12 @@
 /** Browser 3D preview formats (React Bits ModelViewer / three.js). */
-export const SUPPORTED_MODEL_EXTENSIONS = ['glb', 'gltf', 'fbx', 'obj']
+export const SUPPORTED_MODEL_EXTENSIONS = ['glb', 'gltf', 'fbx', 'obj', 'stl']
 
-/** CAD source formats — convert to GLB/OBJ before upload (FreeCAD, Fusion export, etc.). */
+/** Proprietary CAD — cannot upload; export GLB or STL from SolidWorks / Fusion first. */
 export const CAD_EXTENSIONS_NEEDING_CONVERSION = [
-  'step',
-  'stp',
   'sldprt',
   'sldasm',
   'iges',
   'igs',
-  'stl',
   '3mf',
   'dae',
 ]

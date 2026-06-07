@@ -65,10 +65,21 @@ def normalize_simulation_url(value):
 
 
 def project_model_3d_url(obj):
-    """Uploaded 3D file URL, or legacy external URL."""
-    url = media_url(getattr(obj, 'model_3d_file', None))
+    """GLB preview URL (converted), direct GLB upload, or legacy external URL."""
+    url = media_url(getattr(obj, 'model_3d_glb', None))
     if url:
         return url
+    source = getattr(obj, 'model_3d_file', None)
+    if source and getattr(source, 'name', None):
+        from .model3d_convert import is_glb_name
+
+        if is_glb_name(source.name):
+            url = media_url(source)
+            if url:
+                return url
+        url = media_url(source)
+        if url:
+            return url
     return (getattr(obj, 'model_3d_url', None) or '').strip()
 
 
@@ -921,20 +932,39 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 ),
             })
 
+    def _convert_model_3d(self, instance, uploaded_new: bool):
+        if not uploaded_new:
+            return
+        from .model3d_convert import Model3dConversionError, convert_project_model_to_glb
+
+        try:
+            convert_project_model_to_glb(instance)
+        except Model3dConversionError as exc:
+            raise serializers.ValidationError({'model_3d_file': str(exc)}) from exc
+
     def create(self, validated_data):
         pack_ids = validated_data.pop('pack_ids', None)
         validated_data = self._merge_request_files(validated_data)
+        had_model = 'model_3d_file' in validated_data and validated_data['model_3d_file']
         instance = super().create(validated_data)
         self._apply_packs(instance, pack_ids)
         self._verify_schematic_saved(instance)
+        self._convert_model_3d(instance, bool(had_model))
         return instance
 
     def update(self, instance, validated_data):
         pack_ids = validated_data.pop('pack_ids', None)
+        request = self.context.get('request')
+        uploaded_new = bool(
+            request
+            and hasattr(request, 'FILES')
+            and 'model_3d_file' in request.FILES,
+        )
         validated_data = self._merge_request_files(validated_data)
         instance = super().update(instance, validated_data)
         self._apply_packs(instance, pack_ids)
         self._verify_schematic_saved(instance)
+        self._convert_model_3d(instance, uploaded_new)
         return instance
 
     def validate(self, attrs):

@@ -217,7 +217,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 30 * 1024 * 1024
 
 ALLOWED_UPLOAD_EXTENSIONS = {
     '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.zip', '.txt', '.csv', '.sch', '.brd', '.webp',
-    '.glb', '.gltf', '.obj', '.fbx',
+    '.glb', '.gltf', '.obj', '.fbx', '.stl', '.step', '.stp',
 }
 MAX_MODEL_3D_UPLOAD_BYTES = 25 * 1024 * 1024
 

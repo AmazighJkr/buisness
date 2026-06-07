@@ -563,10 +563,10 @@ export default function AdminPanelPage() {
         className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
       <label className="block text-xs text-dark-muted">
-        3D hardware model (optional — GLB, GLTF, FBX, or OBJ, max 25 MB)
+        3D hardware model (optional — any format below; server converts to GLB for preview, max 25 MB)
         <input
           type="file"
-          accept=".glb,.gltf,.obj,.fbx,model/gltf-binary,model/gltf+json"
+          accept=".glb,.gltf,.obj,.stl,.step,.stp,.fbx,model/gltf-binary,model/gltf+json,model/stl"
           className="mt-1 block w-full text-xs"
           onChange={(e) => {
             const file = e.target.files?.[0] || null

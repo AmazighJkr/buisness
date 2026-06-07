@@ -29,6 +29,8 @@ def serve_media(request, path: str):
         content_type = 'model/gltf-binary'
     elif ext == '.gltf':
         content_type = 'model/gltf+json'
+    elif ext == '.stl':
+        content_type = 'model/stl'
     return FileResponse(
         target.open('rb'),
         content_type=content_type or 'application/octet-stream',

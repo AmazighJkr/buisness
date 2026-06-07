@@ -58,7 +58,7 @@ export const translations = {
       model3dLoading: 'Loading 3D model…',
       model3dCadTitle: 'CAD file — conversion required',
       model3dCadBody:
-        'STEP, STP, and SLDPRT files cannot be previewed in the browser. Export to GLB or OBJ from your CAD tool, then set the Model 3D URL in admin.',
+        'SLDPRT and SLDASM cannot be uploaded directly. Export as STEP, STL, or GLB from SolidWorks or Fusion, then upload — the server converts to GLB automatically.',
       model3dUnsupported: 'Format .{ext} is not supported. Use {supported} for web preview.',
       model3dWebgl:
         '3D preview needs WebGL. Enable hardware acceleration in your browser, or open this page in Chrome or Firefox.',
@@ -614,7 +614,7 @@ export const translations = {
       model3dLoading: 'Chargement du modèle 3D…',
       model3dCadTitle: 'Fichier CAO — conversion requise',
       model3dCadBody:
-        'Les fichiers STEP, STP et SLDPRT ne peuvent pas être prévisualisés dans le navigateur. Exportez en GLB ou OBJ depuis votre logiciel CAO, puis renseignez l’URL modèle 3D dans l’admin.',
+        'SLDPRT et SLDASM ne peuvent pas être téléversés directement. Exportez en STEP, STL ou GLB depuis SolidWorks ou Fusion — le serveur convertit en GLB automatiquement.',
       model3dUnsupported: 'Format .{ext} non pris en charge. Utilisez {supported} pour l’aperçu web.',
       model3dWebgl:
         'L’aperçu 3D nécessite WebGL. Activez l’accélération matérielle ou ouvrez cette page dans Chrome ou Firefox.',

@@ -3,6 +3,7 @@ import { Suspense, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useLoader, useThree, invalidate } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useFBX, useProgress, Html, Environment, ContactShadows } from '@react-three/drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import * as THREE from 'three';
 
 const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -137,6 +138,7 @@ const ModelRig = ({
     const box = new THREE.Box3().setFromObject(g);
     if (box.isEmpty()) {
       onLoaded?.();
+      invalidate();
       return;
     }
 
@@ -144,6 +146,7 @@ const ModelRig = ({
     const radius = sphere.radius;
     if (!radius || !Number.isFinite(radius)) {
       onLoaded?.();
+      invalidate();
       return;
     }
 
@@ -199,7 +202,12 @@ const ModelRig = ({
     }
 
     onLoaded?.();
+    invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene]);
+
+  useEffect(() => {
+    invalidate();
   }, [scene]);
 
   useEffect(() => {
@@ -410,11 +418,34 @@ function ObjModel(props) {
   return <ModelRig scene={scene} {...props} />;
 }
 
+function StlModel(props) {
+  const geometry = useLoader(STLLoader, props.url);
+  const scene = useMemo(() => {
+    const geo = geometry.clone();
+    if (!geo.attributes.normal) geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(
+      geo,
+      new THREE.MeshStandardMaterial({
+        color: 0xb8c4d0,
+        metalness: 0.12,
+        roughness: 0.62,
+        side: THREE.DoubleSide,
+      }),
+    );
+    const group = new THREE.Group();
+    group.add(mesh);
+    prepareLoadedScene(group);
+    return group;
+  }, [geometry]);
+  return <ModelRig scene={scene} {...props} />;
+}
+
 function ModelContent(props) {
   const ext = extensionFromUrl(props.url);
   if (ext === 'glb' || ext === 'gltf') return <GlbModel {...props} />;
   if (ext === 'fbx') return <FbxModel {...props} />;
   if (ext === 'obj') return <ObjModel {...props} />;
+  if (ext === 'stl') return <StlModel {...props} />;
   return null;
 }
 
@@ -439,6 +470,7 @@ const ModelViewer = ({
   rimLightIntensity = 0.8,
   environmentPreset = 'forest',
   enableShadows = true,
+  frameloop = 'demand',
   autoFrame = false,
   placeholderSrc,
   showScreenshotButton = true,
@@ -511,7 +543,7 @@ const ModelViewer = ({
 
       <Canvas
         shadows={enableShadows}
-        frameloop="demand"
+        frameloop={frameloop}
         dpr={[1, 1.5]}
         gl={{
           preserveDrawingBuffer: true,

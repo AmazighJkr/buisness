@@ -11,6 +11,8 @@ import {
 
 const ModelViewer = lazy(() => import('./reactbits/ModelViewer.jsx'))
 
+const LIGHTWEIGHT_FORMATS = new Set(['obj', 'stl'])
+
 class ModelViewerErrorBoundary extends Component {
   constructor(props) {
     super(props)
@@ -37,7 +39,7 @@ export default function HardwareModelViewer({ url, className = '' }) {
   const { t } = useTranslation()
   const resolvedUrl = resolveMediaUrl(url) || url
   const ext = modelExtensionFromUrl(resolvedUrl)
-  const isObj = ext === 'obj'
+  const isLightweight = LIGHTWEIGHT_FORMATS.has(ext)
   const [webglOk, setWebglOk] = useState(null)
 
   useEffect(() => {
@@ -90,8 +92,14 @@ export default function HardwareModelViewer({ url, className = '' }) {
               width="100%"
               height={420}
               showScreenshotButton={false}
-              environmentPreset={isObj ? 'none' : 'city'}
-              enableShadows={!isObj}
+              frameloop="always"
+              environmentPreset={isLightweight ? 'none' : 'city'}
+              enableShadows={!isLightweight}
+              ambientIntensity={isLightweight ? 0.9 : 0.35}
+              keyLightIntensity={isLightweight ? 1.4 : 1}
+              fillLightIntensity={isLightweight ? 0.85 : 0.5}
+              enableMouseParallax={false}
+              enableHoverRotation={false}
               autoFrame
               defaultRotationX={-35}
               defaultRotationY={25}

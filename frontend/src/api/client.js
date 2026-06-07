@@ -900,7 +900,7 @@ export function validateUploadFile(file, label = 'File') {
 }
 
 const MAX_MODEL_3D_BYTES = 25 * 1024 * 1024
-const ALLOWED_MODEL_3D_EXTENSIONS = new Set(['.glb', '.gltf', '.obj', '.fbx'])
+const ALLOWED_MODEL_3D_EXTENSIONS = new Set(['.glb', '.gltf', '.obj', '.fbx', '.stl', '.step', '.stp'])
 
 export function validateModel3dFile(file, label = '3D model') {
   if (!file) return null
@@ -911,7 +911,7 @@ export function validateModel3dFile(file, label = '3D model') {
   const dot = name.lastIndexOf('.')
   const ext = dot >= 0 ? name.slice(dot).toLowerCase() : ''
   if (!ALLOWED_MODEL_3D_EXTENSIONS.has(ext)) {
-    return `${label} type not allowed (${ext || 'unknown'}). Use GLB, GLTF, OBJ, or FBX.`
+    return `${label} type not allowed (${ext || 'unknown'}). Use GLB, STL, OBJ, STEP, STP, or FBX.`
   }
   return null
 }

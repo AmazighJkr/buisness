@@ -848,7 +848,13 @@ html[data-theme='dark'] .hero-bg-base {
   border-radius: 0.75rem;
   overflow: hidden;
   border: 1px solid var(--eg-border);
-  background: var(--eg-panel);
+  background: #0b1018;
+}
+
+.hardware-model-viewer canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .model-viewer-notice {
