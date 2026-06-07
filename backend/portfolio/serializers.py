@@ -287,6 +287,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'schematic_file_missing',
             'simulation_url',
             'simulation_embed_url',
+            'model_3d_url',
             'video_url',
             'libraries_list',
             'code_files',
@@ -331,6 +332,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
                 'schematic_file_missing': False,
                 'simulation_url': '',
                 'simulation_embed_url': None,
+                'model_3d_url': '',
                 'video_url': '',
                 'libraries_list': [],
                 'code_files': [],
@@ -783,6 +785,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     wiring_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     code_files_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
+    model_3d_url = serializers.URLField(required=False, allow_blank=True, default='')
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
     schematic_url = serializers.SerializerMethodField(read_only=True)
     pack_ids = serializers.SerializerMethodField(read_only=True)
@@ -802,6 +805,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'schematic_image',
             'schematic_url',
             'simulation_url',
+            'model_3d_url',
             'video_url',
             'libraries',
             'source_code',

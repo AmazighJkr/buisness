@@ -55,6 +55,13 @@ export const translations = {
       loadError: 'Could not load projects.',
       categoriesError: 'Could not load categories.',
       backToList: '← Back to list',
+      model3dLoading: 'Loading 3D model…',
+      model3dCadTitle: 'CAD file — conversion required',
+      model3dCadBody:
+        'STEP, STP, and SLDPRT files cannot be previewed in the browser. Export to GLB or OBJ from your CAD tool, then set the Model 3D URL in admin.',
+      model3dUnsupported: 'Format .{ext} is not supported. Use {supported} for web preview.',
+      model3dWebgl:
+        '3D preview needs WebGL. Enable hardware acceleration in your browser, or open this page in Chrome or Firefox.',
     },
     landing: {
       tagline: 'IT, Electronics, Maintenance & Consulting',
@@ -85,6 +92,16 @@ export const translations = {
       svcConsulting: 'Technical Consulting',
       svcConsultingText:
         'Architecture reviews, feasibility studies, maintenance planning, and team guidance.',
+      svcProjects: 'Embedded Projects',
+      svcProjectsText:
+        'Open-source firmware, schematics, BOMs, and simulations you can browse and learn from.',
+      svcProjectsLabel: 'Portfolio',
+      svcStore: 'Parts & Kits Store',
+      svcStoreText:
+        'Components, modules, and curated kits — add to cart and checkout in DZD.',
+      svcStoreLabel: 'Shop',
+      contactChannelsTitle: 'Reach us directly',
+      contactFormTitle: 'Send a message',
       formName: 'Name',
       formEmail: 'Email',
       formMessage: 'Message',
@@ -97,6 +114,11 @@ export const translations = {
       contactEmail: 'Email',
       contactDiscord: 'Discord',
       contactWhatsapp: 'WhatsApp',
+      contactBentoEmailHint: 'Tap to open your mail app',
+      contactBentoDiscordHint: 'Community & quick questions',
+      contactBentoWhatsappHint: 'Message us on WhatsApp',
+      contactCommandTitle: 'Project quote',
+      contactCommandHint: 'Layers, pricing, and tracking code',
     },
     cart: {
       title: 'Your bag',
@@ -504,6 +526,7 @@ export const translations = {
       code: 'Code',
       simulation: 'Simulation',
       schematic: 'Schematic',
+      model3d: '3D hardware',
       video: 'Video',
     },
     admin: {
@@ -586,6 +609,13 @@ export const translations = {
       loadError: 'Impossible de charger les projets.',
       categoriesError: 'Impossible de charger les catégories.',
       backToList: '← Retour à la liste',
+      model3dLoading: 'Chargement du modèle 3D…',
+      model3dCadTitle: 'Fichier CAO — conversion requise',
+      model3dCadBody:
+        'Les fichiers STEP, STP et SLDPRT ne peuvent pas être prévisualisés dans le navigateur. Exportez en GLB ou OBJ depuis votre logiciel CAO, puis renseignez l’URL modèle 3D dans l’admin.',
+      model3dUnsupported: 'Format .{ext} non pris en charge. Utilisez {supported} pour l’aperçu web.',
+      model3dWebgl:
+        'L’aperçu 3D nécessite WebGL. Activez l’accélération matérielle ou ouvrez cette page dans Chrome ou Firefox.',
     },
     landing: {
       tagline: 'Informatique, Électronique, Maintenance & Conseil',
@@ -619,6 +649,16 @@ export const translations = {
       svcConsulting: 'Conseil technique',
       svcConsultingText:
         'Revues d\'architecture, faisabilité, maintenance et accompagnement d\'équipe.',
+      svcProjects: 'Projets embarqués',
+      svcProjectsText:
+        'Firmware open source, schémas, nomenclatures et simulations à parcourir.',
+      svcProjectsLabel: 'Portfolio',
+      svcStore: 'Boutique pièces & kits',
+      svcStoreText:
+        'Composants, modules et kits — panier et paiement en DZD.',
+      svcStoreLabel: 'Boutique',
+      contactChannelsTitle: 'Nous contacter directement',
+      contactFormTitle: 'Envoyer un message',
       formName: 'Nom',
       formEmail: 'E-mail',
       formMessage: 'Message',
@@ -631,6 +671,11 @@ export const translations = {
       contactEmail: 'E-mail',
       contactDiscord: 'Discord',
       contactWhatsapp: 'WhatsApp',
+      contactBentoEmailHint: 'Ouvrir votre client mail',
+      contactBentoDiscordHint: 'Communauté et questions rapides',
+      contactBentoWhatsappHint: 'Écrivez-nous sur WhatsApp',
+      contactCommandTitle: 'Devis projet',
+      contactCommandHint: 'Couches, tarifs et code de suivi',
     },
     cart: {
       title: 'Votre panier',
@@ -1043,6 +1088,7 @@ export const translations = {
       code: 'Code',
       simulation: 'Simulation',
       schematic: 'Schéma',
+      model3d: 'Matériel 3D',
       video: 'Vidéo',
     },
     admin: {

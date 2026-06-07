@@ -48,6 +48,10 @@ class Project(models.Model):
     wiring = models.JSONField(default=list, blank=True)
     schematic_image = models.ImageField(upload_to='projects/schematics/', blank=True, null=True)
     simulation_url = models.URLField(blank=True)
+    model_3d_url = models.URLField(
+        blank=True,
+        help_text='Public URL to GLB, GLTF, FBX, or OBJ (convert STEP/STP/SLDPRT in CAD first).',
+    )
     video_url = models.URLField(blank=True)
     libraries = models.TextField(blank=True)
     source_code = models.TextField(blank=True)

@@ -773,6 +773,59 @@ html[data-theme='dark'] .hero-bg-base {
   filter: saturate(0.85) contrast(1.08) brightness(0.72);
 }
 
+.landing-magic-bento .bento-section,
+.contact-magic-bento .bento-section {
+  max-width: none;
+  padding: 0;
+  width: 100%;
+}
+
+.landing-magic-bento .card-responsive,
+.contact-magic-bento .card-responsive {
+  width: 100%;
+  margin: 0;
+}
+
+.contact-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.contact-section-label {
+  margin-bottom: 1rem;
+  font-family: var(--font-display, inherit);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--eg-muted, #94a3b8);
+}
+
+.contact-form-block {
+  max-width: 36rem;
+}
+
+.contact-form {
+  width: 100%;
+}
+
+.hardware-model-viewer {
+  min-height: 420px;
+  width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--eg-border);
+  background: var(--eg-panel);
+}
+
+.model-viewer-notice {
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--eg-border);
+  background: var(--eg-panel);
+}
+
 .hero-copy {
   padding: 2rem 1rem;
 }

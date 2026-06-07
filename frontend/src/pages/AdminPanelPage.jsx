@@ -73,6 +73,7 @@ function buildProjectFormData(form, materials, wiring, codeFiles, schematic, pac
   fd.append('materials_json', JSON.stringify(materials.filter((r) => r.component?.trim())))
   fd.append('wiring_json', JSON.stringify(wiring.filter((r) => r.from_pin?.trim() || r.to_pin?.trim())))
   fd.append('simulation_url', normalizeUrl(form.simulation_url) || '')
+  fd.append('model_3d_url', normalizeUrl(form.model_3d_url) || '')
   fd.append('video_url', normalizeUrl(form.video_url) || '')
   fd.append('pack_ids_json', JSON.stringify(packIds || []))
   if (schematic) fd.append('schematic_image', schematic)
@@ -105,6 +106,7 @@ export default function AdminPanelPage() {
     description: '',
     libraries: '',
     simulation_url: '',
+    model_3d_url: '',
     video_url: '',
     is_featured: false,
     is_free: false,
@@ -197,6 +199,7 @@ export default function AdminPanelPage() {
       description: '',
       libraries: '',
       simulation_url: '',
+      model_3d_url: '',
       video_url: '',
       is_featured: false,
       is_free: false,
@@ -250,6 +253,7 @@ export default function AdminPanelPage() {
       description: p.description || '',
       libraries: p.libraries || '',
       simulation_url: p.simulation_url || '',
+      model_3d_url: p.model_3d_url || '',
       video_url: p.video_url || '',
       is_featured: !!p.is_featured,
       is_free: !!p.is_free,
@@ -546,6 +550,10 @@ export default function AdminPanelPage() {
 
       <input type="text" placeholder="Simulation: Wokwi, Tinkercad embed iframe, or Cirkit Designer link" value={form.simulation_url}
         onChange={update('simulation_url')}
+        className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
+
+      <input type="text" placeholder="3D model URL — GLB, GLTF, FBX, or OBJ (convert STEP/STP/SLDPRT first)" value={form.model_3d_url}
+        onChange={update('model_3d_url')}
         className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
       <input type="text" placeholder="Video URL (optional — YouTube, Vimeo, etc.)" value={form.video_url}

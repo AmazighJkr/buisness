@@ -6,6 +6,7 @@ import ProjectMaterialsSection from './ProjectMaterialsSection.jsx'
 import ProjectComments from './ProjectComments.jsx'
 import SectionBox from './SectionBox.jsx'
 import EmbeddableMedia from './EmbeddableMedia.jsx'
+import HardwareModelViewer from './HardwareModelViewer.jsx'
 import WiringTable from './WiringTable.jsx'
 import { resolveSimulationEmbed, resolveVideoEmbed } from '../utils/embedUtils.js'
 import { resolveMediaUrl, SCHEMATIC_PLACEHOLDER } from '../utils/mediaUrl.js'
@@ -81,6 +82,12 @@ export default function ProjectDetailContent({ project, onBack }) {
       {codeFiles.length > 0 && (
         <SectionBox title={t('materials.code')} noPadding>
           <CodePanel files={codeFiles} />
+        </SectionBox>
+      )}
+
+      {project.model_3d_url?.trim() && (
+        <SectionBox title={t('materials.model3d')} noPadding>
+          <HardwareModelViewer url={project.model_3d_url.trim()} />
         </SectionBox>
       )}
 
