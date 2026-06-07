@@ -20,8 +20,10 @@ cd backend
 if not exist ".venv\Scripts\python.exe" (
   echo Creating Python venv...
   python -m venv .venv
-  .venv\Scripts\python.exe -m pip install -r requirements.txt -q
 )
+echo Installing / updating Python packages...
+.venv\Scripts\python.exe -m pip install -r requirements.txt -q
+.venv\Scripts\python.exe manage.py check_3d_converter
 if not exist ".env" if exist ".env.example" copy /Y ".env.example" ".env" >nul
 .venv\Scripts\python.exe manage.py migrate --noinput
 start /B "" .venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
@@ -60,9 +62,8 @@ echo   Production: http://localhost:8000  (site + API + uploads)
 echo   Press Ctrl+C to stop.
 echo.
 cd backend
-if not exist ".venv\Scripts\gunicorn.exe" (
-  .venv\Scripts\python.exe -m pip install -r requirements.txt -q
-)
+.venv\Scripts\python.exe -m pip install -r requirements.txt -q
+.venv\Scripts\python.exe manage.py check_3d_converter
 set DEBUG=false
 set SERVE_FRONTEND=true
 .venv\Scripts\python.exe manage.py migrate --noinput

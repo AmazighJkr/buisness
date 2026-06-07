@@ -951,13 +951,19 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     def _convert_model_3d(self, instance, uploaded_new: bool):
         if not uploaded_new:
             return
-        from .model3d_convert import Model3dConversionError, convert_project_model_to_glb
+        from .model3d_convert import (
+            convert_project_model_to_glb,
+            is_glb_name,
+            schedule_model_3d_conversion,
+        )
 
-        try:
-            convert_project_model_to_glb(instance)
-        except Model3dConversionError as exc:
-            # Soft-fail: keep the upload, avoid 502 when conversion is heavy or missing deps.
-            logger.warning('3D GLB conversion failed for project %s: %s', instance.pk, exc)
+        if instance.model_3d_file and is_glb_name(instance.model_3d_file.name):
+            if instance.model_3d_glb:
+                instance.model_3d_glb.delete(save=False)
+                instance.model_3d_glb = None
+                instance.save(update_fields=['model_3d_glb'])
+            return
+        schedule_model_3d_conversion(instance.pk)
 
     def create(self, validated_data):
         pack_ids = validated_data.pop('pack_ids', None)

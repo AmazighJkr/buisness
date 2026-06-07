@@ -7,9 +7,11 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import threading
 from pathlib import Path
 
 from django.core.files.base import ContentFile
+from django.db import close_old_connections
 
 logger = logging.getLogger(__name__)
 
@@ -120,15 +122,7 @@ def file_to_glb_content(uploaded_file) -> ContentFile | None:
     suffix = ext or '.bin'
     tmp_path = None
     try:
-        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-            tmp_path = tmp.name
-            if hasattr(uploaded_file, 'chunks'):
-                for chunk in uploaded_file.chunks():
-                    tmp.write(chunk)
-            else:
-                tmp.write(uploaded_file.read())
-            if hasattr(uploaded_file, 'seek'):
-                uploaded_file.seek(0)
+        tmp_path = _materialize_upload_to_temp(uploaded_file, suffix)
 
         glb_bytes = _convert_path_to_glb_bytes(tmp_path, ext)
         if not glb_bytes:
@@ -139,6 +133,55 @@ def file_to_glb_content(uploaded_file) -> ContentFile | None:
     finally:
         if tmp_path and os.path.isfile(tmp_path):
             os.unlink(tmp_path)
+
+
+def _materialize_upload_to_temp(uploaded_file, suffix: str) -> str:
+    """Write upload or saved FileField to a temp path (works with Cloudinary storage)."""
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp_path = tmp.name
+        if hasattr(uploaded_file, 'open'):
+            with uploaded_file.open('rb') as src:
+                while True:
+                    chunk = src.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    tmp.write(chunk)
+        elif hasattr(uploaded_file, 'chunks'):
+            for chunk in uploaded_file.chunks():
+                tmp.write(chunk)
+        else:
+            tmp.write(uploaded_file.read())
+        if hasattr(uploaded_file, 'seek'):
+            try:
+                uploaded_file.seek(0)
+            except (OSError, ValueError):
+                pass
+    return tmp_path
+
+
+def _convert_project_model_to_glb_worker(project_id) -> None:
+    close_old_connections()
+    try:
+        from .models import Project
+
+        project = Project.objects.get(pk=project_id)
+        convert_project_model_to_glb(project)
+    except Exception as exc:
+        logger.warning('Background 3D conversion failed for %s: %s', project_id, exc)
+    finally:
+        close_old_connections()
+
+
+def schedule_model_3d_conversion(project_id) -> None:
+    """Run GLB conversion after the HTTP response (avoids Render 502 on large STEP files)."""
+    thread = threading.Thread(
+        target=_convert_project_model_to_glb_worker,
+        args=(project_id,),
+        daemon=True,
+        name=f'model3d-{project_id}',
+    )
+    thread.start()
+    logger.info('Scheduled background GLB conversion for project %s', project_id)
 
 
 def convert_project_model_to_glb(project) -> bool:

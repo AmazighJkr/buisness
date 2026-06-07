@@ -236,21 +236,21 @@ export default function AdminPanelPage() {
     }
     try {
       const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, selectedPackIds)
-      let saved
+      const converting3d = Boolean(model3d)
       if (editId) {
-        saved = await adminUpdateProject(editId, fd)
+        await adminUpdateProject(editId, fd)
         setMsg({
-          type: saved?.model_3d_pending ? 'error' : 'success',
-          text: saved?.model_3d_pending
-            ? 'Project saved, but GLB preview failed — try STL or GLB export, or run convert_project_models_glb on the server.'
+          type: 'success',
+          text: converting3d
+            ? 'Project saved. Converting 3D to GLB in the background — open the project page in ~1 minute.'
             : 'Project updated.',
         })
       } else {
-        saved = await adminCreateProject(fd)
+        await adminCreateProject(fd)
         setMsg({
-          type: saved?.model_3d_pending ? 'error' : 'success',
-          text: saved?.model_3d_pending
-            ? 'Project published, but GLB preview failed — try STL or GLB export.'
+          type: 'success',
+          text: converting3d
+            ? 'Project published. Converting 3D to GLB in the background — open the project page in ~1 minute.'
             : 'Project published.',
         })
       }
