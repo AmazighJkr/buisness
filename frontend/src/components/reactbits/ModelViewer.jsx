@@ -5,6 +5,11 @@ import { OrbitControls, useGLTF, useFBX, useProgress, Html, Environment, Contact
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import * as THREE from 'three';
+import {
+  centerAndNormalizeGroup,
+  computeSmartMeshBounds,
+  frameCameraToBox,
+} from '../../utils/model3dBounds.js';
 
 const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 const deg2rad = d => (d * Math.PI) / 180;
@@ -47,41 +52,38 @@ function ensureMeshMaterial(mat) {
   return mat;
 }
 
-/** Tight bounds from visible meshes only (ignores lights/cameras/empty nodes in GLB). */
-function computeMeshBounds(root) {
-  const box = new THREE.Box3();
-  let hasMesh = false;
-  root.traverse(o => {
-    if (!o.isMesh || !o.visible) return;
-    const geo = o.geometry;
-    if (!geo?.attributes?.position) return;
-    if (!geo.boundingBox) geo.computeBoundingBox();
-    if (geo.boundingBox.isEmpty()) return;
-    const meshBox = geo.boundingBox.clone().applyMatrix4(o.matrixWorld);
-    if (hasMesh) box.union(meshBox);
-    else {
-      box.copy(meshBox);
-      hasMesh = true;
-    }
-  });
-  return hasMesh ? box : null;
-}
+const ZOOM_STEP_IN = 0.82;
+const ZOOM_STEP_OUT = 1.22;
 
-function frameCameraToBox(camera, box, size, padding = 1.35) {
-  if (!camera.isPerspectiveCamera) return 2;
-  const sphere = box.getBoundingSphere(new THREE.Sphere());
-  const radius = Math.max(sphere.radius, 1e-6);
-  const aspect = size.width / Math.max(size.height, 1);
-  const fovRad = (camera.fov * Math.PI) / 180;
-  const fitHeight = radius / Math.tan(fovRad / 2);
-  const fitWidth = radius / Math.tan(Math.atan(Math.tan(fovRad / 2) * aspect));
-  const d = Math.max(fitHeight, fitWidth) * padding;
-  camera.position.set(0, 0, d);
-  camera.lookAt(0, 0, 0);
-  camera.near = Math.max(d / 200, 0.001);
-  camera.far = Math.max(d * 200, 100);
-  camera.updateProjectionMatrix();
-  return d;
+function ViewportBridge({ apiRef, controlsRef }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    if (!apiRef) return undefined;
+
+    const applyDistance = dist => {
+      const next = THREE.MathUtils.clamp(dist, apiRef.current.min, apiRef.current.max);
+      camera.position.set(0, 0, next);
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+      if (controlsRef.current) {
+        controlsRef.current.object.position.copy(camera.position);
+        controlsRef.current.update();
+      }
+      invalidate();
+    };
+
+    apiRef.current.zoomIn = () => applyDistance(camera.position.length() * ZOOM_STEP_IN);
+    apiRef.current.zoomOut = () => applyDistance(camera.position.length() * ZOOM_STEP_OUT);
+    apiRef.current.resetView = () => {
+      applyDistance(apiRef.current.fitDistance);
+      apiRef.current.onResetRotation?.();
+    };
+
+    return undefined;
+  }, [apiRef, camera, controlsRef]);
+
+  return null;
 }
 
 /** OBJ exports often ship without materials or with legacy Phong mats — normalize for PBR lights. */
@@ -121,10 +123,11 @@ const Loader = ({ placeholderSrc }) => {
   );
 };
 
-const DesktopControls = ({ pivot, min, max, zoomEnabled }) => {
+const DesktopControls = ({ pivot, min, max, zoomEnabled, controlsRef }) => {
   const ref = useRef(null);
   useFrame(() => {
     if (ref.current) {
+      if (controlsRef) controlsRef.current = ref.current;
       ref.current.target.copy(pivot);
       ref.current.minDistance = min;
       ref.current.maxDistance = max;
@@ -162,11 +165,16 @@ const ModelRig = ({
   autoRotateSpeed,
   onLoaded,
   onFramed,
+  rigApiRef,
 }) => {
   const outer = useRef(null);
   const inner = useRef(null);
   const { camera, gl, size } = useThree();
   const fixedPosition = !enableMouseParallax && !xOff && !yOff;
+  const initPitchRef = useRef(initPitch);
+  const initYawRef = useRef(initYaw);
+  initPitchRef.current = initPitch;
+  initYawRef.current = initYaw;
 
   const vel = useRef({ x: 0, y: 0 });
   const tPar = useRef({ x: 0, y: 0 });
@@ -180,27 +188,14 @@ const ModelRig = ({
     if (!g || !scene) return;
 
     g.updateWorldMatrix(true, true);
-    const box = computeMeshBounds(g);
+    const box = computeSmartMeshBounds(g);
     if (!box) {
       onLoaded?.();
       invalidate();
       return;
     }
 
-    const center = box.getCenter(new THREE.Vector3());
-    const sphere = box.getBoundingSphere(new THREE.Sphere());
-    const radius = sphere.radius;
-    if (!radius || !Number.isFinite(radius)) {
-      onLoaded?.();
-      invalidate();
-      return;
-    }
-
-    const targetRadius = 0.5;
-    const s = targetRadius / radius;
-    g.position.set(-center.x, -center.y, -center.z);
-    g.scale.setScalar(s);
-    g.updateWorldMatrix(true, true);
+    centerAndNormalizeGroup(g, box);
 
     if (fadeIn) {
       g.traverse(o => {
@@ -254,6 +249,18 @@ const ModelRig = ({
     invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene, size.width, size.height]);
+
+  useEffect(() => {
+    if (!rigApiRef) return undefined;
+    rigApiRef.current.onResetRotation = () => {
+      if (outer.current) {
+        outer.current.rotation.set(initPitchRef.current, initYawRef.current, 0);
+      }
+      vel.current = { x: 0, y: 0 };
+      invalidate();
+    };
+    return undefined;
+  }, [rigApiRef]);
 
   useEffect(() => {
     invalidate();
@@ -529,18 +536,35 @@ const ModelViewer = ({
   autoFrame = false,
   placeholderSrc,
   showScreenshotButton = true,
+  showZoomControls = false,
+  zoomLabels = { in: 'Zoom in', out: 'Zoom out', fit: 'Fit model' },
   fadeIn = false,
   autoRotate = false,
   autoRotateSpeed = 0.35,
   onModelLoaded,
 }) => {
   const [zoomLimits, setZoomLimits] = useState(null);
+  const viewportApiRef = useRef({
+    fitDistance: 2,
+    min: 0.4,
+    max: 10,
+    zoomIn: () => {},
+    zoomOut: () => {},
+    resetView: () => {},
+    onResetRotation: () => {},
+  });
+  const controlsRef = useRef(null);
+  const rigApiRef = useRef({});
 
   useEffect(() => {
     const ext = extensionFromUrl(url);
     if (ext === 'glb' || ext === 'gltf') {
       useGLTF.preload(url);
     }
+    setZoomLimits(null);
+    viewportApiRef.current.fitDistance = 2;
+    viewportApiRef.current.min = 0.4;
+    viewportApiRef.current.max = 10;
   }, [url]);
 
   const pivot = useRef(new THREE.Vector3()).current;
@@ -600,6 +624,38 @@ const ModelViewer = ({
         </button>
       )}
 
+      {showZoomControls && (
+        <div className="model-viewer-zoom-toolbar" aria-label="3D zoom controls">
+          <button
+            type="button"
+            className="model-viewer-zoom-btn"
+            onClick={() => viewportApiRef.current.zoomIn()}
+            aria-label={zoomLabels.in}
+            title={zoomLabels.in}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="model-viewer-zoom-btn"
+            onClick={() => viewportApiRef.current.zoomOut()}
+            aria-label={zoomLabels.out}
+            title={zoomLabels.out}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className="model-viewer-zoom-btn model-viewer-zoom-btn-fit"
+            onClick={() => viewportApiRef.current.resetView()}
+            aria-label={zoomLabels.fit}
+            title={zoomLabels.fit}
+          >
+            ⊡
+          </button>
+        </div>
+      )}
+
       <Canvas
         shadows={enableShadows}
         frameloop={frameloop}
@@ -654,12 +710,20 @@ const ModelViewer = ({
             autoRotate={autoRotate}
             autoRotateSpeed={autoRotateSpeed}
             onLoaded={onModelLoaded}
+            rigApiRef={rigApiRef}
             onFramed={d => {
               if (!d || !Number.isFinite(d)) return;
-              setZoomLimits({ min: d * 0.55, max: d * 2.2 });
+              const min = d * 0.12;
+              const max = d * 10;
+              setZoomLimits({ min, max });
+              viewportApiRef.current.fitDistance = d;
+              viewportApiRef.current.min = min;
+              viewportApiRef.current.max = max;
             }}
           />
         </Suspense>
+
+        <ViewportBridge apiRef={viewportApiRef} controlsRef={controlsRef} />
 
         {!isTouch && (
           <DesktopControls
@@ -667,6 +731,7 @@ const ModelViewer = ({
             min={effectiveMinZoom}
             max={effectiveMaxZoom}
             zoomEnabled={enableManualZoom}
+            controlsRef={controlsRef}
           />
         )}
       </Canvas>

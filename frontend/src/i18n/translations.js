@@ -68,6 +68,9 @@ export const translations = {
       model3dPendingBody:
         'Your file was saved. GLB conversion is running — this page will refresh automatically.',
       model3dFailedTitle: '3D preview could not be generated',
+      model3dZoomIn: 'Zoom in',
+      model3dZoomOut: 'Zoom out',
+      model3dZoomFit: 'Fit model to view',
     },
     landing: {
       tagline: 'IT, Electronics, Maintenance & Consulting',
@@ -628,6 +631,9 @@ export const translations = {
       model3dPendingBody:
         'Fichier enregistré. Conversion GLB en cours — cette page se met à jour automatiquement.',
       model3dFailedTitle: 'Impossible de générer l’aperçu 3D',
+      model3dZoomIn: 'Zoom avant',
+      model3dZoomOut: 'Zoom arrière',
+      model3dZoomFit: 'Ajuster à la vue',
     },
     landing: {
       tagline: 'Informatique, Électronique, Maintenance & Conseil',

@@ -857,6 +857,41 @@ html[data-theme='dark'] .hero-bg-base {
   height: 100% !important;
 }
 
+.model-viewer-zoom-toolbar {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.model-viewer-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--eg-border);
+  border-radius: 0.5rem;
+  background: rgba(11, 16, 24, 0.88);
+  color: var(--eg-text);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.model-viewer-zoom-btn:hover {
+  border-color: var(--lab-cyan, #22d3ee);
+  background: rgba(11, 16, 24, 0.96);
+}
+
+.model-viewer-zoom-btn-fit {
+  font-size: 0.95rem;
+}
+
 .model-viewer-notice {
   padding: 1.25rem 1.5rem;
   border-radius: 0.75rem;

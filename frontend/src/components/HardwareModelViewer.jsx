@@ -88,6 +88,12 @@ export default function HardwareModelViewer({ url, className = '' }) {
               width="100%"
               height={420}
               showScreenshotButton={false}
+              showZoomControls
+              zoomLabels={{
+                in: t('projects.model3dZoomIn'),
+                out: t('projects.model3dZoomOut'),
+                fit: t('projects.model3dZoomFit'),
+              }}
               frameloop="always"
               environmentPreset={isLightweight ? 'none' : 'city'}
               enableShadows={!isLightweight}
