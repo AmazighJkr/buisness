@@ -91,8 +91,14 @@ export default function ProjectDetailContent({ project, onBack }) {
             <HardwareModelViewer url={project.model_3d_url.trim()} />
           ) : (
             <div className="model-viewer-notice">
-              <p className="text-sm font-medium text-dark-text">{t('projects.model3dPendingTitle')}</p>
-              <p className="mt-2 text-xs text-dark-muted">{t('projects.model3dPendingBody')}</p>
+              <p className="text-sm font-medium text-dark-text">
+                {project.model_3d_conversion_error
+                  ? t('projects.model3dFailedTitle')
+                  : t('projects.model3dPendingTitle')}
+              </p>
+              <p className="mt-2 text-xs text-dark-muted">
+                {project.model_3d_conversion_error || t('projects.model3dPendingBody')}
+              </p>
             </div>
           )}
         </SectionBox>

@@ -119,6 +119,7 @@ export default function AdminPanelPage() {
   const [model3d, setModel3d] = useState(null)
   const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
   const [existingModel3dPending, setExistingModel3dPending] = useState(false)
+  const [existingModel3dConversionError, setExistingModel3dConversionError] = useState('')
   const [editId, setEditId] = useState(null)
 
   const [selectedCommand, setSelectedCommand] = useState(null)
@@ -214,6 +215,7 @@ export default function AdminPanelPage() {
     setModel3d(null)
     setExistingModel3dUrl('')
     setExistingModel3dPending(false)
+    setExistingModel3dConversionError('')
     setSelectedPackIds([])
     setEditId(null)
   }
@@ -237,20 +239,22 @@ export default function AdminPanelPage() {
     try {
       const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, selectedPackIds)
       const converting3d = Boolean(model3d)
+      const isGlbUpload = converting3d && /\.(glb|gltf)$/i.test(model3d.name)
+      const convertMsg = isGlbUpload
+        ? 'Project saved. GLB preview is ready on the project page.'
+        : 'Project saved. Converting 3D to GLB in the background — refresh the project page in 1–3 minutes.'
       if (editId) {
         await adminUpdateProject(editId, fd)
         setMsg({
           type: 'success',
-          text: converting3d
-            ? 'Project saved. Converting 3D to GLB in the background — open the project page in ~1 minute.'
-            : 'Project updated.',
+          text: converting3d ? convertMsg : 'Project updated.',
         })
       } else {
         await adminCreateProject(fd)
         setMsg({
           type: 'success',
           text: converting3d
-            ? 'Project published. Converting 3D to GLB in the background — open the project page in ~1 minute.'
+            ? convertMsg.replace('Project saved.', 'Project published.')
             : 'Project published.',
         })
       }
@@ -283,6 +287,7 @@ export default function AdminPanelPage() {
     setModel3d(null)
     setExistingModel3dUrl(p.model_3d_url || '')
     setExistingModel3dPending(!!p.model_3d_pending)
+    setExistingModel3dConversionError(p.model_3d_conversion_error || '')
     setSelectedPackIds(p.pack_ids || [])
     setMaterials(
       p.materials?.length
@@ -577,7 +582,7 @@ export default function AdminPanelPage() {
         className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
       <label className="block text-xs text-dark-muted">
-        3D hardware model (optional — any format below; server converts to GLB for preview, max 25 MB)
+        3D hardware model (optional — GLB/STL recommended on Render; STEP may timeout, max 25 MB)
         <input
           type="file"
           accept=".glb,.gltf,.obj,.stl,.step,.stp,.fbx,model/gltf-binary,model/gltf+json,model/stl"
@@ -604,9 +609,14 @@ export default function AdminPanelPage() {
             GLB preview ready — upload a new file to replace
           </span>
         )}
-        {!model3d && existingModel3dPending && (
+        {!model3d && existingModel3dConversionError && (
+          <span className="mt-1 block text-[10px] text-red-400">
+            Conversion failed: {existingModel3dConversionError} — upload GLB or STL instead.
+          </span>
+        )}
+        {!model3d && existingModel3dPending && !existingModel3dConversionError && (
           <span className="mt-1 block text-[10px] text-amber-400">
-            File saved but GLB preview missing — re-upload as STL or GLB
+            Converting to GLB in the background — refresh the project page in 1–3 minutes.
           </span>
         )}
       </label>

@@ -65,6 +65,11 @@ class Project(models.Model):
         editable=False,
         help_text='Auto-generated GLB preview (do not upload manually).',
     )
+    model_3d_conversion_error = models.TextField(
+        blank=True,
+        default='',
+        help_text='Last GLB conversion failure message (cleared on success).',
+    )
     video_url = models.URLField(blank=True)
     libraries = models.TextField(blank=True)
     source_code = models.TextField(blank=True)

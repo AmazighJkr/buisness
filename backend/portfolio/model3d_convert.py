@@ -38,12 +38,26 @@ def is_glb_name(name: str) -> bool:
 
 
 def project_model_3d_pending(project) -> bool:
-    """Source uploaded but no GLB preview yet (conversion failed or pending)."""
+    """Source uploaded but no GLB preview yet (conversion in progress or failed)."""
     glb = getattr(project, 'model_3d_glb', None)
     if glb and getattr(glb, 'name', None):
         return False
     source = getattr(project, 'model_3d_file', None)
     return bool(source and getattr(source, 'name', None) and not is_glb_name(source.name))
+
+
+def _set_conversion_error(project_id, message: str) -> None:
+    from .models import Project
+
+    Project.objects.filter(pk=project_id).update(
+        model_3d_conversion_error=(message or '')[:500],
+    )
+
+
+def _clear_conversion_error(project_id) -> None:
+    from .models import Project
+
+    Project.objects.filter(pk=project_id).update(model_3d_conversion_error='')
 
 
 def _ensure_converter_installed() -> None:
@@ -166,14 +180,19 @@ def _convert_project_model_to_glb_worker(project_id) -> None:
 
         project = Project.objects.get(pk=project_id)
         convert_project_model_to_glb(project)
+    except Model3dConversionError as exc:
+        logger.warning('Background 3D conversion failed for %s: %s', project_id, exc)
+        _set_conversion_error(project_id, str(exc))
     except Exception as exc:
         logger.warning('Background 3D conversion failed for %s: %s', project_id, exc)
+        _set_conversion_error(project_id, str(exc))
     finally:
         close_old_connections()
 
 
 def schedule_model_3d_conversion(project_id) -> None:
     """Run GLB conversion after the HTTP response (avoids Render 502 on large STEP files)."""
+    _clear_conversion_error(project_id)
     thread = threading.Thread(
         target=_convert_project_model_to_glb_worker,
         args=(project_id,),
@@ -212,6 +231,7 @@ def convert_project_model_to_glb(project) -> bool:
         project.model_3d_glb.delete(save=False)
 
     project.model_3d_glb.save(glb_content.name, glb_content, save=False)
-    project.save(update_fields=['model_3d_glb'])
+    project.model_3d_conversion_error = ''
+    project.save(update_fields=['model_3d_glb', 'model_3d_conversion_error'])
     logger.info('Converted 3D model to GLB for project %s', project.pk)
     return True

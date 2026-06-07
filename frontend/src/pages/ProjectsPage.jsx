@@ -62,6 +62,17 @@ export default function ProjectsPage() {
   }, [projectId, accessKey])
 
   useEffect(() => {
+    if (!projectId || !project?.model_3d_pending || project?.model_3d_conversion_error) return undefined
+    const poll = () => {
+      fetchProject(projectId)
+        .then(setProject)
+        .catch(() => {})
+    }
+    const id = window.setInterval(poll, 8000)
+    return () => window.clearInterval(id)
+  }, [projectId, project?.model_3d_pending, project?.model_3d_conversion_error])
+
+  useEffect(() => {
     if (!projectId || !project?.locked || sessionLoading) return
     if (!isLoggedIn) {
       navigate(accountUrlWithNext(`/projects/${projectId}`), { replace: true })

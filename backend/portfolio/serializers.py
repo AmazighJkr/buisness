@@ -283,6 +283,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     simulation_embed_url = serializers.SerializerMethodField()
     model_3d_url = serializers.SerializerMethodField()
     model_3d_pending = serializers.SerializerMethodField()
+    model_3d_conversion_error = serializers.CharField(read_only=True)
     libraries_list = serializers.SerializerMethodField()
     code_files = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -312,6 +313,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'simulation_embed_url',
             'model_3d_url',
             'model_3d_pending',
+            'model_3d_conversion_error',
             'video_url',
             'libraries_list',
             'code_files',
@@ -366,6 +368,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
                 'simulation_embed_url': None,
                 'model_3d_url': '',
                 'model_3d_pending': False,
+                'model_3d_conversion_error': '',
                 'video_url': '',
                 'libraries_list': [],
                 'code_files': [],
@@ -820,6 +823,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
     model_3d_url = serializers.SerializerMethodField(read_only=True)
     model_3d_pending = serializers.SerializerMethodField(read_only=True)
+    model_3d_conversion_error = serializers.CharField(read_only=True)
     model_3d_file = serializers.FileField(write_only=True, required=False, allow_null=True)
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
     schematic_url = serializers.SerializerMethodField(read_only=True)
@@ -842,6 +846,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'simulation_url',
             'model_3d_url',
             'model_3d_pending',
+            'model_3d_conversion_error',
             'model_3d_file',
             'video_url',
             'libraries',
@@ -961,7 +966,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             if instance.model_3d_glb:
                 instance.model_3d_glb.delete(save=False)
                 instance.model_3d_glb = None
-                instance.save(update_fields=['model_3d_glb'])
+            instance.model_3d_conversion_error = ''
+            instance.save(update_fields=['model_3d_glb', 'model_3d_conversion_error'])
             return
         schedule_model_3d_conversion(instance.pk)
 
