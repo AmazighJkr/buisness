@@ -899,6 +899,23 @@ export function validateUploadFile(file, label = 'File') {
   return null
 }
 
+const MAX_MODEL_3D_BYTES = 25 * 1024 * 1024
+const ALLOWED_MODEL_3D_EXTENSIONS = new Set(['.glb', '.gltf', '.obj', '.fbx'])
+
+export function validateModel3dFile(file, label = '3D model') {
+  if (!file) return null
+  if (file.size > MAX_MODEL_3D_BYTES) {
+    return `${label} must be 25 MB or smaller (this file is ${(file.size / (1024 * 1024)).toFixed(1)} MB).`
+  }
+  const name = file.name || ''
+  const dot = name.lastIndexOf('.')
+  const ext = dot >= 0 ? name.slice(dot).toLowerCase() : ''
+  if (!ALLOWED_MODEL_3D_EXTENSIONS.has(ext)) {
+    return `${label} type not allowed (${ext || 'unknown'}). Use GLB, GLTF, OBJ, or FBX.`
+  }
+  return null
+}
+
 export async function adminDeleteProject(id) {
   return adminRequest(`${API_BASE}/api/admin/projects/${id}/`, { method: 'DELETE' })
 }

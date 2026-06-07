@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
+import { LocaleProvider } from './context/LocaleContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import ProjectsPage from './pages/ProjectsPage.jsx'
 import CommandTrackPage from './pages/CommandTrackPage.jsx'
@@ -26,6 +28,8 @@ function AdminRedirect() {
 
 export default function App() {
   return (
+    <LocaleProvider>
+      <ThemeProvider>
     <Routes>
       <Route index element={<LandingPage />} />
       <Route path="projects" element={<ProjectsPage />} />
@@ -46,5 +50,7 @@ export default function App() {
       <Route path="admin-panel" element={<AdminPanelPage />} />
       <Route path="admin-panel/" element={<AdminPanelPage />} />
     </Routes>
+      </ThemeProvider>
+    </LocaleProvider>
   )
 }

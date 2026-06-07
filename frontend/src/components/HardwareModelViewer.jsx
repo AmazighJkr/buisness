@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { probeWebGL } from './backgrounds/webglUtils.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
+import { resolveMediaUrl } from '../utils/mediaUrl.js'
 import {
   isCadFormatNeedingConversion,
   isSupportedModelUrl,
@@ -12,7 +13,8 @@ const ModelViewer = lazy(() => import('./reactbits/ModelViewer.jsx'))
 
 export default function HardwareModelViewer({ url, className = '' }) {
   const { t } = useTranslation()
-  const ext = modelExtensionFromUrl(url)
+  const resolvedUrl = resolveMediaUrl(url) || url
+  const ext = modelExtensionFromUrl(resolvedUrl)
   const [webglOk, setWebglOk] = useState(null)
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function HardwareModelViewer({ url, className = '' }) {
     )
   }
 
-  if (isCadFormatNeedingConversion(url)) {
+  if (isCadFormatNeedingConversion(resolvedUrl)) {
     return (
       <div className={`model-viewer-notice ${className}`.trim()}>
         <p className="text-sm font-medium text-dark-text">{t('projects.model3dCadTitle')}</p>
@@ -38,7 +40,7 @@ export default function HardwareModelViewer({ url, className = '' }) {
     )
   }
 
-  if (!isSupportedModelUrl(url)) {
+  if (!isSupportedModelUrl(resolvedUrl)) {
     return (
       <div className={`model-viewer-notice ${className}`.trim()}>
         <p className="text-sm text-dark-muted">
@@ -56,7 +58,7 @@ export default function HardwareModelViewer({ url, className = '' }) {
       <Suspense fallback={<p className="py-12 text-center text-sm text-dark-muted">{t('projects.model3dLoading')}</p>}>
         {webglOk ? (
           <ModelViewer
-            url={url}
+            url={resolvedUrl}
             width="100%"
             height={420}
             showScreenshotButton={false}

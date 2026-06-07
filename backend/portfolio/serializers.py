@@ -2,6 +2,7 @@ import json
 import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.contrib.auth.models import Permission
@@ -61,6 +62,14 @@ def normalize_simulation_url(value):
     if not url.startswith(('http://', 'https://')):
         url = f'https://{url}'
     return url
+
+
+def project_model_3d_url(obj):
+    """Uploaded 3D file URL, or legacy external URL."""
+    url = media_url(getattr(obj, 'model_3d_file', None))
+    if url:
+        return url
+    return (getattr(obj, 'model_3d_url', None) or '').strip()
 
 
 def media_url(file_field):
@@ -260,6 +269,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     schematic_url = serializers.SerializerMethodField()
     schematic_file_missing = serializers.SerializerMethodField()
     simulation_embed_url = serializers.SerializerMethodField()
+    model_3d_url = serializers.SerializerMethodField()
     libraries_list = serializers.SerializerMethodField()
     code_files = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -346,6 +356,9 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
 
     def get_schematic_file_missing(self, obj):
         return schematic_file_missing(obj)
+
+    def get_model_3d_url(self, obj):
+        return project_model_3d_url(obj)
 
     def get_simulation_embed_url(self, obj):
         return resolve_simulation_embed_url(obj.simulation_url)
@@ -785,7 +798,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     wiring_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     code_files_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
-    model_3d_url = serializers.URLField(required=False, allow_blank=True, default='')
+    model_3d_url = serializers.SerializerMethodField(read_only=True)
+    model_3d_file = serializers.FileField(write_only=True, required=False, allow_null=True)
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
     schematic_url = serializers.SerializerMethodField(read_only=True)
     pack_ids = serializers.SerializerMethodField(read_only=True)
@@ -806,6 +820,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'schematic_url',
             'simulation_url',
             'model_3d_url',
+            'model_3d_file',
             'video_url',
             'libraries',
             'source_code',
@@ -843,8 +858,22 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Schematic image must be 5 MB or smaller.')
         return value
 
+    def validate_model_3d_file(self, value):
+        if not value:
+            return value
+        validate_upload_extension(value)
+        max_bytes = getattr(settings, 'MAX_MODEL_3D_UPLOAD_BYTES', 25 * 1024 * 1024)
+        if value.size > max_bytes:
+            raise serializers.ValidationError(
+                f'3D model must be {max_bytes // (1024 * 1024)} MB or smaller.',
+            )
+        return value
+
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
+
+    def get_model_3d_url(self, obj):
+        return project_model_3d_url(obj)
 
     def get_pack_ids(self, obj):
         return [str(p.id) for p in obj.packs.all()]
@@ -873,8 +902,11 @@ class AdminProjectSerializer(serializers.ModelSerializer):
 
     def _merge_request_files(self, validated_data):
         request = self.context.get('request')
-        if request and hasattr(request, 'FILES') and 'schematic_image' in request.FILES:
-            validated_data['schematic_image'] = request.FILES['schematic_image']
+        if request and hasattr(request, 'FILES'):
+            if 'schematic_image' in request.FILES:
+                validated_data['schematic_image'] = request.FILES['schematic_image']
+            if 'model_3d_file' in request.FILES:
+                validated_data['model_3d_file'] = request.FILES['model_3d_file']
         return validated_data
 
     def _verify_schematic_saved(self, instance):

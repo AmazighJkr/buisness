@@ -116,7 +116,7 @@ class ProjectAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Identity', {'fields': ('id', 'subcategory', 'title', 'description')}),
         ('Visibility & Access', {'fields': ('is_featured', 'featured_order', 'is_free', 'pack_memberships')}),
-        ('Content', {'fields': ('materials', 'wiring', 'libraries', 'simulation_url', 'model_3d_url', 'video_url')}),
+        ('Content', {'fields': ('materials', 'wiring', 'libraries', 'simulation_url', 'model_3d_file', 'model_3d_url', 'video_url')}),
         ('Code & Files', {'fields': ('schematic_image', 'source_code', 'code_files')}),
         ('Audit', {'fields': ('created_at', 'updated_at')}),
     )

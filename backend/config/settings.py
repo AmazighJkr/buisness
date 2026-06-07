@@ -213,9 +213,13 @@ SIMPLE_JWT = {
 }
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 30 * 1024 * 1024
 
-ALLOWED_UPLOAD_EXTENSIONS = {'.pdf', '.png', '.jpg', '.jpeg', '.gif', '.zip', '.txt', '.csv', '.sch', '.brd', '.webp'}
+ALLOWED_UPLOAD_EXTENSIONS = {
+    '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.zip', '.txt', '.csv', '.sch', '.brd', '.webp',
+    '.glb', '.gltf', '.obj', '.fbx',
+}
+MAX_MODEL_3D_UPLOAD_BYTES = 25 * 1024 * 1024
 
 # Shown to clients on staff command messages (never the admin username).
 ENTERPRISE_DISPLAY_NAME = os.getenv('ENTERPRISE_DISPLAY_NAME', 'EmbeddedGrid')

@@ -24,6 +24,7 @@ import {
   staffCanPostStore,
   staffCanViewContactMessages,
   staffHasStoreAccess,
+  validateModel3dFile,
   validateUploadFile,
 } from '../api/client.js'
 import AdminActivityLog from '../components/admin/AdminActivityLog.jsx'
@@ -57,7 +58,7 @@ function normalizeUrl(raw) {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`
 }
 
-function buildProjectFormData(form, materials, wiring, codeFiles, schematic, packIds) {
+function buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, packIds) {
   const fd = new FormData()
   fd.append('subcategory', form.subcategory)
   fd.append('is_featured', form.is_featured ? 'true' : 'false')
@@ -73,10 +74,10 @@ function buildProjectFormData(form, materials, wiring, codeFiles, schematic, pac
   fd.append('materials_json', JSON.stringify(materials.filter((r) => r.component?.trim())))
   fd.append('wiring_json', JSON.stringify(wiring.filter((r) => r.from_pin?.trim() || r.to_pin?.trim())))
   fd.append('simulation_url', normalizeUrl(form.simulation_url) || '')
-  fd.append('model_3d_url', normalizeUrl(form.model_3d_url) || '')
   fd.append('video_url', normalizeUrl(form.video_url) || '')
   fd.append('pack_ids_json', JSON.stringify(packIds || []))
   if (schematic) fd.append('schematic_image', schematic)
+  if (model3d) fd.append('model_3d_file', model3d)
   return fd
 }
 
@@ -106,7 +107,6 @@ export default function AdminPanelPage() {
     description: '',
     libraries: '',
     simulation_url: '',
-    model_3d_url: '',
     video_url: '',
     is_featured: false,
     is_free: false,
@@ -116,6 +116,8 @@ export default function AdminPanelPage() {
   const [wiring, setWiring] = useState([])
   const [codeFiles, setCodeFiles] = useState([{ ...EMPTY_CODE }])
   const [schematic, setSchematic] = useState(null)
+  const [model3d, setModel3d] = useState(null)
+  const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
   const [editId, setEditId] = useState(null)
 
   const [selectedCommand, setSelectedCommand] = useState(null)
@@ -199,7 +201,6 @@ export default function AdminPanelPage() {
       description: '',
       libraries: '',
       simulation_url: '',
-      model_3d_url: '',
       video_url: '',
       is_featured: false,
       is_free: false,
@@ -209,6 +210,8 @@ export default function AdminPanelPage() {
     setWiring([])
     setCodeFiles([{ ...EMPTY_CODE }])
     setSchematic(null)
+    setModel3d(null)
+    setExistingModel3dUrl('')
     setSelectedPackIds([])
     setEditId(null)
   }
@@ -223,8 +226,14 @@ export default function AdminPanelPage() {
       setSubmitting(false)
       return
     }
+    const modelErr = validateModel3dFile(model3d, '3D model')
+    if (modelErr) {
+      setMsg({ type: 'error', text: modelErr })
+      setSubmitting(false)
+      return
+    }
     try {
-      const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, selectedPackIds)
+      const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, selectedPackIds)
       if (editId) {
         await adminUpdateProject(editId, fd)
         setMsg({ type: 'success', text: 'Project updated.' })
@@ -253,12 +262,13 @@ export default function AdminPanelPage() {
       description: p.description || '',
       libraries: p.libraries || '',
       simulation_url: p.simulation_url || '',
-      model_3d_url: p.model_3d_url || '',
       video_url: p.video_url || '',
       is_featured: !!p.is_featured,
       is_free: !!p.is_free,
       featured_order: p.featured_order || 0,
     })
+    setModel3d(null)
+    setExistingModel3dUrl(p.model_3d_url || '')
     setSelectedPackIds(p.pack_ids || [])
     setMaterials(
       p.materials?.length
@@ -552,9 +562,35 @@ export default function AdminPanelPage() {
         onChange={update('simulation_url')}
         className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
-      <input type="text" placeholder="3D model URL — GLB, GLTF, FBX, or OBJ (convert STEP/STP/SLDPRT first)" value={form.model_3d_url}
-        onChange={update('model_3d_url')}
-        className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
+      <label className="block text-xs text-dark-muted">
+        3D hardware model (optional — GLB, GLTF, FBX, or OBJ, max 25 MB)
+        <input
+          type="file"
+          accept=".glb,.gltf,.obj,.fbx,model/gltf-binary,model/gltf+json"
+          className="mt-1 block w-full text-xs"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null
+            const err = validateModel3dFile(file, '3D model')
+            if (err) {
+              setMsg({ type: 'error', text: err })
+              e.target.value = ''
+              setModel3d(null)
+              return
+            }
+            setModel3d(file)
+          }}
+        />
+        {model3d && (
+          <span className="mt-1 block text-[10px] text-lab-cyan">
+            Selected: {model3d.name} ({(model3d.size / (1024 * 1024)).toFixed(1)} MB)
+          </span>
+        )}
+        {!model3d && existingModel3dUrl && (
+          <span className="mt-1 block text-[10px] text-dark-muted">
+            Current file on server — upload a new file to replace
+          </span>
+        )}
+      </label>
 
       <input type="text" placeholder="Video URL (optional — YouTube, Vimeo, etc.)" value={form.video_url}
         onChange={update('video_url')}

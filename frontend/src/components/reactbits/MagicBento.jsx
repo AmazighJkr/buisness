@@ -538,13 +538,15 @@ const MagicBento = ({
             }
           }
 
+          @media (min-width: 768px) {
+            .bento-layout-contact .card-responsive {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
+
           @media (min-width: 1024px) {
             .bento-layout-contact .card-responsive {
               grid-template-columns: repeat(4, 1fr);
-            }
-            .bento-layout-contact .card-responsive .card {
-              aspect-ratio: auto;
-              min-height: 160px;
             }
           }
 
@@ -552,30 +554,25 @@ const MagicBento = ({
             grid-template-columns: 1fr;
           }
 
-          @media (min-width: 768px) {
+          @media (min-width: 640px) {
             .bento-layout-enterprise .card-responsive {
               grid-template-columns: repeat(3, 1fr);
             }
           }
 
+          .bento-layout-services .card-responsive {
+            grid-template-columns: 1fr;
+          }
+
+          @media (min-width: 640px) {
+            .bento-layout-services .card-responsive {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
+
           @media (min-width: 1024px) {
             .bento-layout-services .card-responsive {
-              grid-template-columns: repeat(4, 1fr);
-            }
-
-            .bento-layout-services .card-responsive .card:nth-child(3) {
-              grid-column: span 2;
-              grid-row: span 2;
-            }
-
-            .bento-layout-services .card-responsive .card:nth-child(4) {
-              grid-column: 1 / span 2;
-              grid-row: 2 / span 2;
-            }
-
-            .bento-layout-services .card-responsive .card:nth-child(6) {
-              grid-column: 4;
-              grid-row: 3;
+              grid-template-columns: repeat(3, 1fr);
             }
           }
           
@@ -670,7 +667,7 @@ const MagicBento = ({
       <BentoCardGrid gridRef={gridRef}>
         <div className={`card-responsive grid gap-2 bento-layout-${layout}`}>
           {items.map((card, index) => {
-            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full p-5 rounded-[20px] border border-solid font-light overflow-hidden transition-colors duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]${
+            const baseClassName = `card flex flex-col justify-between relative aspect-auto min-h-[108px] w-full max-w-full p-3.5 rounded-[14px] border border-solid font-light overflow-hidden transition-colors duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]${
               onCardClick ? ' cursor-pointer' : ''
             } ${enableBorderGlow ? 'card--border-glow' : ''}`;
 

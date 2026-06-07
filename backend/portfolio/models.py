@@ -50,7 +50,13 @@ class Project(models.Model):
     simulation_url = models.URLField(blank=True)
     model_3d_url = models.URLField(
         blank=True,
-        help_text='Public URL to GLB, GLTF, FBX, or OBJ (convert STEP/STP/SLDPRT in CAD first).',
+        help_text='Legacy external URL — prefer model_3d_file upload.',
+    )
+    model_3d_file = models.FileField(
+        upload_to='projects/models/',
+        blank=True,
+        null=True,
+        help_text='GLB, GLTF, FBX, or OBJ (max 25 MB). Convert STEP/STP/SLDPRT in CAD first.',
     )
     video_url = models.URLField(blank=True)
     libraries = models.TextField(blank=True)
