@@ -24,22 +24,21 @@ export default function AdminStore({ canPost = true, canEdit = true }) {
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState({ type: '', text: '' })
 
-  const load = async () => {
-    setLoading(true)
+  const load = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true)
     try {
       const [c, p] = await Promise.all([adminFetchStoreCategories(), adminFetchStoreProducts()])
       setCategories(c)
       setProducts(p)
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
   useEffect(() => {
     load().catch((e) => setMsg({ type: 'error', text: e.message }))
-    const onFocus = () => load().catch(() => {})
-    window.addEventListener('focus', onFocus)
-    const id = window.setInterval(() => load().catch(() => {}), 60000)
+    const onFocus = () => load({ silent: true }).catch(() => {})
+    const id = window.setInterval(() => load({ silent: true }).catch(() => {}), 60000)
     return () => {
       window.removeEventListener('focus', onFocus)
       window.clearInterval(id)

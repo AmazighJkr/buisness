@@ -9,7 +9,6 @@ import {
   toStoreFormData,
 } from './storeFormUtils.js'
 
-const EMPTY_VARIANT = { name: '', description: '', image: null }
 import {
   adminAddProductGallery,
   adminDeleteProductGalleryImage,
@@ -18,6 +17,8 @@ import {
   adminUpdateStoreProduct,
   validateUploadFile,
 } from '../../api/client.js'
+
+const EMPTY_VARIANT = { name: '', description: '', image: null }
 function rowFromProduct(p) {
   return {
     name: p.name || '',
@@ -421,6 +422,7 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
                           ...f,
                           variants: f.variants.map((row, i) => (i === index ? { ...row, image } : row)),
                         }))
+                        e.target.value = ''
                       }}
                     />
                   </label>
@@ -453,11 +455,38 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
               </button>
             </div>
           </AdminField>
-          <AdminField label="Replace main photo">
-            <input type="file" accept="image/*" className="mt-1 block w-full text-xs" onChange={(e) => setFullImage(e.target.files?.[0] || null)} />
+          <AdminField label="Replace main photo" hint="Selected file uploads when you click Save full edit">
+            <input
+              type="file"
+              accept="image/*"
+              className="mt-1 block w-full text-xs"
+              onChange={(e) => {
+                setFullImage(e.target.files?.[0] || null)
+                e.target.value = ''
+              }}
+            />
+            {fullImage && (
+              <p className="mt-1 text-[10px] text-lab-cyan">
+                Ready to upload: {fullImage.name} ({(fullImage.size / 1024).toFixed(0)} KB)
+              </p>
+            )}
           </AdminField>
-          <AdminField label="Add gallery photos">
-            <input type="file" accept="image/*" multiple className="mt-1 block w-full text-xs" onChange={(e) => setFullGallery(Array.from(e.target.files || []))} />
+          <AdminField label="Add gallery photos" hint="New photos upload when you click Save full edit">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="mt-1 block w-full text-xs"
+              onChange={(e) => {
+                setFullGallery(Array.from(e.target.files || []))
+                e.target.value = ''
+              }}
+            />
+            {fullGallery.length > 0 && (
+              <p className="mt-1 text-[10px] text-lab-cyan">
+                {fullGallery.length} new photo(s) selected — click Save full edit to apply
+              </p>
+            )}
           </AdminField>
           {fullForm.gallery?.length > 0 && (
             <div>
@@ -485,6 +514,9 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
               </ul>
             </div>
           )}
+          <p className="text-[10px] text-dark-muted">
+            Edit everything below, then save once — images are not uploaded until you click the button.
+          </p>
           <button type="submit" disabled={fullSaving} className="btn-primary">
             {fullSaving ? 'Saving…' : 'Save full edit'}
           </button>
