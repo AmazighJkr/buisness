@@ -123,11 +123,13 @@ export default function ShopPage() {
     if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
-  const setQuery = (q) => {
+  const commitSearch = (q) => {
     updateParams({ q })
-    if (productSlug) {
-      navigate(`/shop/${productSlug}${buildShopQuery(categoryParam, q)}`)
-    }
+    navigate(`/shop${buildShopQuery(categoryParam, q)}`)
+  }
+
+  const selectSearchProduct = (slug) => {
+    navigate(`/shop/${slug}${buildShopQuery(categoryParam, queryParam)}`)
   }
 
   const backToList = () => {
@@ -151,7 +153,14 @@ export default function ShopPage() {
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <StoreHeader
         highlight={productSlug ? `/shop/${productSlug}` : '/shop'}
-        subheader={<StoreSearchBar value={queryParam} onChange={setQuery} />}
+        subheader={
+          <StoreSearchBar
+            value={queryParam}
+            category={categoryParam}
+            onCommit={commitSearch}
+            onProductSelect={selectSearchProduct}
+          />
+        }
       />
 
       <div className="flex min-h-0 flex-1">
