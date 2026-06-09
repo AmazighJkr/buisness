@@ -44,3 +44,6 @@ if [ "${SEED_DEMO:-false}" = "true" ]; then
 fi
 
 echo "=== Build complete ==="
+echo "NOTE: In Render Dashboard, set Start Command to:"
+echo "  cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:\$PORT --workers 1 --threads 2 --timeout 180 --graceful-timeout 180"
+echo "  and MODEL_3D_CONVERT_TIMEOUT=600 (3D STEP conversion on free tier may still timeout — prefer GLB upload)."

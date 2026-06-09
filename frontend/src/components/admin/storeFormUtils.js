@@ -34,3 +34,24 @@ export function safeMoney(value, fallback = 0) {
   const n = Number.parseFloat(String(value ?? '').replace(',', '.'))
   return Number.isFinite(n) && n >= 0 ? n : fallback
 }
+
+/** Flat list with top-level categories and indented children for select options. */
+export function storeCategorySelectOptions(categories) {
+  const rows = [...(categories || [])]
+  const tops = rows.filter((c) => !c.parent).sort((a, b) => a.name.localeCompare(b.name))
+  const options = []
+  for (const top of tops) {
+    options.push({ id: top.id, label: top.name })
+    const children = rows
+      .filter((c) => c.parent === top.id)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
+    for (const child of children) {
+      options.push({ id: child.id, label: `↳ ${child.name}` })
+    }
+  }
+  const listed = new Set(options.map((o) => o.id))
+  for (const orphan of rows.filter((c) => c.parent && !listed.has(c.id))) {
+    options.push({ id: orphan.id, label: orphan.name })
+  }
+  return options
+}

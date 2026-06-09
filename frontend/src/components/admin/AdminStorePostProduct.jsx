@@ -6,10 +6,13 @@ import {
   normalizeStoreSlug,
   safeInt,
   safeMoney,
+  storeCategorySelectOptions,
   toStoreFormData,
 } from './storeFormUtils.js'
 import { adminAddProductGallery, adminCreateStoreProduct, validateUploadFile } from '../../api/client.js'
 import { slugFromName } from '../../utils/slugFromName.js'
+
+const EMPTY_VARIANT = { name: '', description: '' }
 
 const EMPTY = {
   category: '',
@@ -29,15 +32,17 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
   const [form, setForm] = useState(EMPTY)
   const [mainImage, setMainImage] = useState(null)
   const [galleryFiles, setGalleryFiles] = useState([])
+  const [variants, setVariants] = useState([{ ...EMPTY_VARIANT }])
   const [slugAuto, setSlugAuto] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  const categoryOptions = [...categories].sort((a, b) => a.name.localeCompare(b.name))
+  const categoryOptions = storeCategorySelectOptions(categories)
 
   const reset = () => {
     setForm(EMPTY)
     setMainImage(null)
     setGalleryFiles([])
+    setVariants([{ ...EMPTY_VARIANT }])
     setSlugAuto(true)
   }
 
@@ -87,6 +92,14 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
         is_featured: boolFormValue(form.is_featured),
       }
       const fd = toStoreFormData(payload, mainImage)
+      const variantRows = variants
+        .map((v, index) => ({
+          name: (v.name || '').trim(),
+          description: (v.description || '').trim(),
+          sort_order: index,
+        }))
+        .filter((v) => v.name)
+      if (variantRows.length) fd.append('variants_json', JSON.stringify(variantRows))
       const created = await adminCreateStoreProduct(fd)
       if (galleryFiles.length > 0 && created?.id) {
         await adminAddProductGallery(created.id, galleryFiles)
@@ -120,10 +133,7 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
         >
           <option value="">Select category…</option>
           {categoryOptions.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-              {!c.is_active ? ' (hidden)' : ''}
-            </option>
+            <option key={c.id} value={c.id}>{c.label}</option>
           ))}
         </select>
       </AdminField>
@@ -224,6 +234,49 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
         {galleryFiles.length > 0 && (
           <p className="mt-1 text-[10px] text-lab-cyan">{galleryFiles.length} file(s) selected</p>
         )}
+      </AdminField>
+
+      <AdminField label="Product models / variants" hint="Optional — name and short note per model (e.g. Uno R3, Nano)">
+        <div className="space-y-2">
+          {variants.map((v, index) => (
+            <div key={index} className="flex flex-wrap gap-2">
+              <input
+                placeholder="Model name"
+                value={v.name}
+                onChange={(e) => {
+                  const name = e.target.value
+                  setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, name } : row)))
+                }}
+                className="min-w-[8rem] flex-1 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+              />
+              <input
+                placeholder="Note (optional)"
+                value={v.description}
+                onChange={(e) => {
+                  const description = e.target.value
+                  setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, description } : row)))
+                }}
+                className="min-w-[10rem] flex-[2] border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+              />
+              {variants.length > 1 && (
+                <button
+                  type="button"
+                  className="text-xs text-red-400"
+                  onClick={() => setVariants((rows) => rows.filter((_, i) => i !== index))}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            className="text-xs text-lab-cyan"
+            onClick={() => setVariants((rows) => [...rows, { ...EMPTY_VARIANT }])}
+          >
+            + Add model
+          </button>
+        </div>
       </AdminField>
 
       <label className="flex items-center gap-2 text-sm text-dark-muted">

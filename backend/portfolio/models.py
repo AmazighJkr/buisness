@@ -397,6 +397,13 @@ class SubscriptionPack(models.Model):
 
 class StoreCategory(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+    )
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=120, unique=True)
     description = models.TextField(blank=True)
@@ -412,7 +419,13 @@ class StoreCategory(models.Model):
             ('manage_store', 'Can manage store catalog'),
         ]
 
+    @property
+    def is_top_level(self):
+        return self.parent_id is None
+
     def __str__(self):
+        if self.parent_id:
+            return f'{self.parent.name} → {self.name}'
         return self.name
 
 
@@ -460,6 +473,27 @@ class StoreProductImage(models.Model):
 
     def __str__(self):
         return f'{self.product.name} image'
+
+
+class StoreProductVariant(models.Model):
+    """Optional SKU/model line (e.g. UNO R3 vs ESP32) with text and/or image."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(
+        StoreProduct,
+        on_delete=models.CASCADE,
+        related_name='variants',
+    )
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='store/products/variants/', blank=True, null=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+
+    def __str__(self):
+        return f'{self.product.name} — {self.name}'
 
 
 class StoreStockReservation(models.Model):

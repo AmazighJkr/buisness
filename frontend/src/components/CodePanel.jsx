@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, Download } from 'lucide-react'
+import { projectBundleDownloadUrl } from '../api/client.js'
 import hljs from 'highlight.js/lib/core'
 import c from 'highlight.js/lib/languages/c'
 import cpp from 'highlight.js/lib/languages/cpp'
@@ -38,7 +39,7 @@ function highlightCode(code, language) {
   }
 }
 
-export default function CodePanel({ files }) {
+export default function CodePanel({ files, projectId }) {
   const list = (files || []).filter((f) => f?.code?.trim())
   const [active, setActive] = useState(0)
   const [copied, setCopied] = useState(false)
@@ -80,10 +81,23 @@ export default function CodePanel({ files }) {
             )
           })}
         </div>
-        <button type="button" onClick={handleCopy} className="lab-copy-btn">
-          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-          {copied ? 'copied' : 'copy'}
-        </button>
+        <div className="flex items-center gap-2">
+          {projectId && (
+            <a
+              href={projectBundleDownloadUrl(projectId)}
+              className="lab-copy-btn"
+              download
+              title="Download code + 3D as ZIP"
+            >
+              <Download className="h-3 w-3" />
+              zip
+            </a>
+          )}
+          <button type="button" onClick={handleCopy} className="lab-copy-btn">
+            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+            {copied ? 'copied' : 'copy'}
+          </button>
+        </div>
       </div>
       <div className="lab-code-scroll">
         <table className="lab-code-table">

@@ -6,8 +6,11 @@ import {
   normalizeStoreSlug,
   safeInt,
   safeMoney,
+  storeCategorySelectOptions,
   toStoreFormData,
 } from './storeFormUtils.js'
+
+const EMPTY_VARIANT = { name: '', description: '' }
 import {
   adminAddProductGallery,
   adminDeleteProductGalleryImage,
@@ -97,6 +100,10 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
       is_featured: !!p.is_featured,
       sort_order: String(p.sort_order ?? 0),
       gallery: p.gallery || [],
+      variants: (p.variants?.length ? p.variants : [{ ...EMPTY_VARIANT }]).map((v) => ({
+        name: v.name || '',
+        description: v.description || '',
+      })),
     })
     setFullImage(null)
     setFullGallery([])
@@ -134,6 +141,14 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
         is_featured: boolFormValue(fullForm.is_featured),
       }
       const fd = toStoreFormData(payload, fullImage)
+      const variantRows = (fullForm.variants || [])
+        .map((v, index) => ({
+          name: (v.name || '').trim(),
+          description: (v.description || '').trim(),
+          sort_order: index,
+        }))
+        .filter((v) => v.name)
+      fd.append('variants_json', JSON.stringify(variantRows))
       await adminUpdateStoreProduct(fullEditId, fd)
       if (fullGallery.length > 0) {
         await adminAddProductGallery(fullEditId, fullGallery)
@@ -149,7 +164,7 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
     }
   }
 
-  const categoryOptions = [...categories].sort((a, b) => a.name.localeCompare(b.name))
+  const categoryOptions = storeCategorySelectOptions(categories)
 
   return (
     <div className="space-y-4">
@@ -294,7 +309,7 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
               className={adminInputCls}
             >
               {categoryOptions.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>{c.label}</option>
               ))}
             </select>
           </AdminField>
@@ -341,6 +356,60 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
               <input type="number" min="0" value={fullForm.stock_qty} onChange={(e) => setFullForm((f) => ({ ...f, stock_qty: e.target.value }))} className={adminInputCls} />
             </AdminField>
           </div>
+          <AdminField label="Product models / variants">
+            <div className="space-y-2">
+              {(fullForm.variants || []).map((v, index) => (
+                <div key={index} className="flex flex-wrap gap-2">
+                  <input
+                    placeholder="Model name"
+                    value={v.name}
+                    onChange={(e) => {
+                      const name = e.target.value
+                      setFullForm((f) => ({
+                        ...f,
+                        variants: f.variants.map((row, i) => (i === index ? { ...row, name } : row)),
+                      }))
+                    }}
+                    className="min-w-[8rem] flex-1 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                  />
+                  <input
+                    placeholder="Note (optional)"
+                    value={v.description}
+                    onChange={(e) => {
+                      const description = e.target.value
+                      setFullForm((f) => ({
+                        ...f,
+                        variants: f.variants.map((row, i) => (i === index ? { ...row, description } : row)),
+                      }))
+                    }}
+                    className="min-w-[10rem] flex-[2] border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                  />
+                  {fullForm.variants.length > 1 && (
+                    <button
+                      type="button"
+                      className="text-xs text-red-400"
+                      onClick={() => setFullForm((f) => ({
+                        ...f,
+                        variants: f.variants.filter((_, i) => i !== index),
+                      }))}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                className="text-xs text-lab-cyan"
+                onClick={() => setFullForm((f) => ({
+                  ...f,
+                  variants: [...(f.variants || []), { ...EMPTY_VARIANT }],
+                }))}
+              >
+                + Add model
+              </button>
+            </div>
+          </AdminField>
           <AdminField label="Replace main photo">
             <input type="file" accept="image/*" className="mt-1 block w-full text-xs" onChange={(e) => setFullImage(e.target.files?.[0] || null)} />
           </AdminField>

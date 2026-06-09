@@ -59,7 +59,7 @@ function normalizeUrl(raw) {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`
 }
 
-function buildProjectFormData(form, materials, wiring, codeFiles, cover, schematic, model3d, packIds) {
+function buildProjectFormData(form, materials, wiring, codeFiles, cover, schematic, model3d, codeArchive, packIds) {
   const fd = new FormData()
   fd.append('subcategory', form.subcategory)
   fd.append('is_featured', form.is_featured ? 'true' : 'false')
@@ -80,6 +80,7 @@ function buildProjectFormData(form, materials, wiring, codeFiles, cover, schemat
   if (cover) fd.append('cover_image', cover)
   if (schematic) fd.append('schematic_image', schematic)
   if (model3d) fd.append('model_3d_file', model3d)
+  if (codeArchive) fd.append('code_archive', codeArchive)
   return fd
 }
 
@@ -122,6 +123,7 @@ export default function AdminPanelPage() {
   const [schematic, setSchematic] = useState(null)
   const [existingSchematicUrl, setExistingSchematicUrl] = useState('')
   const [model3d, setModel3d] = useState(null)
+  const [codeArchive, setCodeArchive] = useState(null)
   const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
   const [existingModel3dPending, setExistingModel3dPending] = useState(false)
   const [existingModel3dConversionError, setExistingModel3dConversionError] = useState('')
@@ -170,6 +172,25 @@ export default function AdminPanelPage() {
   useEffect(() => {
     loadAdmin()
   }, [])
+
+  useEffect(() => {
+    if (!editId || !existingModel3dPending || existingModel3dConversionError) return undefined
+    const poll = async () => {
+      try {
+        const list = await adminFetchProjects()
+        const p = list.find((row) => row.id === editId)
+        if (!p) return
+        setExistingModel3dUrl(p.model_3d_url || '')
+        setExistingModel3dPending(!!p.model_3d_pending)
+        setExistingModel3dConversionError(p.model_3d_conversion_error || '')
+      } catch {
+        /* ignore poll errors */
+      }
+    }
+    poll()
+    const id = window.setInterval(poll, 12000)
+    return () => window.clearInterval(id)
+  }, [editId, existingModel3dPending, existingModel3dConversionError])
 
   useEffect(() => {
     const onExpired = () => {
@@ -221,6 +242,7 @@ export default function AdminPanelPage() {
     setSchematic(null)
     setExistingSchematicUrl('')
     setModel3d(null)
+    setCodeArchive(null)
     setExistingModel3dUrl('')
     setExistingModel3dPending(false)
     setExistingModel3dConversionError('')
@@ -251,7 +273,9 @@ export default function AdminPanelPage() {
       return
     }
     try {
-      const fd = buildProjectFormData(form, materials, wiring, codeFiles, cover, schematic, model3d, selectedPackIds)
+      const fd = buildProjectFormData(
+        form, materials, wiring, codeFiles, cover, schematic, model3d, codeArchive, selectedPackIds,
+      )
       const converting3d = Boolean(model3d)
       const isGlbUpload = converting3d && /\.(glb|gltf)$/i.test(model3d.name)
       const convertMsg = isGlbUpload
@@ -709,6 +733,21 @@ export default function AdminPanelPage() {
           emptyFile={EMPTY_CODE}
         />
       </div>
+
+      <label className="block text-xs text-dark-muted">
+        Or upload code as ZIP (merges into code files — .ino, .cpp, .h, .py, etc.)
+        <input
+          type="file"
+          accept=".zip,application/zip"
+          className="mt-1 block w-full text-xs"
+          onChange={(e) => setCodeArchive(e.target.files?.[0] || null)}
+        />
+        {codeArchive && (
+          <span className="mt-1 block text-[10px] text-lab-cyan">
+            Selected: {codeArchive.name} ({(codeArchive.size / 1024).toFixed(0)} KB)
+          </span>
+        )}
+      </label>
 
       {msg.text && (
         <p className={`text-xs ${msg.type === 'error' ? 'text-red-400' : 'text-lab-green'}`}>{msg.text}</p>

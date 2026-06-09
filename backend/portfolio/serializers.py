@@ -28,6 +28,7 @@ from .models import (
     StorePostalCode,
     StoreProduct,
     StoreProductImage,
+    StoreProductVariant,
     StaffAuditLog,
     StoreWilaya,
     UserSubscription,
@@ -154,7 +155,7 @@ class CategoryTreeSerializer(serializers.ModelSerializer):
         return CategoryChildSerializer(kids, many=True).data
 
 
-class StoreCategoryPublicSerializer(serializers.ModelSerializer):
+class StoreCategoryChildSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     product_count = serializers.IntegerField(read_only=True)
 
@@ -166,11 +167,56 @@ class StoreCategoryPublicSerializer(serializers.ModelSerializer):
         return media_url(obj.image)
 
 
+class StoreCategoryTreeSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    product_count = serializers.IntegerField(read_only=True)
+    children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StoreCategory
+        fields = [
+            'id', 'name', 'slug', 'description', 'image_url', 'product_count', 'sort_order', 'children',
+        ]
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
+    def get_children(self, obj):
+        kids = getattr(obj, '_prefetched_objects_cache', {}).get('children')
+        if kids is None:
+            kids = obj.children.filter(is_active=True).annotate(
+                product_count=Count('products'),
+            ).order_by('sort_order', 'name')
+        return StoreCategoryChildSerializer(kids, many=True).data
+
+
+class StoreCategoryPublicSerializer(StoreCategoryChildSerializer):
+    """Flat category row (legacy / admin lists)."""
+
+
+class StoreProductVariantPublicSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StoreProductVariant
+        fields = ['id', 'name', 'description', 'image_url', 'sort_order']
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
+
 class StoreProductPublicSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     gallery_urls = serializers.SerializerMethodField()
+    variants = StoreProductVariantPublicSerializer(many=True, read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_slug = serializers.CharField(source='category.slug', read_only=True)
+    parent_category_name = serializers.CharField(
+        source='category.parent.name', read_only=True, default='',
+    )
+    parent_category_slug = serializers.CharField(
+        source='category.parent.slug', read_only=True, default='',
+    )
 
     class Meta:
         model = StoreProduct
@@ -182,6 +228,7 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
             'description',
             'image_url',
             'gallery_urls',
+            'variants',
             'price_usd',
             'price_dzd',
             'stock_qty',
@@ -189,6 +236,8 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
             'category',
             'category_name',
             'category_slug',
+            'parent_category_name',
+            'parent_category_slug',
             'sort_order',
             'created_at',
         ]
@@ -459,12 +508,15 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
 class AdminStoreCategorySerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField(read_only=True)
     product_count = serializers.SerializerMethodField(read_only=True)
+    parent_name = serializers.CharField(source='parent.name', read_only=True, default='')
     slug = serializers.CharField(max_length=120)
 
     class Meta:
         model = StoreCategory
         fields = [
             'id',
+            'parent',
+            'parent_name',
             'name',
             'slug',
             'description',
@@ -506,10 +558,24 @@ class AdminStoreProductImageSerializer(serializers.ModelSerializer):
         return media_url(obj.image)
 
 
+class AdminStoreProductVariantSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = StoreProductVariant
+        fields = ['id', 'name', 'description', 'image', 'image_url', 'sort_order']
+        read_only_fields = ['id']
+
+    def get_image_url(self, obj):
+        return media_url(obj.image)
+
+
 class AdminStoreProductSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField(read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     gallery = AdminStoreProductImageSerializer(many=True, read_only=True)
+    variants = AdminStoreProductVariantSerializer(many=True, read_only=True)
+    variants_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     gallery_urls = serializers.SerializerMethodField()
     slug = serializers.CharField(max_length=180)
 
@@ -526,6 +592,8 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
             'image',
             'image_url',
             'gallery',
+            'variants',
+            'variants_json',
             'gallery_urls',
             'price_usd',
             'price_dzd',
@@ -561,6 +629,43 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
 
     def validate_slug(self, value):
         return _normalize_store_slug(self.Meta.model, value, self.instance)
+
+    def validate(self, attrs):
+        if 'variants_json' in self.initial_data:
+            attrs['_variants_data'] = parse_json_list(
+                self.initial_data.get('variants_json', '[]'),
+                'variants_json',
+            )
+        return attrs
+
+    def create(self, validated_data):
+        variants_data = validated_data.pop('_variants_data', None)
+        instance = super().create(validated_data)
+        self._apply_variants(instance, variants_data)
+        return instance
+
+    def update(self, instance, validated_data):
+        variants_data = validated_data.pop('_variants_data', None)
+        instance = super().update(instance, validated_data)
+        self._apply_variants(instance, variants_data)
+        return instance
+
+    def _apply_variants(self, instance, variants_data):
+        if variants_data is None:
+            return
+        instance.variants.all().delete()
+        for index, row in enumerate(variants_data):
+            if not isinstance(row, dict):
+                continue
+            name = (row.get('name') or '').strip()
+            if not name:
+                continue
+            StoreProductVariant.objects.create(
+                product=instance,
+                name=name,
+                description=(row.get('description') or '').strip(),
+                sort_order=int(row.get('sort_order') or index),
+            )
 
 
 def _normalize_store_slug(model, value, instance):
@@ -839,6 +944,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     materials_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     wiring_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
     code_files_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    code_archive = serializers.FileField(write_only=True, required=False, allow_null=True)
     simulation_url = serializers.URLField(required=False, allow_blank=True, default='')
     model_3d_url = serializers.SerializerMethodField(read_only=True)
     model_3d_pending = serializers.SerializerMethodField(read_only=True)
@@ -875,6 +981,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'source_code',
             'code_files',
             'code_files_json',
+            'code_archive',
             'is_featured',
             'is_free',
             'pack_ids',
@@ -975,7 +1082,34 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 validated_data['schematic_image'] = request.FILES['schematic_image']
             if 'model_3d_file' in request.FILES:
                 validated_data['model_3d_file'] = request.FILES['model_3d_file']
+            if 'code_archive' in request.FILES:
+                validated_data['code_archive'] = request.FILES['code_archive']
         return validated_data
+
+    def _extract_code_archive(self, archive) -> list:
+        import zipfile
+        from pathlib import Path as PathLib
+
+        rows = []
+        try:
+            with zipfile.ZipFile(archive) as zf:
+                for info in zf.infolist():
+                    if info.is_dir() or info.filename.startswith('__MACOSX'):
+                        continue
+                    if info.file_size > 512_000:
+                        continue
+                    name = PathLib(info.filename).name
+                    if not name or name.startswith('.'):
+                        continue
+                    try:
+                        text = zf.read(info).decode('utf-8')
+                    except UnicodeDecodeError:
+                        continue
+                    if text.strip():
+                        rows.append({'title': name, 'code': text})
+        except zipfile.BadZipFile as exc:
+            raise serializers.ValidationError({'code_archive': 'Invalid ZIP file.'}) from exc
+        return rows
 
     def _verify_image_saved(self, instance, field_name: str, label: str) -> None:
         file_field = getattr(instance, field_name, None)
@@ -1058,6 +1192,12 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                     'code_files_json',
                 ),
             )
+        archive = attrs.pop('code_archive', None)
+        if archive:
+            extracted = self._extract_code_archive(archive)
+            if extracted:
+                existing = attrs.get('code_files') or []
+                attrs['code_files'] = normalize_code_files(existing + extracted)
         attrs.pop('materials_json', None)
         attrs.pop('wiring_json', None)
         attrs.pop('code_files_json', None)

@@ -10,6 +10,7 @@ import {
 import { slugFromName } from '../../utils/slugFromName.js'
 
 const EMPTY = {
+  parent: '',
   name: '',
   slug: '',
   description: '',
@@ -57,6 +58,8 @@ export default function AdminStoreCategories({ categories, onReload, onMessage }
         is_active: boolFormValue(form.is_active),
         sort_order: safeInt(form.sort_order, 0),
       }
+      if (form.parent) payload.parent = form.parent
+      else if (editId) payload.parent = ''
       const fd = toStoreFormData(payload, image)
       if (editId) await adminUpdateStoreCategory(editId, fd)
       else await adminCreateStoreCategory(fd)
@@ -74,6 +77,7 @@ export default function AdminStoreCategories({ categories, onReload, onMessage }
     setEditId(c.id)
     setSlugAuto(false)
     setForm({
+      parent: c.parent ? String(c.parent) : '',
       name: c.name || '',
       slug: c.slug || '',
       description: c.description || '',
@@ -84,12 +88,26 @@ export default function AdminStoreCategories({ categories, onReload, onMessage }
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const topLevel = categories.filter((c) => !c.parent && c.id !== editId)
+
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <form onSubmit={save} className="panel space-y-3 p-4" noValidate>
         <h3 className="border-b border-dark-border pb-2 text-sm font-semibold">
           {editId ? 'Edit category' : 'New category'}
         </h3>
+        <AdminField label="Parent category" hint="Leave empty for top-level (e.g. Embedded, PC Parts)">
+          <select
+            value={form.parent}
+            onChange={(e) => setForm((f) => ({ ...f, parent: e.target.value }))}
+            className={adminInputCls}
+          >
+            <option value="">— Top level —</option>
+            {topLevel.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </AdminField>
         <AdminField label="Category name" required>
           <input
             value={form.name}
@@ -172,7 +190,7 @@ export default function AdminStoreCategories({ categories, onReload, onMessage }
               <div>
                 <p className="font-medium">{c.name}</p>
                 <p className="text-xs text-dark-muted">
-                  {c.slug} · {c.product_count ?? 0} products · {c.is_active ? 'active' : 'hidden'}
+                  {c.parent_name ? `${c.parent_name} → ` : ''}{c.slug} · {c.product_count ?? 0} products · {c.is_active ? 'active' : 'hidden'}
                 </p>
               </div>
               <div className="flex shrink-0 gap-2">

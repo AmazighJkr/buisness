@@ -5,6 +5,7 @@ import SidebarRail from '../components/SidebarRail.jsx'
 import StoreSearchBar from '../components/store/StoreSearchBar.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import StoreCategorySidebar from '../components/store/StoreCategorySidebar.jsx'
+import StoreHome from '../components/store/StoreHome.jsx'
 import StoreProductCard from '../components/store/StoreProductCard.jsx'
 import StoreProductDetail from '../components/store/StoreProductDetail.jsx'
 import { fetchStoreCategories, fetchStoreProduct, fetchStoreProducts } from '../api/client.js'
@@ -30,8 +31,24 @@ export default function ShopPage() {
   const [loadingList, setLoadingList] = useState(true)
   const [loadingProduct, setLoadingProduct] = useState(false)
   const [error, setError] = useState('')
+  const [expandedCats, setExpandedCats] = useState({})
   const { loading: regionLoading, isAlgeria } = useStoreRegion()
-  const activeCategory = categories.find((c) => c.slug === categoryParam)
+  const activeCategory =
+    categories.find((c) => c.slug === categoryParam)
+    || categories.flatMap((c) => c.children || []).find((c) => c.slug === categoryParam)
+  const showStoreHome = !productSlug && !categoryParam && !queryParam
+
+  const refreshStoreData = () => {
+    if (!isAlgeria) return
+    fetchStoreCategories().then(setCategories).catch(() => {})
+    if (productSlug) {
+      fetchStoreProduct(productSlug).then(setProduct).catch(() => setProduct(null))
+    } else if (!showStoreHome) {
+      fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
+        .then(setProducts)
+        .catch(() => setProducts([]))
+    }
+  }
 
   useEffect(() => {
     if (!isAlgeria) return
@@ -39,7 +56,18 @@ export default function ShopPage() {
   }, [isAlgeria])
 
   useEffect(() => {
-    if (!isAlgeria || productSlug) return
+    if (!isAlgeria) return undefined
+    const onFocus = () => refreshStoreData()
+    window.addEventListener('focus', onFocus)
+    const id = window.setInterval(refreshStoreData, 45000)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      window.clearInterval(id)
+    }
+  }, [isAlgeria, productSlug, categoryParam, queryParam, showStoreHome])
+
+  useEffect(() => {
+    if (!isAlgeria || productSlug || showStoreHome) return
     setLoadingList(true)
     setError('')
     fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
@@ -49,7 +77,7 @@ export default function ShopPage() {
         setError(err.message || t('store.loadError'))
       })
       .finally(() => setLoadingList(false))
-  }, [isAlgeria, productSlug, categoryParam, queryParam])
+  }, [isAlgeria, productSlug, categoryParam, queryParam, showStoreHome])
 
   useEffect(() => {
     if (!isAlgeria || !productSlug) {
@@ -137,6 +165,10 @@ export default function ShopPage() {
         <StoreCategorySidebar
           id="store-category-sidebar"
           categories={categories}
+          expanded={expandedCats}
+          onToggleExpand={(id) =>
+            setExpandedCats((prev) => ({ ...prev, [id]: !prev[id] }))
+          }
           selectedSlug={categoryParam}
           onSelectCategory={selectCategory}
           open={sidebarOpen}
@@ -165,6 +197,12 @@ export default function ShopPage() {
                   </button>
                 </div>
               )
+            ) : showStoreHome ? (
+              <StoreHome
+                onAdd={handleAdd}
+                addedId={addedId}
+                onBrowseCategory={(slug) => selectCategory(slug || '')}
+              />
             ) : (
               <>
                 <div className="mb-4">

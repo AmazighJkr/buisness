@@ -91,7 +91,7 @@ export default function ProjectDetailContent({ project, onBack }) {
 
       {codeFiles.length > 0 && (
         <SectionBox title={t('materials.code')} noPadding>
-          <CodePanel files={codeFiles} />
+          <CodePanel files={codeFiles} projectId={project.id} />
         </SectionBox>
       )}
 

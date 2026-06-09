@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 from django.utils import timezone
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
@@ -19,6 +19,7 @@ from .models import (
     ProjectCommand,
     StaffAuditLog,
     SubscriptionPack,
+    StoreCategory,
     StoreCategory,
     StoreProduct,
     UserSubscription,
@@ -71,6 +72,7 @@ from .serializers import (
     ProjectDetailSerializer,
     ProjectListSerializer,
     StoreCategoryPublicSerializer,
+    StoreCategoryTreeSerializer,
     StoreProductPublicSerializer,
     PORTFOLIO_PERMS,
     SubscriptionPackAdminSerializer,
@@ -148,10 +150,23 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             )
         return qs
 
+    @action(detail=True, methods=['get'], url_path='download-bundle')
+    def download_bundle(self, request, id=None):
+        from .access import user_can_view_project
+        from .project_bundle import build_project_bundle_response
+
+        project = self.get_object()
+        if not user_can_view_project(request.user, project):
+            return Response(
+                {'detail': 'Subscribe or sign in to download project files.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return build_project_bundle_response(project)
+
 
 class StoreCategoryListView(generics.ListAPIView):
     permission_classes = [AllowAny]
-    serializer_class = StoreCategoryPublicSerializer
+    serializer_class = StoreCategoryTreeSerializer
 
     def initial(self, request, *args, **kwargs):
         from .store_region import require_algeria_store
@@ -160,9 +175,15 @@ class StoreCategoryListView(generics.ListAPIView):
         require_algeria_store(request)
 
     def get_queryset(self):
-        return (
+        child_qs = (
             StoreCategory.objects.filter(is_active=True)
             .annotate(product_count=Count('products'))
+            .order_by('sort_order', 'name')
+        )
+        return (
+            StoreCategory.objects.filter(is_active=True, parent__isnull=True)
+            .annotate(product_count=Count('products'))
+            .prefetch_related(Prefetch('children', queryset=child_qs))
             .order_by('sort_order', 'name')
         )
 
@@ -180,7 +201,9 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         require_algeria_store(request)
 
     def get_queryset(self):
-        qs = StoreProduct.objects.select_related('category').prefetch_related('gallery').filter(
+        qs = StoreProduct.objects.select_related(
+            'category', 'category__parent',
+        ).prefetch_related('gallery', 'variants').filter(
             is_active=True,
             category__is_active=True,
         )
@@ -188,7 +211,9 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         featured = self.request.query_params.get('featured')
         q = (self.request.query_params.get('q') or '').strip()
         if category:
-            qs = qs.filter(category__slug=category)
+            qs = qs.filter(
+                Q(category__slug=category) | Q(category__parent__slug=category),
+            )
         if featured and featured.lower() in ('1', 'true', 'yes'):
             qs = qs.filter(is_featured=True)
         if q:

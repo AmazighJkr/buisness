@@ -6,7 +6,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import textwrap
 import threading
 from pathlib import Path
 
@@ -71,6 +70,21 @@ def _clear_conversion_error(project_id) -> None:
     Project.objects.filter(pk=project_id).update(model_3d_conversion_error='')
 
 
+def _user_facing_conversion_detail(detail: str) -> str:
+    """Strip subprocess tracebacks from messages shown in the admin UI."""
+    text = (detail or '').strip()
+    if 'Traceback' not in text:
+        return text[:240]
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    for line in reversed(lines):
+        if line.startswith('File ') or line.startswith('Traceback'):
+            continue
+        if line in ('^^^^^^', '~~~~~~'):
+            continue
+        return line[:240]
+    return 'Conversion failed — try uploading GLB or a smaller STL.'
+
+
 def _ensure_converter_installed() -> None:
     try:
         import trimesh  # noqa: F401
@@ -87,46 +101,11 @@ def _convert_path_to_glb_bytes(tmp_path: str, ext: str) -> bytes:
     """
     _ensure_converter_installed()
     out_path = f'{tmp_path}.glb'
-    script = textwrap.dedent(
-        '''
-        import sys
-        import trimesh
-
-        src, dst, ext = sys.argv[1], sys.argv[2], sys.argv[3]
-        if ext in ('.step', '.stp'):
-            import cascadio  # noqa: F401
-        loaded = trimesh.load(src, force='mesh')
-        if isinstance(loaded, trimesh.Scene):
-            meshes = [
-                g for g in loaded.geometry.values()
-                if isinstance(g, trimesh.Trimesh) and len(g.faces)
-            ]
-            if not meshes:
-                raise RuntimeError('no geometry')
-            loaded = (
-                trimesh.util.concatenate(meshes)
-                if len(meshes) > 1
-                else meshes[0]
-            )
-        if loaded is None or not getattr(loaded, 'faces', None) or len(loaded.faces) == 0:
-            raise RuntimeError('no geometry')
-        loaded.merge_vertices()
-        try:
-            if len(loaded.faces) > 120000:
-                loaded = loaded.simplify_quadric_decimation(60000)
-        except Exception:
-            pass
-        data = loaded.export(file_type='glb')
-        if not data:
-            raise RuntimeError('empty glb')
-        with open(dst, 'wb') as fh:
-            fh.write(data)
-        ''',
-    ).strip()
+    worker = Path(__file__).resolve().parent / 'model3d_worker.py'
     timeout = _conversion_timeout_sec(ext)
     try:
         result = subprocess.run(
-            [sys.executable, '-c', script, tmp_path, out_path, ext],
+            [sys.executable, str(worker), tmp_path, out_path, ext],
             timeout=timeout,
             check=True,
             capture_output=True,
@@ -139,7 +118,8 @@ def _convert_path_to_glb_bytes(tmp_path: str, ext: str) -> bytes:
             'or export a smaller STL from CAD.',
         ) from exc
     except subprocess.CalledProcessError as exc:
-        detail = (exc.stderr or exc.stdout or b'').decode(errors='replace').strip()[:240]
+        raw = (exc.stderr or exc.stdout or b'').decode(errors='replace').strip()
+        detail = _user_facing_conversion_detail(raw)
         raise Model3dConversionError(
             f'Could not convert to GLB. Export as STL or GLB from CAD. {detail}',
         ) from exc

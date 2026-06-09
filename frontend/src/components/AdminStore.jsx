@@ -37,6 +37,13 @@ export default function AdminStore({ canPost = true, canEdit = true }) {
 
   useEffect(() => {
     load().catch((e) => setMsg({ type: 'error', text: e.message }))
+    const onFocus = () => load().catch(() => {})
+    window.addEventListener('focus', onFocus)
+    const id = window.setInterval(() => load().catch(() => {}), 60000)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      window.clearInterval(id)
+    }
   }, [])
 
   useEffect(() => {

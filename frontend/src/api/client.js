@@ -361,6 +361,11 @@ export async function fetchStoreProducts({ category = '', featured = false, q = 
   return data.results ?? data
 }
 
+export function projectBundleDownloadUrl(projectId) {
+  const base = API_BASE || ''
+  return `${base}/api/projects/${encodeURIComponent(projectId)}/download-bundle/`
+}
+
 export async function fetchStoreProduct(idOrSlug) {
   const data = await storeFetch(
     `${API_BASE}/api/store/products/${encodeURIComponent(idOrSlug)}/`,

@@ -2139,21 +2139,189 @@ html[data-theme="dark"] .google-continue-btn {
   margin-bottom: 1rem;
 }
 
+.store-home {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.store-hero-carousel__frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--eg-border);
+  min-height: 280px;
+  background: var(--eg-surface);
+}
+
+.store-hero-carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+.store-hero-carousel__slide.is-active {
+  opacity: 1;
+  position: relative;
+  min-height: 280px;
+}
+
+.store-hero-carousel__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--eg-bg) 88%, transparent) 0%, transparent 55%);
+}
+
+.store-hero-carousel__copy {
+  position: relative;
+  z-index: 1;
+  max-width: 28rem;
+  padding: 2rem 1.5rem;
+}
+
+.store-hero-carousel__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 700;
+}
+
+.store-hero-carousel__subtitle {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--eg-muted);
+}
+
+.store-hero-carousel__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  border: 1px solid var(--eg-border);
+  background: color-mix(in srgb, var(--eg-bg) 75%, transparent);
+  color: var(--eg-text);
+}
+
+.store-hero-carousel__nav--prev { left: 0.75rem; }
+.store-hero-carousel__nav--next { right: 0.75rem; }
+
+.store-hero-carousel__dots {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.4rem;
+  transform: translateX(-50%);
+}
+
+.store-hero-carousel__dots button {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  border: none;
+  background: color-mix(in srgb, var(--eg-text) 25%, transparent);
+}
+
+.store-hero-carousel__dots button.is-active {
+  background: var(--eg-accent);
+  width: 1.25rem;
+}
+
+.store-hero-carousel__caption {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--eg-muted);
+}
+
+.store-home-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.store-home-section__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.store-grid--home {
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+.store-brands__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.store-brands__chip {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--eg-border);
+  background: var(--eg-panel);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.store-brands__chip:hover {
+  border-color: var(--eg-accent);
+  color: var(--eg-accent);
+}
+
+.store-product-variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.store-product-variant {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--eg-border);
+  background: var(--eg-panel);
+  font-size: 0.75rem;
+}
+
+.store-product-variant img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
 .store-product-card {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 18rem;
-  border-radius: 0.25rem;
+  min-height: 19rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--eg-border);
-  background: var(--eg-panel);
+  background: linear-gradient(180deg, var(--eg-panel), color-mix(in srgb, var(--eg-panel) 92%, var(--eg-bg)));
   overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
 .store-product-card:hover {
-  border-color: color-mix(in srgb, var(--eg-accent) 30%, var(--eg-border));
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--eg-text) 8%, transparent);
+  border-color: color-mix(in srgb, var(--eg-accent) 35%, var(--eg-border));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--eg-text) 10%, transparent);
+  transform: translateY(-2px);
 }
 
 .store-product-card__media {

@@ -74,6 +74,22 @@ export default function StoreProductDetail({
             {t('store.collection')}
           </p>
 
+          {product.variants?.length > 0 && (
+            <div className="amazon-product__variants">
+              <p className="text-xs font-semibold uppercase tracking-wide text-dark-muted">
+                {t('store.models')}
+              </p>
+              <div className="store-product-variants">
+                {product.variants.map((v) => (
+                  <div key={v.id} className="store-product-variant" title={v.description || v.name}>
+                    {v.image_url && <img src={v.image_url} alt="" />}
+                    <span>{v.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {product.short_description && (
             useBullets ? (
               <ul className="amazon-product__bullets">
