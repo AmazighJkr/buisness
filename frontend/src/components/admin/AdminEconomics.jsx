@@ -1,68 +1,79 @@
 import { useCallback, useEffect, useState } from 'react'
 import { adminFetchEconomics } from '../../api/client.js'
 
-const PERIODS = [
-  { value: 'all', label: 'All time' },
-  { value: '30d', label: 'Last 30 days' },
-  { value: '90d', label: 'Last 90 days' },
-  { value: 'year', label: 'Last 12 months' },
-]
-
 function fmtMoney(value, currency) {
   const n = Number(value)
   if (Number.isNaN(n)) return '—'
   return `${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`
 }
 
-function RevenueBlock({ title, rows, totals, currency, provider, feeLabel }) {
+function IncomeCard({ label, data, currency }) {
+  const row = data || {}
   return (
-    <section className="border border-lab-border bg-lab-surface p-4 space-y-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-medium text-lab-cyan">{title}</h3>
-        <span className="text-[10px] text-gray-500 uppercase tracking-wide">
-          {provider} · {currency}
-        </span>
+    <article className="border border-lab-border bg-lab-bg p-4 space-y-3">
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-lab-cyan">{label}</h4>
+      <div className="space-y-1.5 text-xs">
+        <div className="flex justify-between gap-3">
+          <span className="text-gray-500">Paid count</span>
+          <span className="text-dark-text">{row.count ?? 0}</span>
+        </div>
+        <div className="flex justify-between gap-3">
+          <span className="text-gray-500">Gross</span>
+          <span className="text-dark-text">{fmtMoney(row.gross, currency)}</span>
+        </div>
+        <div className="flex justify-between gap-3">
+          <span className="text-gray-500">Fees</span>
+          <span className="text-red-300/90">− {fmtMoney(row.fees, currency)}</span>
+        </div>
+        <div className="flex justify-between gap-3 border-t border-lab-border pt-2">
+          <span className="font-medium text-lab-copper">Net</span>
+          <span className="font-semibold text-lab-cyan">{fmtMoney(row.net, currency)}</span>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function RegionPanel({ title, subtitle, currency, provider, orders, commands, subscriptions, totals }) {
+  return (
+    <section className="space-y-4 border border-lab-border bg-lab-surface p-4">
+      <div>
+        <h3 className="text-base font-semibold text-dark-text">{title}</h3>
+        <p className="mt-0.5 text-[10px] uppercase tracking-wide text-gray-500">
+          {provider} · {currency} · {subtitle}
+        </p>
       </div>
 
-      <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 text-[10px] text-gray-600 uppercase tracking-wide">
-        <span>Source</span>
-        <span className="text-right">#</span>
-        <span className="text-right">Gross</span>
-        <span className="text-right">Net</span>
-      </div>
-
-      <div className="space-y-2 text-xs">
-        {rows.map((row) => (
-          <div key={row.key} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center border-b border-lab-border/50 pb-2">
-            <span className="text-gray-400 capitalize">{row.label}</span>
-            <span className="text-right text-gray-500" title="Paid count">{row.data.count}</span>
-            <span className="text-right text-dark-text">{fmtMoney(row.data.gross, currency)}</span>
-            <span className="text-right text-gray-500">{fmtMoney(row.data.net, currency)}</span>
-          </div>
-        ))}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <IncomeCard label="Orders" data={orders} currency={currency} />
+        <IncomeCard label="Commands" data={commands} currency={currency} />
+        <IncomeCard label="Subscriptions" data={subscriptions} currency={currency} />
       </div>
 
       <div className="border-t border-lab-border pt-3 text-xs space-y-1">
         <div className="flex justify-between">
-          <span className="text-gray-400">Gross total</span>
-          <span className="font-medium text-dark-text">{fmtMoney(totals.gross, currency)}</span>
+          <span className="text-gray-400">Region gross total</span>
+          <span className="font-medium text-dark-text">{fmtMoney(totals?.gross, currency)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-400">{feeLabel}</span>
-          <span className="text-red-300/90">− {fmtMoney(totals.fees, currency)}</span>
+          <span className="text-gray-400">Region fees</span>
+          <span className="text-red-300/90">− {fmtMoney(totals?.fees, currency)}</span>
         </div>
         <div className="flex justify-between pt-1 border-t border-lab-border">
-          <span className="text-lab-copper font-medium">Net income</span>
-          <span className="font-semibold text-lab-cyan">{fmtMoney(totals.net, currency)}</span>
+          <span className="text-lab-copper font-medium">Region net income</span>
+          <span className="font-semibold text-lab-cyan">{fmtMoney(totals?.net, currency)}</span>
         </div>
-        <p className="text-[10px] text-gray-500 pt-1">{totals.count} paid transaction{totals.count === 1 ? '' : 's'}</p>
+        <p className="text-[10px] text-gray-500 pt-1">
+          {totals?.count ?? 0} paid transaction{(totals?.count ?? 0) === 1 ? '' : 's'}
+        </p>
       </div>
     </section>
   )
 }
 
 export default function AdminEconomics() {
-  const [period, setPeriod] = useState('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -71,14 +82,21 @@ export default function AdminEconomics() {
     setLoading(true)
     setError('')
     try {
-      setData(await adminFetchEconomics({ period }))
+      const hasRange = Boolean(dateFrom || dateTo)
+      setData(
+        await adminFetchEconomics({
+          period: hasRange ? 'custom' : 'all',
+          from: dateFrom,
+          to: dateTo,
+        }),
+      )
     } catch (e) {
       setError(e.message)
       setData(null)
     } finally {
       setLoading(false)
     }
-  }, [period])
+  }, [dateFrom, dateTo])
 
   useEffect(() => {
     load()
@@ -95,25 +113,55 @@ export default function AdminEconomics() {
   const cfg = data.fee_config || {}
   const algeria = data.algeria || {}
   const intl = data.international || {}
+  const emptyBucket = { count: 0, gross: '0.00', fees: '0.00', net: '0.00' }
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="max-w-5xl space-y-6">
+      <div className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold">Economics</h2>
           <p className="mt-1 text-xs text-gray-500">
-            Paid revenue only — net after estimated Stripe / Chargily fees.
+            Algeria and international revenue are reported separately — orders, commands, and subscriptions each have their own totals.
           </p>
         </div>
-        <select
-          value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-          className="border border-lab-border bg-lab-bg px-3 py-2 text-xs"
-        >
-          {PERIODS.map((p) => (
-            <option key={p.value} value={p.value}>{p.label}</option>
-          ))}
-        </select>
+
+        <div className="flex flex-wrap items-end gap-3 border border-lab-border bg-lab-bg p-3">
+          <label className="block text-xs text-gray-500">
+            From
+            <input
+              type="date"
+              value={dateFrom}
+              max={dateTo || undefined}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="mt-1 block border border-lab-border bg-lab-surface px-3 py-2 text-xs text-dark-text"
+            />
+          </label>
+          <label className="block text-xs text-gray-500">
+            Until
+            <input
+              type="date"
+              value={dateTo}
+              min={dateFrom || undefined}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="mt-1 block border border-lab-border bg-lab-surface px-3 py-2 text-xs text-dark-text"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              setDateFrom('')
+              setDateTo('')
+            }}
+            className="border border-lab-border px-3 py-2 text-xs text-gray-400 hover:text-dark-text"
+          >
+            All time
+          </button>
+        </div>
+        {(dateFrom || dateTo) && (
+          <p className="text-[10px] text-gray-500">
+            Period: {dateFrom || '…'} → {dateTo || '…'}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-2 text-[10px] text-gray-500 sm:grid-cols-3 border border-lab-border bg-lab-bg px-3 py-2">
@@ -123,28 +171,25 @@ export default function AdminEconomics() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <RevenueBlock
-          title="Algeria (DZD)"
+        <RegionPanel
+          title="Algeria"
+          subtitle="Store + commands + subs in DZD"
           currency="DZD"
           provider="Chargily"
-          feeLabel={`Est. Chargily fees (${cfg.chargily_percent}%)`}
-          rows={[
-            { key: 'store', label: 'Store sales', data: algeria.store || {} },
-            { key: 'commands', label: 'Commands', data: algeria.commands || {} },
-            { key: 'subs', label: 'Subscriptions', data: algeria.subscriptions || {} },
-          ]}
-          totals={algeria.totals || {}}
+          orders={algeria.store}
+          commands={algeria.commands}
+          subscriptions={algeria.subscriptions}
+          totals={algeria.totals}
         />
-        <RevenueBlock
-          title="International (USD)"
+        <RegionPanel
+          title="Non-Algeria"
+          subtitle="International USD (no store orders)"
           currency="USD"
           provider="Stripe"
-          feeLabel={`Est. Stripe fees (${cfg.stripe_percent}% + $${cfg.stripe_fixed_usd})`}
-          rows={[
-            { key: 'commands', label: 'Commands', data: intl.commands || {} },
-            { key: 'subs', label: 'Subscriptions', data: intl.subscriptions || {} },
-          ]}
-          totals={intl.totals || {}}
+          orders={intl.store || emptyBucket}
+          commands={intl.commands}
+          subscriptions={intl.subscriptions}
+          totals={intl.totals}
         />
       </div>
 

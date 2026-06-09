@@ -17,14 +17,12 @@ export default function StoreLandingPage() {
       <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
         <StoreHeader highlight="/store" />
         <main className="store-main-column min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-          <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-6 lg:px-8">
-            <StoreHome
-              onBrowseCategory={(slug) => {
-                if (slug) navigate(`/shop?category=${encodeURIComponent(slug)}`)
-                else navigate('/shop')
-              }}
-            />
-          </div>
+          <StoreHome
+            onBrowseCategory={(slug) => {
+              if (slug) navigate(`/shop?category=${encodeURIComponent(slug)}`)
+              else navigate('/shop')
+            }}
+          />
         </main>
       </div>
     </StoreAlgeriaGate>

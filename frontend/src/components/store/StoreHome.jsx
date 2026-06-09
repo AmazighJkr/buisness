@@ -59,7 +59,7 @@ export default function StoreHome({ onBrowseCategory }) {
 
   return (
     <div className="store-home">
-      <section className="store-hero-carousel" aria-label="Store highlights">
+      <section className="store-hero-carousel store-hero-carousel--bleed" aria-label="Store highlights">
         <div className="store-hero-carousel__frame">
           {HERO_SLIDES.map((item, index) => (
             <div
@@ -67,7 +67,6 @@ export default function StoreHome({ onBrowseCategory }) {
               className={`store-hero-carousel__slide ${index === slide ? 'is-active' : ''}`}
               style={{ backgroundImage: `url(${item.src})` }}
             >
-              <div className="store-hero-carousel__overlay" />
               <div className="store-hero-carousel__copy">
                 <h2 className="store-hero-carousel__title">{item.title}</h2>
                 <p className="store-hero-carousel__subtitle">{item.subtitle}</p>
@@ -112,6 +111,7 @@ export default function StoreHome({ onBrowseCategory }) {
         <p className="store-hero-carousel__caption">{current.title}</p>
       </section>
 
+      <div className="store-home__inner">
       <section className="store-home-section">
         <div className="store-home-section__head">
           <h2 className="store-home-section__title">{t('store.trending')}</h2>
@@ -152,6 +152,7 @@ export default function StoreHome({ onBrowseCategory }) {
       </section>
 
       <ContactSection className="store-home-contact panel border border-dark-border p-6 sm:p-8" />
+      </div>
     </div>
   )
 }

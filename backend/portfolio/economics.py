@@ -100,13 +100,13 @@ def _parse_period(
 ) -> tuple[datetime | None, datetime | None]:
     now = timezone.now()
     period = (period or 'all').strip().lower()
-    if period == '30d':
+    if period in ('30d',):
         return now - timedelta(days=30), now
-    if period == '90d':
+    if period in ('90d',):
         return now - timedelta(days=90), now
-    if period == 'year':
+    if period in ('year', '12m'):
         return now - timedelta(days=365), now
-    if date_from or date_to:
+    if period == 'custom' or date_from or date_to:
         start = end = None
         if date_from:
             start = timezone.make_aware(datetime.fromisoformat(date_from))
@@ -234,7 +234,9 @@ def build_economics_report(
     ).count()
 
     return {
-        'period': period if period != 'all' else 'all',
+        'period': period if period not in ('', 'all') else 'all',
+        'date_from': date_from or '',
+        'date_to': date_to or '',
         'fee_config': _fee_config(),
         'algeria': {
             'currency': 'DZD',
@@ -247,6 +249,7 @@ def build_economics_report(
         'international': {
             'currency': 'USD',
             'provider': 'stripe',
+            'store': _money_summary(MoneyBucket(), currency='USD'),
             'commands': _money_summary(commands_usd, currency='USD'),
             'subscriptions': _money_summary(subs_usd, currency='USD'),
             'totals': _region_totals(commands_usd, subs_usd, currency='USD'),
