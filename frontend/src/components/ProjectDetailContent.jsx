@@ -18,6 +18,8 @@ function hasMaterials(materials) {
 export default function ProjectDetailContent({ project, onBack }) {
   const { t } = useTranslation()
   const [schematicFailed, setSchematicFailed] = useState(false)
+  const [coverFailed, setCoverFailed] = useState(false)
+  const coverSrc = resolveMediaUrl(project.cover_url)
   const schematicSrc = resolveMediaUrl(project.schematic_url)
   const libs = project.libraries_list || []
   const simulationConfig = project.simulation_url
@@ -57,6 +59,14 @@ export default function ProjectDetailContent({ project, onBack }) {
         <p className="mt-1 text-xs text-dark-muted">
           {project.category_name} / {project.subcategory_name}
         </p>
+        {coverSrc && coverSrc !== schematicSrc && (
+          <img
+            src={coverFailed ? SCHEMATIC_PLACEHOLDER : coverSrc}
+            alt=""
+            className="mt-4 max-h-72 w-full rounded-lg object-cover"
+            onError={() => setCoverFailed(true)}
+          />
+        )}
       </SectionBox>
 
       {hasDescription && (

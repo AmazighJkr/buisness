@@ -46,7 +46,18 @@ class Project(models.Model):
     description = models.TextField()
     materials = models.JSONField(default=list, blank=True)
     wiring = models.JSONField(default=list, blank=True)
-    schematic_image = models.ImageField(upload_to='projects/schematics/', blank=True, null=True)
+    cover_image = models.ImageField(
+        upload_to='projects/covers/',
+        blank=True,
+        null=True,
+        help_text='Card/thumbnail image (optional — falls back to schematic).',
+    )
+    schematic_image = models.ImageField(
+        upload_to='projects/schematics/',
+        blank=True,
+        null=True,
+        help_text='Wiring diagram / schematic shown on the project detail page.',
+    )
     simulation_url = models.URLField(blank=True)
     model_3d_url = models.URLField(
         blank=True,

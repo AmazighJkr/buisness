@@ -122,7 +122,7 @@ class ProjectAdmin(admin.ModelAdmin):
                 'model_3d_file', 'model_3d_glb', 'model_3d_url', 'video_url',
             ),
         }),
-        ('Code & Files', {'fields': ('schematic_image', 'source_code', 'code_files')}),
+        ('Code & Files', {'fields': ('cover_image', 'schematic_image', 'source_code', 'code_files')}),
         ('Audit', {'fields': ('created_at', 'updated_at')}),
     )
 

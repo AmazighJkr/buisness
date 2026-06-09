@@ -4,7 +4,7 @@ import { resolveMediaUrl, SCHEMATIC_PLACEHOLDER } from '../utils/mediaUrl.js'
 
 export default function ProjectCard({ project }) {
   const [imgFailed, setImgFailed] = useState(false)
-  const src = resolveMediaUrl(project.schematic_url)
+  const src = resolveMediaUrl(project.cover_url || project.schematic_url)
   const showPlaceholder = !src || imgFailed
   const locked = project.locked
 

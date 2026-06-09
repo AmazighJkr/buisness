@@ -212,6 +212,7 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
+    cover_url = serializers.SerializerMethodField()
     schematic_url = serializers.SerializerMethodField()
     libraries_list = serializers.SerializerMethodField()
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
@@ -226,6 +227,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'description',
+            'cover_url',
             'schematic_url',
             'libraries_list',
             'subcategory',
@@ -264,11 +266,22 @@ class ProjectListSerializer(serializers.ModelSerializer):
             ) or 'Subscribe to unlock full project details.'
         return data
 
+    def get_cover_url(self, obj):
+        return project_cover_url(obj)
+
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
 
     def get_libraries_list(self, obj):
         return obj.libraries_list
+
+
+def project_cover_url(obj):
+    """Listing/card image — dedicated cover, else schematic."""
+    url = media_url(getattr(obj, 'cover_image', None))
+    if url:
+        return url
+    return media_url(obj.schematic_image)
 
 
 def schematic_file_missing(obj) -> bool:
@@ -278,6 +291,7 @@ def schematic_file_missing(obj) -> bool:
 
 
 class ProjectDetailSerializer(serializers.ModelSerializer):
+    cover_url = serializers.SerializerMethodField()
     schematic_url = serializers.SerializerMethodField()
     schematic_file_missing = serializers.SerializerMethodField()
     simulation_embed_url = serializers.SerializerMethodField()
@@ -307,6 +321,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'required_packs',
             'materials',
             'wiring',
+            'cover_url',
             'schematic_url',
             'schematic_file_missing',
             'simulation_url',
@@ -362,6 +377,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
                 'required_packs': required_packs_for(instance),
                 'materials': [],
                 'wiring': [],
+                'cover_url': project_cover_url(instance),
                 'schematic_url': None,
                 'schematic_file_missing': False,
                 'simulation_url': '',
@@ -376,6 +392,9 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
                 'created_at': instance.created_at,
             }
         return super().to_representation(instance)
+
+    def get_cover_url(self, obj):
+        return project_cover_url(obj)
 
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
@@ -826,6 +845,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     model_3d_conversion_error = serializers.CharField(read_only=True)
     model_3d_file = serializers.FileField(write_only=True, required=False, allow_null=True)
     video_url = serializers.URLField(required=False, allow_blank=True, default='')
+    cover_url = serializers.SerializerMethodField(read_only=True)
     schematic_url = serializers.SerializerMethodField(read_only=True)
     pack_ids = serializers.SerializerMethodField(read_only=True)
     pack_ids_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -841,6 +861,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'wiring',
             'materials_json',
             'wiring_json',
+            'cover_image',
+            'cover_url',
             'schematic_image',
             'schematic_url',
             'simulation_url',
@@ -876,6 +898,15 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     def validate_video_url(self, value):
         return normalize_simulation_url(value)
 
+    def validate_cover_image(self, value):
+        if not value:
+            return value
+        validate_upload_extension(value)
+        max_bytes = 5 * 1024 * 1024
+        if value.size > max_bytes:
+            raise serializers.ValidationError('Cover image must be 5 MB or smaller.')
+        return value
+
     def validate_schematic_image(self, value):
         if not value:
             return value
@@ -895,6 +926,9 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 f'3D model must be {max_bytes // (1024 * 1024)} MB or smaller.',
             )
         return value
+
+    def get_cover_url(self, obj):
+        return project_cover_url(obj)
 
     def get_schematic_url(self, obj):
         return media_url(obj.schematic_image)
@@ -935,23 +969,31 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     def _merge_request_files(self, validated_data):
         request = self.context.get('request')
         if request and hasattr(request, 'FILES'):
+            if 'cover_image' in request.FILES:
+                validated_data['cover_image'] = request.FILES['cover_image']
             if 'schematic_image' in request.FILES:
                 validated_data['schematic_image'] = request.FILES['schematic_image']
             if 'model_3d_file' in request.FILES:
                 validated_data['model_3d_file'] = request.FILES['model_3d_file']
         return validated_data
 
-    def _verify_schematic_saved(self, instance):
-        if not instance.schematic_image or not getattr(instance.schematic_image, 'name', None):
+    def _verify_image_saved(self, instance, field_name: str, label: str) -> None:
+        file_field = getattr(instance, field_name, None)
+        if not file_field or not getattr(file_field, 'name', None):
             return
-        name = instance.schematic_image.name
-        if not instance.schematic_image.storage.exists(name):
+        if not file_field.storage.exists(file_field.name):
             raise serializers.ValidationError({
-                'schematic_image': (
-                    'Image was not saved on the server. On Render, set CLOUDINARY_URL '
+                field_name: (
+                    f'{label} was not saved on the server. On Render, set CLOUDINARY_URL '
                     'in Environment (see RENDER.md) or try a smaller file (max 5 MB).'
                 ),
             })
+
+    def _verify_schematic_saved(self, instance):
+        self._verify_image_saved(instance, 'schematic_image', 'Schematic image')
+
+    def _verify_cover_saved(self, instance):
+        self._verify_image_saved(instance, 'cover_image', 'Cover image')
 
     def _convert_model_3d(self, instance, uploaded_new: bool):
         if not uploaded_new:
@@ -977,6 +1019,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         had_model = 'model_3d_file' in validated_data and validated_data['model_3d_file']
         instance = super().create(validated_data)
         self._apply_packs(instance, pack_ids)
+        self._verify_cover_saved(instance)
         self._verify_schematic_saved(instance)
         self._convert_model_3d(instance, bool(had_model))
         return instance
@@ -992,6 +1035,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         validated_data = self._merge_request_files(validated_data)
         instance = super().update(instance, validated_data)
         self._apply_packs(instance, pack_ids)
+        self._verify_cover_saved(instance)
         self._verify_schematic_saved(instance)
         self._convert_model_3d(instance, uploaded_new)
         return instance

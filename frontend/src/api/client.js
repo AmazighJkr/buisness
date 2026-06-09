@@ -877,6 +877,10 @@ export async function adminUpdateProject(id, formData) {
   return adminRequest(`${API_BASE}/api/admin/projects/${id}/`, { method: 'PATCH', body: formData })
 }
 
+export async function adminRetryProjectModel3d(id) {
+  return adminRequest(`${API_BASE}/api/admin/projects/${id}/retry-model-3d/`, { method: 'POST' })
+}
+
 const ALLOWED_IMAGE_EXTENSIONS = new Set([
   '.png',
   '.jpg',

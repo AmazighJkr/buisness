@@ -381,9 +381,25 @@ class AdminProjectViewSet(StaffAuditMixin, viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ('create',):
             return [CanPostProject()]
-        if self.action in ('update', 'partial_update', 'destroy'):
+        if self.action in ('update', 'partial_update', 'destroy', 'retry_model_3d'):
             return [CanEditProject()]
         return [IsStaffUser()]
+
+    @action(detail=True, methods=['post'], url_path='retry-model-3d')
+    def retry_model_3d(self, request, id=None):
+        from .model3d_convert import is_glb_name, project_model_3d_pending, schedule_model_3d_conversion
+
+        project = self.get_object()
+        source = project.model_3d_file
+        if not source or not getattr(source, 'name', None):
+            return Response({'detail': 'No 3D file on this project.'}, status=status.HTTP_400_BAD_REQUEST)
+        if is_glb_name(source.name):
+            return Response({'detail': 'GLB uploads do not need conversion.'}, status=status.HTTP_400_BAD_REQUEST)
+        schedule_model_3d_conversion(project.pk)
+        project.refresh_from_db()
+        data = AdminProjectSerializer(project, context={'request': request}).data
+        data['model_3d_pending'] = project_model_3d_pending(project)
+        return Response(data)
 
 
 class AdminCategoryViewSet(StaffAuditMixin, viewsets.ModelViewSet):

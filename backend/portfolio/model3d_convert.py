@@ -21,8 +21,19 @@ CONVERTIBLE_EXTENSIONS = {
 }
 
 
-def _conversion_timeout_sec() -> int:
-    return int(os.getenv('MODEL_3D_CONVERT_TIMEOUT', '90'))
+def _on_render() -> bool:
+    return os.getenv('RENDER', '').lower() in ('true', '1', 'yes')
+
+
+def _conversion_timeout_sec(ext: str = '') -> int:
+    explicit = os.getenv('MODEL_3D_CONVERT_TIMEOUT', '').strip()
+    if explicit:
+        return max(30, int(explicit))
+    if _on_render() and ext in ('.step', '.stp'):
+        return 600
+    if _on_render():
+        return 480
+    return 180
 
 
 class Model3dConversionError(Exception):
@@ -85,8 +96,26 @@ def _convert_path_to_glb_bytes(tmp_path: str, ext: str) -> bytes:
         if ext in ('.step', '.stp'):
             import cascadio  # noqa: F401
         loaded = trimesh.load(src, force='mesh')
-        if loaded is None:
+        if isinstance(loaded, trimesh.Scene):
+            meshes = [
+                g for g in loaded.geometry.values()
+                if isinstance(g, trimesh.Trimesh) and len(g.faces)
+            ]
+            if not meshes:
+                raise RuntimeError('no geometry')
+            loaded = (
+                trimesh.util.concatenate(meshes)
+                if len(meshes) > 1
+                else meshes[0]
+            )
+        if loaded is None or not getattr(loaded, 'faces', None) or len(loaded.faces) == 0:
             raise RuntimeError('no geometry')
+        loaded.merge_vertices()
+        try:
+            if len(loaded.faces) > 120000:
+                loaded = loaded.simplify_quadric_decimation(60000)
+        except Exception:
+            pass
         data = loaded.export(file_type='glb')
         if not data:
             raise RuntimeError('empty glb')
@@ -94,10 +123,11 @@ def _convert_path_to_glb_bytes(tmp_path: str, ext: str) -> bytes:
             fh.write(data)
         ''',
     ).strip()
+    timeout = _conversion_timeout_sec(ext)
     try:
         result = subprocess.run(
             [sys.executable, '-c', script, tmp_path, out_path, ext],
-            timeout=_conversion_timeout_sec(),
+            timeout=timeout,
             check=True,
             capture_output=True,
         )
@@ -105,7 +135,8 @@ def _convert_path_to_glb_bytes(tmp_path: str, ext: str) -> bytes:
             logger.debug('model3d convert stderr: %s', result.stderr.decode(errors='replace')[:300])
     except subprocess.TimeoutExpired as exc:
         raise Model3dConversionError(
-            'Conversion timed out (file may be too large). Export as STL or GLB and re-upload.',
+            f'Conversion timed out after {timeout}s. Upload a GLB file (instant preview) '
+            'or export a smaller STL from CAD.',
         ) from exc
     except subprocess.CalledProcessError as exc:
         detail = (exc.stderr or exc.stdout or b'').decode(errors='replace').strip()[:240]

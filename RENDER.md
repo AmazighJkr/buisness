@@ -41,7 +41,7 @@ Change `ADMIN_PASSWORD` in Environment and redeploy (or run **Shell** → `pytho
 | **Root Directory** | *(leave empty — repo root)* |
 | **Runtime** | Python |
 | **Build Command** | `bash ./render-build.sh` |
-| **Start Command** | `cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120` |
+| **Start Command** | `cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 180 --graceful-timeout 180` |
 
 4. **Environment variables**:
 

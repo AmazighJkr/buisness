@@ -17,6 +17,7 @@ import {
   adminRespondCommand,
   adminSendCommandMessage,
   adminUpdateProject,
+  adminRetryProjectModel3d,
   fetchAdminMe,
   staffCanEditStore,
   staffCanManageLayers,
@@ -58,7 +59,7 @@ function normalizeUrl(raw) {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`
 }
 
-function buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, packIds) {
+function buildProjectFormData(form, materials, wiring, codeFiles, cover, schematic, model3d, packIds) {
   const fd = new FormData()
   fd.append('subcategory', form.subcategory)
   fd.append('is_featured', form.is_featured ? 'true' : 'false')
@@ -76,6 +77,7 @@ function buildProjectFormData(form, materials, wiring, codeFiles, schematic, mod
   fd.append('simulation_url', normalizeUrl(form.simulation_url) || '')
   fd.append('video_url', normalizeUrl(form.video_url) || '')
   fd.append('pack_ids_json', JSON.stringify(packIds || []))
+  if (cover) fd.append('cover_image', cover)
   if (schematic) fd.append('schematic_image', schematic)
   if (model3d) fd.append('model_3d_file', model3d)
   return fd
@@ -115,7 +117,10 @@ export default function AdminPanelPage() {
   const [materials, setMaterials] = useState([{ ...EMPTY_MAT }])
   const [wiring, setWiring] = useState([])
   const [codeFiles, setCodeFiles] = useState([{ ...EMPTY_CODE }])
+  const [cover, setCover] = useState(null)
+  const [existingCoverUrl, setExistingCoverUrl] = useState('')
   const [schematic, setSchematic] = useState(null)
+  const [existingSchematicUrl, setExistingSchematicUrl] = useState('')
   const [model3d, setModel3d] = useState(null)
   const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
   const [existingModel3dPending, setExistingModel3dPending] = useState(false)
@@ -211,7 +216,10 @@ export default function AdminPanelPage() {
     setMaterials([{ ...EMPTY_MAT }])
     setWiring([])
     setCodeFiles([{ ...EMPTY_CODE }])
+    setCover(null)
+    setExistingCoverUrl('')
     setSchematic(null)
+    setExistingSchematicUrl('')
     setModel3d(null)
     setExistingModel3dUrl('')
     setExistingModel3dPending(false)
@@ -224,6 +232,12 @@ export default function AdminPanelPage() {
     e.preventDefault()
     setSubmitting(true)
     setMsg({ type: '', text: '' })
+    const coverErr = validateUploadFile(cover, 'Cover image')
+    if (coverErr) {
+      setMsg({ type: 'error', text: coverErr })
+      setSubmitting(false)
+      return
+    }
     const fileErr = validateUploadFile(schematic, 'Schematic image')
     if (fileErr) {
       setMsg({ type: 'error', text: fileErr })
@@ -237,7 +251,7 @@ export default function AdminPanelPage() {
       return
     }
     try {
-      const fd = buildProjectFormData(form, materials, wiring, codeFiles, schematic, model3d, selectedPackIds)
+      const fd = buildProjectFormData(form, materials, wiring, codeFiles, cover, schematic, model3d, selectedPackIds)
       const converting3d = Boolean(model3d)
       const isGlbUpload = converting3d && /\.(glb|gltf)$/i.test(model3d.name)
       const convertMsg = isGlbUpload
@@ -284,6 +298,10 @@ export default function AdminPanelPage() {
       is_free: !!p.is_free,
       featured_order: p.featured_order || 0,
     })
+    setCover(null)
+    setExistingCoverUrl(p.cover_url || '')
+    setSchematic(null)
+    setExistingSchematicUrl(p.schematic_url || '')
     setModel3d(null)
     setExistingModel3dUrl(p.model_3d_url || '')
     setExistingModel3dPending(!!p.model_3d_pending)
@@ -553,7 +571,35 @@ export default function AdminPanelPage() {
       </div>
 
       <label className="block text-xs text-dark-muted">
-        Schematic image (PNG/JPG/WebP, max 5 MB)
+        Cover image — project card thumbnail (PNG/JPG/WebP, max 5 MB)
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+          className="mt-1 block w-full text-xs"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null
+            const err = validateUploadFile(file, 'Cover image')
+            if (err) {
+              setMsg({ type: 'error', text: err })
+              e.target.value = ''
+              setCover(null)
+              return
+            }
+            setCover(file)
+          }}
+        />
+        {cover && (
+          <span className="mt-1 block text-[10px] text-lab-cyan">
+            Selected: {cover.name} ({(cover.size / 1024).toFixed(0)} KB)
+          </span>
+        )}
+        {!cover && existingCoverUrl && (
+          <span className="mt-1 block text-[10px] text-lab-cyan">Cover on server — upload to replace</span>
+        )}
+      </label>
+
+      <label className="block text-xs text-dark-muted">
+        Schematic / wiring diagram — detail page only (PNG/JPG/WebP, max 5 MB)
         <input
           type="file"
           accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
@@ -574,6 +620,9 @@ export default function AdminPanelPage() {
           <span className="mt-1 block text-[10px] text-lab-cyan">
             Selected: {schematic.name} ({(schematic.size / 1024).toFixed(0)} KB)
           </span>
+        )}
+        {!schematic && existingSchematicUrl && (
+          <span className="mt-1 block text-[10px] text-lab-cyan">Schematic on server — upload to replace</span>
         )}
       </label>
 
@@ -609,9 +658,32 @@ export default function AdminPanelPage() {
             GLB preview ready — upload a new file to replace
           </span>
         )}
-        {!model3d && existingModel3dConversionError && (
+        {!model3d && existingModel3dConversionError && editId && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="block text-[10px] text-red-400">
+              Conversion failed: {existingModel3dConversionError}
+            </span>
+            <button
+              type="button"
+              className="text-[10px] text-lab-cyan underline"
+              onClick={async () => {
+                try {
+                  const updated = await adminRetryProjectModel3d(editId)
+                  setExistingModel3dConversionError(updated.model_3d_conversion_error || '')
+                  setExistingModel3dPending(!!updated.model_3d_pending)
+                  setMsg({ type: 'success', text: 'Retrying GLB conversion in the background…' })
+                } catch (err) {
+                  setMsg({ type: 'error', text: err.message })
+                }
+              }}
+            >
+              Retry conversion
+            </button>
+          </div>
+        )}
+        {!model3d && existingModel3dConversionError && !editId && (
           <span className="mt-1 block text-[10px] text-red-400">
-            Conversion failed: {existingModel3dConversionError} — upload GLB or STL instead.
+            Conversion failed: {existingModel3dConversionError} — upload GLB for instant preview.
           </span>
         )}
         {!model3d && existingModel3dPending && !existingModel3dConversionError && (
