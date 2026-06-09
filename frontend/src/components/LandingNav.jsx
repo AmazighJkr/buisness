@@ -75,7 +75,7 @@ export default function LandingNav() {
 
         <div className="site-header-actions">
           {storeVisible && (
-            <Link to="/shop" className="store-entry-btn hidden sm:inline-flex">
+            <Link to="/store" className="store-entry-btn hidden sm:inline-flex">
               {t('nav.store')}
             </Link>
           )}
@@ -139,7 +139,7 @@ export default function LandingNav() {
                   {t('nav.store')}
                 </p>
                 <Link
-                  to="/shop"
+                  to="/store"
                   onClick={() => setMenuOpen(false)}
                   className="site-nav-drawer-link site-nav-drawer-link--store mb-1 block rounded-md px-3 py-2.5 text-sm"
                 >

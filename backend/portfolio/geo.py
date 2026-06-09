@@ -76,4 +76,8 @@ def lookup_country_by_ip(ip: str) -> str:
 def geo_fallback_country() -> str:
     """Optional env when GeoIP is unavailable (e.g. DZ on Render for Algeria store)."""
     cc = os.getenv('GEOIP_FALLBACK_COUNTRY', '').strip().upper()
-    return cc if len(cc) == 2 else ''
+    if len(cc) == 2:
+        return cc
+    if os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes'):
+        return 'DZ'
+    return ''

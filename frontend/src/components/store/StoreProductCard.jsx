@@ -3,11 +3,20 @@ import { ShoppingBag } from 'lucide-react'
 import { useTranslation } from '../../context/LocaleContext.jsx'
 import { formatDzd } from '../../utils/formatMoney.js'
 
-export default function StoreProductCard({ product, added, onAdd, linkTo }) {
+export default function StoreProductCard({
+  product,
+  added,
+  onAdd,
+  linkTo,
+  showAdd = true,
+}) {
   const { t } = useTranslation()
   const inStock = product.stock_qty > 0
   const priceMain = formatDzd(Number(product.price_dzd || 0))
   const href = linkTo || `/shop/${product.slug}`
+  const categoryLabel = product.parent_category_name
+    ? `${product.parent_category_name} · ${product.category_name}`
+    : product.category_name
 
   return (
     <article className="store-product-card">
@@ -27,11 +36,11 @@ export default function StoreProductCard({ product, added, onAdd, linkTo }) {
 
       <div className="store-product-card__body">
         <Link to={href} className="block hover:text-lab-cyan">
-          <p className="store-product-card__collection">{product.category_name}</p>
+          {categoryLabel && <p className="store-product-card__collection">{categoryLabel}</p>}
           <h2 className="store-product-card__title">{product.name}</h2>
         </Link>
         {(product.short_description || product.description) && (
-          <p className="store-product-card__desc line-clamp-3">
+          <p className="store-product-card__desc">
             {product.short_description || product.description}
           </p>
         )}
@@ -40,20 +49,22 @@ export default function StoreProductCard({ product, added, onAdd, linkTo }) {
           <div className="store-product-card__price">
             <span className="store-product-card__price-main">{priceMain}</span>
           </div>
-          <button
-            type="button"
-            disabled={!inStock}
-            onClick={(e) => {
-              e.preventDefault()
-              onAdd(product)
-            }}
-            className={`store-product-card__cta ${added ? 'store-product-card__cta--added' : ''}`}
-          >
-            <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden />
-            <span>
-              {!inStock ? t('store.unavailable') : added ? t('store.inBag') : t('store.add')}
-            </span>
-          </button>
+          {showAdd && onAdd && (
+            <button
+              type="button"
+              disabled={!inStock}
+              onClick={(e) => {
+                e.preventDefault()
+                onAdd(product)
+              }}
+              className={`store-product-card__cta ${added ? 'store-product-card__cta--added' : ''}`}
+            >
+              <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden />
+              <span>
+                {!inStock ? t('store.unavailable') : added ? t('store.inBag') : t('store.add')}
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </article>

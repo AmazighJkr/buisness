@@ -79,11 +79,16 @@ export default function StoreProductDetail({
               <p className="text-xs font-semibold uppercase tracking-wide text-dark-muted">
                 {t('store.models')}
               </p>
-              <div className="store-product-variants">
+              <div className="store-product-variants store-product-variants--detail">
                 {product.variants.map((v) => (
-                  <div key={v.id} className="store-product-variant" title={v.description || v.name}>
-                    {v.image_url && <img src={v.image_url} alt="" />}
-                    <span>{v.name}</span>
+                  <div key={v.id} className="store-product-variant store-product-variant--detail">
+                    {v.image_url && <img src={v.image_url} alt={v.name} />}
+                    <div>
+                      <p className="store-product-variant__name">{v.name}</p>
+                      {v.description && (
+                        <p className="store-product-variant__desc">{v.description}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

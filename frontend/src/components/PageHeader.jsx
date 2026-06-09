@@ -22,7 +22,7 @@ export default function PageHeader({ highlight = '', subheader = null }) {
 
           <div className="site-header-actions">
             {storeVisible && (
-              <Link to="/shop" className="store-entry-btn hidden sm:inline-flex">
+              <Link to="/store" className="store-entry-btn hidden sm:inline-flex">
                 {t('nav.store')}
               </Link>
             )}

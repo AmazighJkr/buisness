@@ -5,7 +5,6 @@ import SidebarRail from '../components/SidebarRail.jsx'
 import StoreSearchBar from '../components/store/StoreSearchBar.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import StoreCategorySidebar from '../components/store/StoreCategorySidebar.jsx'
-import StoreHome from '../components/store/StoreHome.jsx'
 import StoreProductCard from '../components/store/StoreProductCard.jsx'
 import StoreProductDetail from '../components/store/StoreProductDetail.jsx'
 import { fetchStoreCategories, fetchStoreProduct, fetchStoreProducts } from '../api/client.js'
@@ -36,14 +35,12 @@ export default function ShopPage() {
   const activeCategory =
     categories.find((c) => c.slug === categoryParam)
     || categories.flatMap((c) => c.children || []).find((c) => c.slug === categoryParam)
-  const showStoreHome = !productSlug && !categoryParam && !queryParam
-
   const refreshStoreData = () => {
     if (!isAlgeria) return
     fetchStoreCategories().then(setCategories).catch(() => {})
     if (productSlug) {
       fetchStoreProduct(productSlug).then(setProduct).catch(() => setProduct(null))
-    } else if (!showStoreHome) {
+    } else {
       fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
         .then(setProducts)
         .catch(() => setProducts([]))
@@ -64,10 +61,10 @@ export default function ShopPage() {
       window.removeEventListener('focus', onFocus)
       window.clearInterval(id)
     }
-  }, [isAlgeria, productSlug, categoryParam, queryParam, showStoreHome])
+  }, [isAlgeria, productSlug, categoryParam, queryParam])
 
   useEffect(() => {
-    if (!isAlgeria || productSlug || showStoreHome) return
+    if (!isAlgeria || productSlug) return
     setLoadingList(true)
     setError('')
     fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
@@ -77,7 +74,7 @@ export default function ShopPage() {
         setError(err.message || t('store.loadError'))
       })
       .finally(() => setLoadingList(false))
-  }, [isAlgeria, productSlug, categoryParam, queryParam, showStoreHome])
+  }, [isAlgeria, productSlug, categoryParam, queryParam])
 
   useEffect(() => {
     if (!isAlgeria || !productSlug) {
@@ -197,31 +194,30 @@ export default function ShopPage() {
                   </button>
                 </div>
               )
-            ) : showStoreHome ? (
-              <StoreHome
-                onAdd={handleAdd}
-                addedId={addedId}
-                onBrowseCategory={(slug) => selectCategory(slug || '')}
-              />
             ) : (
               <>
-                <div className="mb-4">
-                  <h1 className="font-display text-xl font-semibold sm:text-2xl">{t('store.title')}</h1>
-                  <p className="mt-1 text-sm text-dark-muted">
-                    {activeCategory
-                      ? activeCategory.name
-                      : queryParam
-                        ? t('store.resultsFor', { q: queryParam })
-                        : t('store.defaultSubtitle')}
-                  </p>
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <h1 className="font-display text-xl font-semibold sm:text-2xl">{t('store.title')}</h1>
+                    <p className="mt-1 text-sm text-dark-muted">
+                      {activeCategory
+                        ? activeCategory.name
+                        : queryParam
+                          ? t('store.resultsFor', { q: queryParam })
+                          : t('store.defaultSubtitle')}
+                    </p>
+                  </div>
+                  <Link to="/store" className="text-sm text-lab-cyan hover:underline">
+                    {t('nav.storeHome')}
+                  </Link>
                 </div>
 
                 {error && <p className="store-alert store-alert--error mb-4">{error}</p>}
 
                 {loadingList ? (
-                  <div className="store-grid">
+                  <div className="store-grid store-grid--catalog">
                     {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="store-skeleton" />
+                      <div key={n} className="store-skeleton store-skeleton--tall" />
                     ))}
                   </div>
                 ) : products.length === 0 ? (
@@ -229,7 +225,7 @@ export default function ShopPage() {
                     <p className="text-sm text-dark-muted">{t('store.noProducts')}</p>
                   </div>
                 ) : (
-                  <div className="store-grid">
+                  <div className="store-grid store-grid--catalog">
                     {products.map((p) => (
                       <StoreProductCard
                         key={p.id}

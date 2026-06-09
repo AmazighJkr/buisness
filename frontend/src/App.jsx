@@ -9,6 +9,7 @@ import AccountPage from './pages/AccountPage.jsx'
 import SubscriptionsPage from './pages/SubscriptionsPage.jsx'
 import AdminPanelPage from './pages/AdminPanelPage.jsx'
 import ShopPage from './pages/ShopPage.jsx'
+import StoreLandingPage from './pages/StoreLandingPage.jsx'
 import CartPage from './pages/CartPage.jsx'
 import CheckoutPage from './pages/CheckoutPage.jsx'
 import StoreOrderPage from './pages/StoreOrderPage.jsx'
@@ -34,6 +35,7 @@ export default function App() {
       <Route index element={<LandingPage />} />
       <Route path="projects" element={<ProjectsPage />} />
       <Route path="projects/:projectId" element={<ProjectsPage />} />
+      <Route path="store" element={<StoreLandingPage />} />
       <Route path="shop/cart" element={<CartPage />} />
       <Route path="shop/checkout" element={<CheckoutPage />} />
       <Route path="shop/order" element={<StoreOrderPage />} />

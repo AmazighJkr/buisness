@@ -94,9 +94,9 @@ export default function AdminStoreCategories({ categories, onReload, onMessage }
     <div className="grid gap-6 lg:grid-cols-2">
       <form onSubmit={save} className="panel space-y-3 p-4" noValidate>
         <h3 className="border-b border-dark-border pb-2 text-sm font-semibold">
-          {editId ? 'Edit category' : 'New category'}
+          {editId ? 'Edit store category' : 'New store category'}
         </h3>
-        <AdminField label="Parent category" hint="Leave empty for top-level (e.g. Embedded, PC Parts)">
+        <AdminField label="Type" hint="Top-level = Embedded, PC Parts. Subcategory = Controllers, Sensors, …">
           <select
             value={form.parent}
             onChange={(e) => setForm((f) => ({ ...f, parent: e.target.value }))}

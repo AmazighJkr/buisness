@@ -6,16 +6,16 @@ import {
   normalizeStoreSlug,
   safeInt,
   safeMoney,
-  storeCategorySelectOptions,
   toStoreFormData,
 } from './storeFormUtils.js'
 import { adminAddProductGallery, adminCreateStoreProduct, validateUploadFile } from '../../api/client.js'
 import { slugFromName } from '../../utils/slugFromName.js'
 
-const EMPTY_VARIANT = { name: '', description: '' }
+const EMPTY_VARIANT = { name: '', description: '', image: null }
 
 const EMPTY = {
-  category: '',
+  parentCategory: '',
+  subcategory: '',
   name: '',
   slug: '',
   short_description: '',
@@ -36,7 +36,10 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
   const [slugAuto, setSlugAuto] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  const categoryOptions = storeCategorySelectOptions(categories)
+  const topCategories = [...categories].filter((c) => !c.parent).sort((a, b) => a.name.localeCompare(b.name))
+  const subcategories = [...categories]
+    .filter((c) => String(c.parent) === String(form.parentCategory))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
 
   const reset = () => {
     setForm(EMPTY)
@@ -50,12 +53,17 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
     e.preventDefault()
     onMessage('', '')
 
-    if (!categoryOptions.length) {
-      onMessage('error', 'Create at least one category first (Categories tab).')
+    if (!topCategories.length) {
+      onMessage('error', 'Create at least one top-level category first (Categories tab).')
       return
     }
-    if (!form.category) {
-      onMessage('error', 'Choose a category.')
+    if (!form.parentCategory) {
+      onMessage('error', 'Choose a top-level category.')
+      return
+    }
+    const categoryIdValue = form.subcategory || (subcategories.length ? '' : form.parentCategory)
+    if (!categoryIdValue) {
+      onMessage('error', 'Choose a subcategory.')
       return
     }
     if (!form.name.trim()) {
@@ -79,7 +87,7 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
     setSaving(true)
     try {
       const payload = {
-        category: categoryId(form.category),
+        category: categoryId(categoryIdValue),
         name: form.name.trim(),
         slug: link,
         short_description: form.short_description,
@@ -99,7 +107,12 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
           sort_order: index,
         }))
         .filter((v) => v.name)
-      if (variantRows.length) fd.append('variants_json', JSON.stringify(variantRows))
+      if (variantRows.length) {
+        fd.append('variants_json', JSON.stringify(variantRows))
+        variants.forEach((v, index) => {
+          if (v.image) fd.append(`variant_image_${index}`, v.image)
+        })
+      }
       const created = await adminCreateStoreProduct(fd)
       if (galleryFiles.length > 0 && created?.id) {
         await adminAddProductGallery(created.id, galleryFiles)
@@ -119,24 +132,39 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
     <form onSubmit={save} className="panel max-w-2xl space-y-3 p-4" noValidate>
       <h3 className="border-b border-dark-border pb-2 text-sm font-semibold">Post a new product</h3>
 
-      {!categoryOptions.length && (
+      {!topCategories.length && (
         <p className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
           No categories yet. Open the <strong>Categories</strong> tab and create one first.
         </p>
       )}
 
-      <AdminField label="Category" required>
+      <AdminField label="Top-level category" required hint="e.g. Embedded, PC Parts">
         <select
-          value={form.category}
-          onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+          value={form.parentCategory}
+          onChange={(e) => setForm((f) => ({ ...f, parentCategory: e.target.value, subcategory: '' }))}
           className={adminInputCls}
         >
           <option value="">Select category…</option>
-          {categoryOptions.map((c) => (
-            <option key={c.id} value={c.id}>{c.label}</option>
+          {topCategories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
       </AdminField>
+
+      {form.parentCategory && subcategories.length > 0 && (
+        <AdminField label="Subcategory" required hint="e.g. Controllers, Sensors">
+          <select
+            value={form.subcategory}
+            onChange={(e) => setForm((f) => ({ ...f, subcategory: e.target.value }))}
+            className={adminInputCls}
+          >
+            <option value="">Select subcategory…</option>
+            {subcategories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </AdminField>
+      )}
 
       <AdminField label="Product name" required>
         <input
@@ -250,7 +278,7 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
                 className="min-w-[8rem] flex-1 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
               />
               <input
-                placeholder="Note (optional)"
+                placeholder="Note (e.g. I2C, male/female)"
                 value={v.description}
                 onChange={(e) => {
                   const description = e.target.value
@@ -258,6 +286,18 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
                 }}
                 className="min-w-[10rem] flex-[2] border border-dark-border bg-dark-bg px-2 py-1 text-sm"
               />
+              <label className="cursor-pointer border border-dark-border px-2 py-1 text-xs text-lab-cyan">
+                {v.image ? v.image.name : 'Image'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const image = e.target.files?.[0] || null
+                    setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, image } : row)))
+                  }}
+                />
+              </label>
               {variants.length > 1 && (
                 <button
                   type="button"

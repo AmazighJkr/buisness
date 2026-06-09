@@ -6,11 +6,10 @@ import {
   normalizeStoreSlug,
   safeInt,
   safeMoney,
-  storeCategorySelectOptions,
   toStoreFormData,
 } from './storeFormUtils.js'
 
-const EMPTY_VARIANT = { name: '', description: '' }
+const EMPTY_VARIANT = { name: '', description: '', image: null }
 import {
   adminAddProductGallery,
   adminDeleteProductGalleryImage,
@@ -86,9 +85,11 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
   }
 
   const openFullEdit = (p) => {
+    const cat = categories.find((c) => String(c.id) === String(p.category))
     setFullEditId(p.id)
     setFullForm({
-      category: categoryId(p.category),
+      parentCategory: cat?.parent ? String(cat.parent) : String(cat?.id || ''),
+      subcategory: cat?.parent ? String(cat.id) : '',
       name: p.name || '',
       slug: p.slug || '',
       short_description: p.short_description || '',
@@ -103,6 +104,8 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
       variants: (p.variants?.length ? p.variants : [{ ...EMPTY_VARIANT }]).map((v) => ({
         name: v.name || '',
         description: v.description || '',
+        image: null,
+        image_url: v.image_url || '',
       })),
     })
     setFullImage(null)
@@ -114,8 +117,10 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
     if (!fullForm || !fullEditId) return
     onMessage('', '')
     const link = normalizeStoreSlug(fullForm.slug || fullForm.name)
-    if (!fullForm.category || !fullForm.name.trim() || !link) {
-      onMessage('error', 'Category, name, and link are required.')
+    const subs = categories.filter((c) => String(c.parent) === String(fullForm.parentCategory))
+    const categoryIdValue = fullForm.subcategory || (subs.length ? '' : fullForm.parentCategory)
+    if (!fullForm.parentCategory || !categoryIdValue || !fullForm.name.trim() || !link) {
+      onMessage('error', 'Category, subcategory, name, and link are required.')
       return
     }
     for (const file of [fullImage, ...fullGallery].filter(Boolean)) {
@@ -128,7 +133,7 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
     setFullSaving(true)
     try {
       const payload = {
-        category: categoryId(fullForm.category),
+        category: categoryId(categoryIdValue),
         name: fullForm.name.trim(),
         slug: link,
         short_description: fullForm.short_description,
@@ -149,6 +154,9 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
         }))
         .filter((v) => v.name)
       fd.append('variants_json', JSON.stringify(variantRows))
+      ;(fullForm.variants || []).forEach((v, index) => {
+        if (v.image) fd.append(`variant_image_${index}`, v.image)
+      })
       await adminUpdateStoreProduct(fullEditId, fd)
       if (fullGallery.length > 0) {
         await adminAddProductGallery(fullEditId, fullGallery)
@@ -164,7 +172,10 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
     }
   }
 
-  const categoryOptions = storeCategorySelectOptions(categories)
+  const topCategories = [...categories].filter((c) => !c.parent).sort((a, b) => a.name.localeCompare(b.name))
+  const fullSubcategories = fullForm
+    ? categories.filter((c) => String(c.parent) === String(fullForm.parentCategory))
+    : []
 
   return (
     <div className="space-y-4">
@@ -302,17 +313,31 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
               Close
             </button>
           </div>
-          <AdminField label="Category" required>
+          <AdminField label="Top-level category" required>
             <select
-              value={fullForm.category}
-              onChange={(e) => setFullForm((f) => ({ ...f, category: e.target.value }))}
+              value={fullForm.parentCategory}
+              onChange={(e) => setFullForm((f) => ({ ...f, parentCategory: e.target.value, subcategory: '' }))}
               className={adminInputCls}
             >
-              {categoryOptions.map((c) => (
-                <option key={c.id} value={c.id}>{c.label}</option>
+              {topCategories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </AdminField>
+          {fullSubcategories.length > 0 && (
+            <AdminField label="Subcategory" required>
+              <select
+                value={fullForm.subcategory}
+                onChange={(e) => setFullForm((f) => ({ ...f, subcategory: e.target.value }))}
+                className={adminInputCls}
+              >
+                <option value="">Select subcategory…</option>
+                {fullSubcategories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </AdminField>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <AdminField label="Name">
               <input
@@ -384,6 +409,24 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
                     }}
                     className="min-w-[10rem] flex-[2] border border-dark-border bg-dark-bg px-2 py-1 text-sm"
                   />
+                  <label className="cursor-pointer border border-dark-border px-2 py-1 text-xs text-lab-cyan">
+                    {v.image ? v.image.name : v.image_url ? 'Replace image' : 'Image'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const image = e.target.files?.[0] || null
+                        setFullForm((f) => ({
+                          ...f,
+                          variants: f.variants.map((row, i) => (i === index ? { ...row, image } : row)),
+                        }))
+                      }}
+                    />
+                  </label>
+                  {v.image_url && !v.image && (
+                    <img src={v.image_url} alt="" className="h-8 w-8 rounded object-cover" />
+                  )}
                   {fullForm.variants.length > 1 && (
                     <button
                       type="button"

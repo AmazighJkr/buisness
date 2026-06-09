@@ -8,11 +8,15 @@ export const NAV_LAB = [
 ]
 
 export const NAV_STORE = [
+  { to: '/store', labelKey: 'nav.storeHome' },
   { to: '/shop', labelKey: 'nav.allProducts' },
   { to: '/shop/order', labelKey: 'nav.orderStatus' },
 ]
 
 export function navLinkActive(highlight, to) {
+  if (to === '/store') {
+    return highlight === '/store'
+  }
   if (to === '/shop') {
     return (
       highlight === '/shop' ||
@@ -27,5 +31,5 @@ export function navLinkActive(highlight, to) {
 }
 
 export function isStoreRoute(pathname = '') {
-  return pathname === '/shop' || pathname.startsWith('/shop/')
+  return pathname === '/store' || pathname === '/shop' || pathname.startsWith('/shop/')
 }

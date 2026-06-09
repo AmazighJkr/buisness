@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
  */
 export default function SiteBrand({ variant = 'lab', className = '' }) {
   const isStore = variant === 'store'
-  const to = isStore ? '/shop' : '/'
+  const to = isStore ? '/store' : '/'
   const prefix = isStore ? 'Store' : 'Embedded'
   const aria = isStore ? 'StoreGrid home' : 'EmbeddedGrid home'
 

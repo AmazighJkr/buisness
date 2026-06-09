@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Mail, MessageSquare } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from '../../context/LocaleContext.jsx'
 import StoreProductCard from './StoreProductCard.jsx'
+import ContactSection from '../landing/ContactSection.jsx'
 import { fetchStoreProducts } from '../../api/client.js'
 
 const HERO_SLIDES = [
@@ -10,15 +11,15 @@ const HERO_SLIDES = [
     src: '/store/hero-1.jpg',
     title: 'Embedded kits & tools',
     subtitle: 'Controllers, sensors, and lab gear for your next build.',
-    cta: 'Shop embedded',
-    category: '',
+    cta: 'Browse products',
+    category: 'embedded',
   },
   {
     src: '/store/hero-2.jpg',
     title: 'Arduino starter kits',
     subtitle: 'Everything you need to prototype fast — ships in Algeria.',
-    cta: 'Browse kits',
-    category: '',
+    cta: 'Shop kits',
+    category: 'kits',
   },
 ]
 
@@ -30,7 +31,7 @@ const BRAND_LOGOS = [
   { name: 'Adeept', slug: 'adeept' },
 ]
 
-export default function StoreHome({ onAdd, addedId, onBrowseCategory }) {
+export default function StoreHome({ onBrowseCategory }) {
   const { t } = useTranslation()
   const [slide, setSlide] = useState(0)
   const [featured, setFeatured] = useState([])
@@ -121,14 +122,13 @@ export default function StoreHome({ onAdd, addedId, onBrowseCategory }) {
         {featured.length === 0 ? (
           <p className="text-sm text-dark-muted">{t('store.noProducts')}</p>
         ) : (
-          <div className="store-grid store-grid--home">
+          <div className="store-grid store-grid--catalog">
             {featured.map((p) => (
               <StoreProductCard
                 key={p.id}
                 product={p}
-                added={addedId === p.id}
-                onAdd={onAdd}
                 linkTo={`/shop/${p.slug}`}
+                showAdd={false}
               />
             ))}
           </div>
@@ -151,20 +151,7 @@ export default function StoreHome({ onAdd, addedId, onBrowseCategory }) {
         </div>
       </section>
 
-      <section className="store-home-section store-home-contact panel">
-        <h2 className="store-home-section__title">{t('store.contactTitle')}</h2>
-        <p className="mt-2 text-sm text-dark-muted">{t('store.contactLead')}</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Link to="/command" className="btn-primary inline-flex items-center gap-2 text-sm">
-            <MessageSquare className="h-4 w-4" />
-            {t('store.contactCommand')}
-          </Link>
-          <a href="mailto:contact@embeddedgrid.com" className="inline-flex items-center gap-2 rounded border border-dark-border px-4 py-2 text-sm panel-hover">
-            <Mail className="h-4 w-4" />
-            contact@embeddedgrid.com
-          </a>
-        </div>
-      </section>
+      <ContactSection className="store-home-contact panel border border-dark-border p-6 sm:p-8" />
     </div>
   )
 }

@@ -2150,13 +2150,28 @@ html[data-theme="dark"] .google-continue-btn {
   overflow: hidden;
   border-radius: 1rem;
   border: 1px solid var(--eg-border);
-  min-height: 280px;
+  aspect-ratio: 16 / 9;
+  min-height: 18rem;
+  max-height: 36rem;
   background: var(--eg-surface);
+}
+
+@media (min-width: 768px) {
+  .store-hero-carousel__frame {
+    min-height: 24rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .store-hero-carousel__frame {
+    min-height: 36rem;
+  }
 }
 
 .store-hero-carousel__slide {
   position: absolute;
   inset: 0;
+  height: 100%;
   opacity: 0;
   transition: opacity 0.6s ease;
   background-size: cover;
@@ -2166,7 +2181,8 @@ html[data-theme="dark"] .google-continue-btn {
 .store-hero-carousel__slide.is-active {
   opacity: 1;
   position: relative;
-  min-height: 280px;
+  min-height: 100%;
+  height: 100%;
 }
 
 .store-hero-carousel__overlay {
@@ -2256,8 +2272,15 @@ html[data-theme="dark"] .google-continue-btn {
   font-weight: 600;
 }
 
-.store-grid--home {
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+.store-grid--catalog {
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .store-grid--catalog {
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  }
 }
 
 .store-brands__row {
@@ -2306,28 +2329,52 @@ html[data-theme="dark"] .google-continue-btn {
   border-radius: 0.25rem;
 }
 
+.store-product-variant--detail {
+  align-items: flex-start;
+  min-width: 8rem;
+  max-width: 14rem;
+  flex: 1 1 8rem;
+}
+
+.store-product-variant--detail img {
+  width: 3rem;
+  height: 3rem;
+}
+
+.store-product-variant__name {
+  font-weight: 600;
+  color: var(--eg-text);
+}
+
+.store-product-variant__desc {
+  margin-top: 0.15rem;
+  font-size: 0.6875rem;
+  color: var(--eg-muted);
+  line-height: 1.35;
+}
+
 .store-product-card {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 19rem;
-  border-radius: 0.75rem;
+  min-height: 24rem;
+  border-radius: 0.875rem;
   border: 1px solid var(--eg-border);
-  background: linear-gradient(180deg, var(--eg-panel), color-mix(in srgb, var(--eg-panel) 92%, var(--eg-bg)));
+  background: var(--eg-panel);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
 .store-product-card:hover {
-  border-color: color-mix(in srgb, var(--eg-accent) 35%, var(--eg-border));
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--eg-text) 10%, transparent);
-  transform: translateY(-2px);
+  border-color: var(--eg-border-strong);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--eg-text) 8%, transparent);
+  transform: translateY(-3px);
 }
 
 .store-product-card__media {
   position: relative;
-  aspect-ratio: 1;
-  max-height: 12.5rem;
+  aspect-ratio: 4 / 3;
+  min-height: 11rem;
   overflow: hidden;
   background: var(--eg-surface);
 }
@@ -2368,42 +2415,49 @@ html[data-theme="dark"] .google-continue-btn {
 }
 
 .store-badge--featured {
-  background: color-mix(in srgb, var(--eg-accent) 90%, black);
-  color: var(--eg-bg);
+  background: color-mix(in srgb, var(--eg-panel) 70%, var(--eg-bg));
+  color: var(--eg-text);
+  border: 1px solid var(--eg-border-strong);
 }
 
 .store-badge--low {
-  background: color-mix(in srgb, var(--eg-warning) 85%, black);
-  color: var(--eg-bg);
+  background: color-mix(in srgb, var(--eg-panel) 70%, var(--eg-bg));
+  color: var(--eg-muted);
+  border: 1px solid var(--eg-border);
 }
 
 .store-badge--sold {
-  background: color-mix(in srgb, var(--eg-muted) 80%, black);
-  color: var(--eg-bg);
+  background: color-mix(in srgb, var(--eg-bg) 85%, transparent);
+  color: var(--eg-muted);
+  border: 1px solid var(--eg-border);
 }
 
 .store-product-card__body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 0.65rem 0.75rem 0.75rem;
+  padding: 0.85rem 1rem 1rem;
   min-height: 0;
+}
+
+.store-skeleton--tall {
+  min-height: 24rem;
 }
 
 .store-product-card__collection {
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--eg-accent);
+  color: var(--eg-muted);
 }
 
 .store-product-card__title {
-  margin-top: 0.15rem;
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 0.8125rem;
-  font-weight: 400;
-  line-height: 1.35;
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -2411,7 +2465,15 @@ html[data-theme="dark"] .google-continue-btn {
 }
 
 .store-product-card__desc {
-  display: none;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--eg-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
 }
 
 .store-product-card__footer {
@@ -2426,11 +2488,7 @@ html[data-theme="dark"] .google-continue-btn {
   font-size: 1.125rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #b12704;
-}
-
-html[data-theme='dark'] .store-product-card__price-main {
-  color: #ff8a65;
+  color: var(--eg-text);
 }
 
 .store-product-card__price-alt {
@@ -2445,26 +2503,20 @@ html[data-theme='dark'] .store-product-card__price-main {
   justify-content: center;
   gap: 0.35rem;
   width: 100%;
-  padding: 0.45rem 0.6rem;
-  border-radius: 1.25rem;
-  border: 1px solid #fcd200;
-  background: linear-gradient(180deg, #ffe08a 0%, #f7ca00 100%);
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--eg-border-strong);
+  background: var(--eg-surface);
   font-size: 0.75rem;
   font-weight: 600;
-  color: #111;
+  color: var(--eg-text);
   cursor: pointer;
-  transition: filter 0.15s;
-}
-
-html[data-theme='dark'] .store-product-card__cta {
-  border-color: #c9a227;
-  background: linear-gradient(180deg, #5c4d10 0%, #3d3410 100%);
-  color: #f5e6a8;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
 .store-product-card__cta:hover:not(:disabled) {
   border-color: var(--eg-accent);
-  background: color-mix(in srgb, var(--eg-accent) 12%, var(--eg-surface));
+  background: color-mix(in srgb, var(--eg-accent) 10%, var(--eg-surface));
   color: var(--eg-accent);
 }
 

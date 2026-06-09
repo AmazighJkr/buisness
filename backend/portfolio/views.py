@@ -20,7 +20,6 @@ from .models import (
     StaffAuditLog,
     SubscriptionPack,
     StoreCategory,
-    StoreCategory,
     StoreProduct,
     UserSubscription,
 )
@@ -217,8 +216,6 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         if featured and featured.lower() in ('1', 'true', 'yes'):
             qs = qs.filter(is_featured=True)
         if q:
-            from django.db.models import Q
-
             qs = qs.filter(
                 Q(name__icontains=q)
                 | Q(short_description__icontains=q)

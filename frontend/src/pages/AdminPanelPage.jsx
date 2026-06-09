@@ -735,7 +735,7 @@ export default function AdminPanelPage() {
       </div>
 
       <label className="block text-xs text-dark-muted">
-        Or upload code as ZIP (merges into code files — .ino, .cpp, .h, .py, etc.)
+        Or bulk-upload as ZIP (optional — use Upload file above for instant preview)
         <input
           type="file"
           accept=".zip,application/zip"

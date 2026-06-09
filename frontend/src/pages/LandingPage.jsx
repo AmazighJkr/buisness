@@ -44,7 +44,7 @@ export default function LandingPage() {
       title: t('landing.svcStore'),
       text: t('landing.svcStoreText'),
       label: t('landing.svcStoreLabel'),
-      to: '/shop',
+      to: '/store',
     },
   ]
 

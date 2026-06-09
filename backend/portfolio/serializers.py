@@ -653,6 +653,8 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
     def _apply_variants(self, instance, variants_data):
         if variants_data is None:
             return
+        request = self.context.get('request')
+        files = getattr(request, 'FILES', {}) if request else {}
         instance.variants.all().delete()
         for index, row in enumerate(variants_data):
             if not isinstance(row, dict):
@@ -660,10 +662,12 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
             name = (row.get('name') or '').strip()
             if not name:
                 continue
+            image = files.get(f'variant_image_{index}')
             StoreProductVariant.objects.create(
                 product=instance,
                 name=name,
                 description=(row.get('description') or '').strip(),
+                image=image or None,
                 sort_order=int(row.get('sort_order') or index),
             )
 

@@ -98,7 +98,7 @@ export function SiteNavMobile() {
               <>
                 <p className="site-nav-drawer-heading mt-3">{t('nav.store')}</p>
                 <Link
-                  to="/shop"
+                  to="/store"
                   onClick={() => setOpen(false)}
                   className="site-nav-drawer-link site-nav-drawer-link--store"
                 >
