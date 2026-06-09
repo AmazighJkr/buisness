@@ -4,7 +4,7 @@ import CategorySidebar from '../components/CategorySidebar.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import ProjectCard from '../components/ProjectCard.jsx'
 import ProjectDetailContent from '../components/ProjectDetailContent.jsx'
-import SearchBar from '../components/SearchBar.jsx'
+import ProjectSearchBar from '../components/ProjectSearchBar.jsx'
 import SidebarRail from '../components/SidebarRail.jsx'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useProjectsSidebar } from '../hooks/useProjectsSidebar.js'
@@ -28,6 +28,8 @@ export default function ProjectsPage() {
   const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
+  const [searchMatches, setSearchMatches] = useState([])
+  const [loadingMatches, setLoadingMatches] = useState(false)
 
   useEffect(() => {
     setLoadError('')
@@ -73,6 +75,18 @@ export default function ProjectsPage() {
   }, [projectId, project?.model_3d_pending, project?.model_3d_conversion_error])
 
   useEffect(() => {
+    if (!projectId || !searchQuery.trim()) {
+      setSearchMatches([])
+      return
+    }
+    setLoadingMatches(true)
+    fetchProjects(selectedSubId || null, { q: searchQuery.trim() })
+      .then(setSearchMatches)
+      .catch(() => setSearchMatches([]))
+      .finally(() => setLoadingMatches(false))
+  }, [projectId, searchQuery, selectedSubId])
+
+  useEffect(() => {
     if (!projectId || !project?.locked || sessionLoading) return
     if (!isLoggedIn) {
       navigate(accountUrlWithNext(`/projects/${projectId}`), { replace: true })
@@ -106,8 +120,8 @@ export default function ProjectsPage() {
     if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
-  const openProject = (id) => {
-    const p = projects.find((pr) => pr.id === id)
+  const openProject = (id, fromList = projects) => {
+    const p = fromList.find((pr) => pr.id === id)
     if (p?.locked) {
       if (!isLoggedIn) {
         navigate(accountUrlWithNext(`/projects/${id}`))
@@ -121,16 +135,26 @@ export default function ProjectsPage() {
     if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
+  const commitSearch = (q) => {
+    setSearchQuery(q)
+    if (projectId) navigate('/projects')
+  }
+
+  const selectSearchProject = (id) => {
+    openProject(id, [...projects, ...searchMatches])
+  }
+
   return (
     <div className="page-shell flex min-h-screen min-h-[100dvh] flex-col">
       <PageHeader
         highlight="/projects"
         subheader={
-          <SearchBar
+          <ProjectSearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder={t('projects.searchPlaceholder')}
-            ariaLabel={t('projects.searchPlaceholder')}
+            subcategoryId={selectedSubId}
+            onQueryChange={setSearchQuery}
+            onCommit={commitSearch}
+            onProjectSelect={selectSearchProject}
           />
         }
       />
@@ -155,6 +179,31 @@ export default function ProjectsPage() {
           {projectId && project && !project.locked ? (
             <div className="px-3 py-4 sm:px-6 lg:px-8">
               <ProjectDetailContent project={project} onBack={() => navigate('/projects')} />
+              {searchQuery.trim() && (
+                <section className="mt-10 border-t border-dark-border pt-8">
+                  <h2 className="font-display text-lg font-semibold">{t('projects.searchMatches')}</h2>
+                  <p className="mt-1 text-sm text-dark-muted">
+                    {t('projects.title')} — “{searchQuery.trim()}”
+                  </p>
+                  {loadingMatches ? (
+                    <p className="mt-4 text-sm text-dark-muted animate-pulse">{t('common.loading')}</p>
+                  ) : searchMatches.length === 0 ? (
+                    <p className="mt-4 text-sm text-dark-muted">{t('projects.noResults')}</p>
+                  ) : (
+                    <div className="projects-grid mt-4">
+                      {searchMatches.map((p) => (
+                        <div
+                          key={p.id}
+                          onClick={() => openProject(p.id, searchMatches)}
+                          className="projects-grid__item cursor-pointer"
+                        >
+                          <ProjectCard project={p} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
             </div>
           ) : projectId && (sessionLoading || project?.locked) ? (
             <div className="p-6 text-sm text-dark-muted animate-pulse">{t('common.loading')}</div>

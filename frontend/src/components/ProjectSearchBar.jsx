@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Search, X } from 'lucide-react'
-import { fetchStoreProducts } from '../../api/client.js'
-import { useTranslation } from '../../context/LocaleContext.jsx'
+import { fetchProjects } from '../api/client.js'
+import { useTranslation } from '../context/LocaleContext.jsx'
+import { resolveMediaUrl, SCHEMATIC_PLACEHOLDER } from '../utils/mediaUrl.js'
 
 const SUGGEST_LIMIT = 8
 const DEBOUNCE_MS = 280
 
-export default function StoreSearchBar({
+export default function ProjectSearchBar({
   value = '',
-  category = '',
+  subcategoryId = null,
   onCommit,
   onQueryChange,
-  onProductSelect,
+  onProjectSelect,
   placeholder,
 }) {
   const { t } = useTranslation()
@@ -60,7 +61,7 @@ export default function StoreSearchBar({
 
   useEffect(() => {
     const onDocClick = (e) => {
-      const menu = document.getElementById('store-search-suggestions')
+      const menu = document.getElementById('project-search-suggestions')
       if (rootRef.current?.contains(e.target)) return
       if (menu?.contains(e.target)) return
       setOpen(false)
@@ -80,13 +81,13 @@ export default function StoreSearchBar({
         return
       }
       setLoading(true)
-      fetchStoreProducts({ category, q })
+      fetchProjects(subcategoryId || null, { q })
         .then((rows) => setSuggestions((rows || []).slice(0, SUGGEST_LIMIT)))
         .catch(() => setSuggestions([]))
         .finally(() => setLoading(false))
     }, DEBOUNCE_MS)
     return () => window.clearTimeout(debounceRef.current)
-  }, [text, category, onQueryChange])
+  }, [text, subcategoryId, onQueryChange])
 
   const commit = (q) => {
     const trimmed = (q ?? text).trim()
@@ -94,17 +95,17 @@ export default function StoreSearchBar({
     onCommit?.(trimmed)
   }
 
-  const pickProduct = (slug) => {
+  const pickProject = (id) => {
     setOpen(false)
-    onProductSelect?.(slug)
+    onProjectSelect?.(id)
   }
 
-  const ph = placeholder || t('store.searchProducts')
+  const ph = placeholder || t('projects.searchPlaceholder')
   const showMenu = open && menuRect && text.trim().length > 0
 
   const menu = showMenu && (
     <div
-      id="store-search-suggestions"
+      id="project-search-suggestions"
       className="store-search-suggestions"
       style={{ top: menuRect.top, left: menuRect.left, width: menuRect.width }}
       role="listbox"
@@ -113,29 +114,30 @@ export default function StoreSearchBar({
         <p className="store-search-suggestions__empty">{t('common.loading')}</p>
       )}
       {!loading && suggestions.length === 0 && (
-        <p className="store-search-suggestions__empty">{t('store.noProducts')}</p>
+        <p className="store-search-suggestions__empty">{t('projects.noResults')}</p>
       )}
       <ul className="store-search-suggestions__list">
-        {suggestions.map((p) => (
-          <li key={p.id}>
-            <button
-              type="button"
-              role="option"
-              className="store-search-suggestions__item"
-              onClick={() => pickProduct(p.slug)}
-            >
-              {p.image_url && (
-                <img src={p.image_url} alt="" className="store-search-suggestions__thumb" />
-              )}
-              <span className="store-search-suggestions__label">
-                <span className="store-search-suggestions__name">{p.name}</span>
-                {p.category_name && (
-                  <span className="store-search-suggestions__meta">{p.category_name}</span>
-                )}
-              </span>
-            </button>
-          </li>
-        ))}
+        {suggestions.map((p) => {
+          const thumb = resolveMediaUrl(p.cover_url || p.schematic_url) || SCHEMATIC_PLACEHOLDER
+          return (
+            <li key={p.id}>
+              <button
+                type="button"
+                role="option"
+                className="store-search-suggestions__item"
+                onClick={() => pickProject(p.id)}
+              >
+                <img src={thumb} alt="" className="store-search-suggestions__thumb" />
+                <span className="store-search-suggestions__label">
+                  <span className="store-search-suggestions__name">{p.title}</span>
+                  {p.category_name && (
+                    <span className="store-search-suggestions__meta">{p.category_name}</span>
+                  )}
+                </span>
+              </button>
+            </li>
+          )
+        })}
       </ul>
       {text.trim() && (
         <button
@@ -143,7 +145,7 @@ export default function StoreSearchBar({
           className="store-search-suggestions__all"
           onClick={() => commit(text)}
         >
-          {t('store.searchSeeAll', { q: text.trim() })}
+          {t('projects.searchSeeAll', { q: text.trim() })}
         </button>
       )}
     </div>
@@ -179,7 +181,7 @@ export default function StoreSearchBar({
           className="store-search-bar__input"
           aria-label={ph}
           aria-expanded={open}
-          aria-controls="store-search-suggestions"
+          aria-controls="project-search-suggestions"
           autoComplete="off"
         />
         {text ? (

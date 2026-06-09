@@ -20,6 +20,7 @@ export default function ShopPage() {
   const navigate = useNavigate()
   const categoryParam = searchParams.get('category') || ''
   const queryParam = searchParams.get('q') || ''
+  const [liveQ, setLiveQ] = useState(queryParam)
 
   const [sidebarOpen, setSidebarOpen] = useStoreSidebar()
   const { addItem } = useCart()
@@ -35,13 +36,17 @@ export default function ShopPage() {
   const activeCategory =
     categories.find((c) => c.slug === categoryParam)
     || categories.flatMap((c) => c.children || []).find((c) => c.slug === categoryParam)
+  useEffect(() => {
+    setLiveQ(queryParam)
+  }, [queryParam])
+
   const refreshStoreData = () => {
     if (!isAlgeria) return
     fetchStoreCategories().then(setCategories).catch(() => {})
     if (productSlug) {
       fetchStoreProduct(productSlug).then(setProduct).catch(() => setProduct(null))
     } else {
-      fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
+      fetchStoreProducts({ category: categoryParam, q: liveQ.trim() })
         .then(setProducts)
         .catch(() => setProducts([]))
     }
@@ -61,20 +66,35 @@ export default function ShopPage() {
       window.removeEventListener('focus', onFocus)
       window.clearInterval(id)
     }
-  }, [isAlgeria, productSlug, categoryParam, queryParam])
+  }, [isAlgeria, productSlug, categoryParam, liveQ])
+
+  const [searchMatches, setSearchMatches] = useState([])
+  const [loadingMatches, setLoadingMatches] = useState(false)
 
   useEffect(() => {
     if (!isAlgeria || productSlug) return
     setLoadingList(true)
     setError('')
-    fetchStoreProducts({ category: categoryParam, q: queryParam.trim() })
+    fetchStoreProducts({ category: categoryParam, q: liveQ.trim() })
       .then(setProducts)
       .catch((err) => {
         setProducts([])
         setError(err.message || t('store.loadError'))
       })
       .finally(() => setLoadingList(false))
-  }, [isAlgeria, productSlug, categoryParam, queryParam])
+  }, [isAlgeria, productSlug, categoryParam, liveQ, t])
+
+  useEffect(() => {
+    if (!isAlgeria || !productSlug || !liveQ.trim()) {
+      setSearchMatches([])
+      return
+    }
+    setLoadingMatches(true)
+    fetchStoreProducts({ category: categoryParam, q: liveQ.trim() })
+      .then(setSearchMatches)
+      .catch(() => setSearchMatches([]))
+      .finally(() => setLoadingMatches(false))
+  }, [isAlgeria, productSlug, categoryParam, liveQ])
 
   useEffect(() => {
     if (!isAlgeria || !productSlug) {
@@ -124,12 +144,13 @@ export default function ShopPage() {
   }
 
   const commitSearch = (q) => {
+    setLiveQ(q)
     updateParams({ q })
     navigate(`/shop${buildShopQuery(categoryParam, q)}`)
   }
 
   const selectSearchProduct = (slug) => {
-    navigate(`/shop/${slug}${buildShopQuery(categoryParam, queryParam)}`)
+    navigate(`/shop/${slug}${buildShopQuery(categoryParam, liveQ)}`)
   }
 
   const backToList = () => {
@@ -142,7 +163,7 @@ export default function ShopPage() {
     setTimeout(() => setAddedId((cur) => (cur === p.id ? null : cur)), 2200)
   }
 
-  const listQuery = buildShopQuery(categoryParam, queryParam)
+  const listQuery = buildShopQuery(categoryParam, liveQ)
 
   if (!regionLoading && !isAlgeria) {
     return <StoreNotAvailableInRegion />
@@ -155,8 +176,9 @@ export default function ShopPage() {
         highlight={productSlug ? `/shop/${productSlug}` : '/shop'}
         subheader={
           <StoreSearchBar
-            value={queryParam}
+            value={liveQ}
             category={categoryParam}
+            onQueryChange={setLiveQ}
             onCommit={commitSearch}
             onProductSelect={selectSearchProduct}
           />
@@ -187,14 +209,39 @@ export default function ShopPage() {
               loadingProduct ? (
                 <p className="text-sm text-dark-muted animate-pulse">{t('store.loadingProduct')}</p>
               ) : product ? (
-                <StoreProductDetail
-                  product={product}
-                  onBack={backToList}
-                  onAdd={handleAdd}
-                  added={addedId === product.id}
-                  searchQuery={queryParam}
-                  categorySlug={categoryParam}
-                />
+                <>
+                  <StoreProductDetail
+                    product={product}
+                    onBack={backToList}
+                    onAdd={handleAdd}
+                    added={addedId === product.id}
+                    searchQuery={liveQ}
+                    categorySlug={categoryParam}
+                  />
+                  {liveQ.trim() && (
+                    <section className="mt-10 border-t border-dark-border pt-8">
+                      <h2 className="font-display text-lg font-semibold">{t('store.searchMatches')}</h2>
+                      <p className="mt-1 text-sm text-dark-muted">{t('store.resultsFor', { q: liveQ.trim() })}</p>
+                      {loadingMatches ? (
+                        <p className="mt-4 text-sm text-dark-muted animate-pulse">{t('common.loading')}</p>
+                      ) : searchMatches.length === 0 ? (
+                        <p className="mt-4 text-sm text-dark-muted">{t('store.noProducts')}</p>
+                      ) : (
+                        <div className="store-grid store-grid--catalog mt-4">
+                          {searchMatches.map((p) => (
+                            <StoreProductCard
+                              key={p.id}
+                              product={p}
+                              added={addedId === p.id}
+                              onAdd={handleAdd}
+                              linkTo={`/shop/${p.slug}${listQuery}`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  )}
+                </>
               ) : (
                 <div className="panel p-6 text-center">
                   <p className="text-sm text-dark-muted">{error || t('store.notFound')}</p>
@@ -211,8 +258,8 @@ export default function ShopPage() {
                     <p className="mt-1 text-sm text-dark-muted">
                       {activeCategory
                         ? activeCategory.name
-                        : queryParam
-                          ? t('store.resultsFor', { q: queryParam })
+                        : liveQ.trim()
+                          ? t('store.resultsFor', { q: liveQ.trim() })
                           : t('store.defaultSubtitle')}
                     </p>
                   </div>
