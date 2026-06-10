@@ -27,7 +27,6 @@ export default function EmbeddableMedia({ config }) {
             src={src}
             title={label || 'Embedded content'}
             className="absolute inset-0 h-full w-full border-0 bg-white"
-            allowFullScreen
             referrerPolicy="no-referrer-when-downgrade"
             sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-presentation"
             allow="fullscreen; autoplay; clipboard-write"

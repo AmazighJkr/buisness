@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useRef, useLayoutEffect, useEffect, useMemo, useState } from 'react';
+import { Component, Suspense, useRef, useLayoutEffect, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useLoader, useThree, invalidate } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useFBX, useProgress, Html, Environment, ContactShadows } from '@react-three/drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
@@ -26,6 +26,44 @@ const DEFAULT_OBJ_MATERIAL = new THREE.MeshStandardMaterial({
   metalness: 0.12,
   roughness: 0.62,
 });
+
+/** Self-hosted HDRIs — drei presets fetch from raw.githack.com which often times out. */
+const LOCAL_HDRI = {
+  city: '/hdri/potsdamer_platz_1k.hdr',
+};
+
+class EnvironmentErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { failed: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(err) {
+    console.warn('3D environment map failed to load:', err?.message || err);
+  }
+
+  render() {
+    if (this.state.failed) return null;
+    return this.props.children;
+  }
+}
+
+function SceneEnvironment({ preset, background = false }) {
+  if (!preset || preset === 'none') return null;
+  const files = LOCAL_HDRI[preset];
+  if (!files) return null;
+  return (
+    <EnvironmentErrorBoundary>
+      <Suspense fallback={null}>
+        <Environment files={files} background={background} />
+      </Suspense>
+    </EnvironmentErrorBoundary>
+  );
+}
 
 function extensionFromUrl(url) {
   if (!url || typeof url !== 'string') return '';
@@ -530,7 +568,7 @@ const ModelViewer = ({
   keyLightIntensity = 1,
   fillLightIntensity = 0.5,
   rimLightIntensity = 0.8,
-  environmentPreset = 'forest',
+  environmentPreset = 'none',
   enableShadows = true,
   frameloop = 'demand',
   autoFrame = false,
@@ -680,7 +718,7 @@ const ModelViewer = ({
         camera={{ fov: 50, position: [0, 0, camZ], near: 0.01, far: 100 }}
         style={{ touchAction: 'pan-y pinch-zoom' }}
       >
-        {environmentPreset !== 'none' && <Environment preset={environmentPreset} background={false} />}
+        <SceneEnvironment preset={environmentPreset} background={false} />
 
         <ambientLight intensity={ambientIntensity} />
         <directionalLight position={[5, 5, 5]} intensity={keyLightIntensity} castShadow={enableShadows} />

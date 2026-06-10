@@ -12,7 +12,7 @@ export default function SimulationEmbed({ embedUrl, openUrl }) {
             src={embedUrl}
             title="Simulation"
             className="h-full w-full"
-            allowFullScreen
+            allow="fullscreen"
           />
         </div>
       </div>
