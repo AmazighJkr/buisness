@@ -32,26 +32,37 @@ export default function ReviewStars({
   showCount = true,
   className = '',
 }) {
-  if (!count && (rating == null || rating === 0)) return null
+  const reviewCount = Number(count) || 0
+  const avg =
+    rating != null && rating !== '' && Number.isFinite(Number(rating))
+      ? Number(rating)
+      : null
 
-  const avg = rating != null ? Number(rating) : 0
-  const rounded = Math.round(avg * 10) / 10
+  if (reviewCount <= 0 && avg == null) return null
+
+  const rounded = avg != null ? Math.round(avg * 10) / 10 : null
+  const starFill = avg != null ? Math.round(avg) : 0
   const iconClass = size === 'xs' ? 'h-3 w-3' : size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
 
   return (
-    <div className={`review-stars review-stars--readonly ${className}`.trim()} aria-label={`${rounded} out of 5 stars`}>
+    <div
+      className={`review-stars review-stars--readonly ${className}`.trim()}
+      aria-label={
+        avg != null ? `${rounded} out of 5 stars from ${reviewCount} reviews` : `${reviewCount} reviews`
+      }
+    >
       {[1, 2, 3, 4, 5].map((n) => (
         <Star
           key={n}
-          className={`review-stars__icon ${iconClass} ${n <= Math.round(avg) ? 'is-filled' : ''}`}
-          fill={n <= Math.round(avg) ? 'currentColor' : 'none'}
+          className={`review-stars__icon ${iconClass} ${n <= starFill ? 'is-filled' : ''}`}
+          fill={n <= starFill ? 'currentColor' : 'none'}
           aria-hidden
         />
       ))}
-      {showCount && count > 0 && (
+      {showCount && reviewCount > 0 && (
         <span className="review-stars__count">
-          {rounded > 0 ? rounded.toFixed(1) : ''}
-          {count > 0 && ` (${count})`}
+          {rounded != null ? `${rounded.toFixed(1)} ` : ''}
+          ({reviewCount})
         </span>
       )}
     </div>

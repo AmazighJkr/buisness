@@ -19,6 +19,11 @@ export default function StoreProductCard({
   const categoryLabel = product.parent_category_name
     ? `${product.parent_category_name} · ${product.category_name}`
     : product.category_name
+  const reviewCount = Number(product.review_count) || 0
+  const reviewAvg =
+    product.review_avg != null && product.review_avg !== ''
+      ? Number(product.review_avg)
+      : null
 
   return (
     <article className="store-product-card">
@@ -41,7 +46,14 @@ export default function StoreProductCard({
           {categoryLabel && <p className="store-product-card__collection">{categoryLabel}</p>}
           <h2 className="store-product-card__title">{product.name}</h2>
         </Link>
-        <ReviewStars rating={product.review_avg} count={product.review_count} size="xs" className="mt-1" />
+        {(reviewCount > 0 || reviewAvg != null) && (
+          <ReviewStars
+            rating={reviewAvg}
+            count={reviewCount}
+            size="xs"
+            className="store-product-card__reviews mt-1"
+          />
+        )}
         {(product.short_description || product.description) && (
           <p className="store-product-card__desc">
             {product.short_description || product.description}

@@ -138,7 +138,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         from django.db.models import Q
 
         qs = super().get_queryset().annotate(
-            review_count=Count('comments'),
+            review_count=Count('comments', distinct=True),
             review_avg=Avg('comments__rating'),
         )
         sub = self.request.query_params.get('subcategory')
@@ -231,7 +231,7 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
             is_active=True,
             category__is_active=True,
         ).annotate(
-            review_count=Count('comments'),
+            review_count=Count('comments', distinct=True),
             review_avg=Avg('comments__rating'),
         )
         category = self.request.query_params.get('category')

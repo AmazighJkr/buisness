@@ -2640,6 +2640,16 @@ html[data-theme="dark"] .google-continue-btn {
   overflow: hidden;
 }
 
+.store-product-card__reviews {
+  display: flex;
+  width: 100%;
+  min-height: 1rem;
+}
+
+.amazon-product__reviews {
+  display: flex;
+}
+
 .store-product-card__desc {
   margin-top: 0.5rem;
   font-size: 0.75rem;

@@ -346,6 +346,20 @@ async function storeFetch(url) {
   return publicFetch(url, { headers: paymentCountryHeaders() })
 }
 
+function normalizeStoreProduct(product) {
+  if (!product || typeof product !== 'object') return product
+  const count = Number(product.review_count)
+  const avgRaw = product.review_avg
+  return {
+    ...product,
+    review_count: Number.isFinite(count) ? count : 0,
+    review_avg:
+      avgRaw != null && avgRaw !== '' && Number.isFinite(Number(avgRaw))
+        ? Number(avgRaw)
+        : null,
+  }
+}
+
 export async function fetchStoreCategories() {
   const data = await storeFetch(`${API_BASE}/api/store/categories/`)
   return data.results ?? data
@@ -358,7 +372,8 @@ export async function fetchStoreProducts({ category = '', featured = false, q = 
   if (q) params.set('q', q)
   const qs = params.toString()
   const data = await storeFetch(`${API_BASE}/api/store/products/${qs ? `?${qs}` : ''}`)
-  return data.results ?? data
+  const rows = data.results ?? data
+  return Array.isArray(rows) ? rows.map(normalizeStoreProduct) : rows
 }
 
 export function projectBundleDownloadUrl(projectId) {
@@ -370,7 +385,7 @@ export async function fetchStoreProduct(idOrSlug) {
   const data = await storeFetch(
     `${API_BASE}/api/store/products/${encodeURIComponent(idOrSlug)}/`,
   )
-  return data
+  return normalizeStoreProduct(data)
 }
 
 export async function validateStoreCart(items, reservationId = null) {

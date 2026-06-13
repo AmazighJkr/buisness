@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, Mail, MessageSquare, ShoppingBag, Truck } from 'lucide-react'
 import ProductImageGallery from './ProductImageGallery.jsx'
+import ReviewStars from '../ReviewStars.jsx'
 import StoreProductCard from './StoreProductCard.jsx'
 import StoreProductReviews from './StoreProductReviews.jsx'
 import { fetchStoreProducts } from '../../api/client.js'
@@ -67,6 +68,12 @@ export default function StoreProductDetail({
 
         <div className="amazon-product__info-col">
           <h1 className="amazon-product__title">{product.name}</h1>
+          <ReviewStars
+            rating={product.review_avg}
+            count={product.review_count}
+            size="sm"
+            className="amazon-product__reviews mt-2"
+          />
           <p className="amazon-product__brand">
             {t('store.visitCollection')}{' '}
             <Link to={`/shop?category=${encodeURIComponent(product.category_slug || '')}`}>

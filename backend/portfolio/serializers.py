@@ -218,8 +218,8 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
     parent_category_slug = serializers.CharField(
         source='category.parent.slug', read_only=True, default='',
     )
-    review_count = serializers.IntegerField(read_only=True, default=0)
-    review_avg = serializers.FloatField(read_only=True, allow_null=True)
+    review_count = serializers.SerializerMethodField()
+    review_avg = serializers.SerializerMethodField()
 
     class Meta:
         model = StoreProduct
@@ -246,6 +246,19 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
             'sort_order',
             'created_at',
         ]
+
+    def get_review_count(self, obj):
+        if hasattr(obj, 'review_count') and obj.review_count is not None:
+            return int(obj.review_count)
+        return obj.comments.count()
+
+    def get_review_avg(self, obj):
+        avg = getattr(obj, 'review_avg', None)
+        if avg is not None:
+            return round(float(avg), 1)
+        from django.db.models import Avg
+        computed = obj.comments.aggregate(a=Avg('rating'))['a']
+        return round(float(computed), 1) if computed is not None else None
 
     def get_image_url(self, obj):
         return media_url(obj.image)
@@ -274,8 +287,8 @@ class ProjectListSerializer(serializers.ModelSerializer):
     access = serializers.SerializerMethodField()
     locked = serializers.SerializerMethodField()
     required_packs = serializers.SerializerMethodField()
-    review_count = serializers.IntegerField(read_only=True, default=0)
-    review_avg = serializers.FloatField(read_only=True, allow_null=True)
+    review_count = serializers.SerializerMethodField()
+    review_avg = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -299,6 +312,19 @@ class ProjectListSerializer(serializers.ModelSerializer):
             'featured_order',
             'created_at',
         ]
+
+    def get_review_count(self, obj):
+        if hasattr(obj, 'review_count') and obj.review_count is not None:
+            return int(obj.review_count)
+        return obj.comments.count()
+
+    def get_review_avg(self, obj):
+        avg = getattr(obj, 'review_avg', None)
+        if avg is not None:
+            return round(float(avg), 1)
+        from django.db.models import Avg
+        computed = obj.comments.aggregate(a=Avg('rating'))['a']
+        return round(float(computed), 1) if computed is not None else None
 
     def _user(self):
         request = self.context.get('request')
