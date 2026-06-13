@@ -3,6 +3,8 @@ import { ShoppingBag } from 'lucide-react'
 import { useTranslation } from '../../context/LocaleContext.jsx'
 import { formatDzd } from '../../utils/formatMoney.js'
 
+import ReviewStars from '../ReviewStars.jsx'
+
 export default function StoreProductCard({
   product,
   added,
@@ -39,6 +41,7 @@ export default function StoreProductCard({
           {categoryLabel && <p className="store-product-card__collection">{categoryLabel}</p>}
           <h2 className="store-product-card__title">{product.name}</h2>
         </Link>
+        <ReviewStars rating={product.review_avg} count={product.review_count} size="xs" className="mt-1" />
         {(product.short_description || product.description) && (
           <p className="store-product-card__desc">
             {product.short_description || product.description}

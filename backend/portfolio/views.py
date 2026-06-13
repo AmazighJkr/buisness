@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Avg, Count, Prefetch, Q
 from django.utils import timezone
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
@@ -137,7 +137,10 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         from django.db.models import Q
 
-        qs = super().get_queryset()
+        qs = super().get_queryset().annotate(
+            review_count=Count('comments'),
+            review_avg=Avg('comments__rating'),
+        )
         sub = self.request.query_params.get('subcategory')
         featured = self.request.query_params.get('featured')
         q = (self.request.query_params.get('q') or '').strip()
@@ -227,6 +230,9 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         ).prefetch_related('gallery', 'variants').filter(
             is_active=True,
             category__is_active=True,
+        ).annotate(
+            review_count=Count('comments'),
+            review_avg=Avg('comments__rating'),
         )
         category = self.request.query_params.get('category')
         featured = self.request.query_params.get('featured')

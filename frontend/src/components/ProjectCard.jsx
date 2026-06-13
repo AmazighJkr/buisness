@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { ChevronRight, Lock } from 'lucide-react'
 import { resolveMediaUrl, SCHEMATIC_PLACEHOLDER } from '../utils/mediaUrl.js'
 
+import ReviewStars from './ReviewStars.jsx'
+
 export default function ProjectCard({ project }) {
   const [imgFailed, setImgFailed] = useState(false)
   const src = resolveMediaUrl(project.cover_url || project.schematic_url)
@@ -32,6 +34,7 @@ export default function ProjectCard({ project }) {
       <div className="project-card__body flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h3 className="project-card__title truncate text-sm font-medium">{project.title}</h3>
+          <ReviewStars rating={project.review_avg} count={project.review_count} size="xs" />
           <p className="project-card__desc mt-1 line-clamp-2 text-xs text-dark-muted">
             {project.description}
           </p>

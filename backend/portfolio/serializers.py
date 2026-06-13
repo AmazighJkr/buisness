@@ -218,6 +218,8 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
     parent_category_slug = serializers.CharField(
         source='category.parent.slug', read_only=True, default='',
     )
+    review_count = serializers.IntegerField(read_only=True, default=0)
+    review_avg = serializers.FloatField(read_only=True, allow_null=True)
 
     class Meta:
         model = StoreProduct
@@ -239,6 +241,8 @@ class StoreProductPublicSerializer(serializers.ModelSerializer):
             'category_slug',
             'parent_category_name',
             'parent_category_slug',
+            'review_count',
+            'review_avg',
             'sort_order',
             'created_at',
         ]
@@ -270,6 +274,8 @@ class ProjectListSerializer(serializers.ModelSerializer):
     access = serializers.SerializerMethodField()
     locked = serializers.SerializerMethodField()
     required_packs = serializers.SerializerMethodField()
+    review_count = serializers.IntegerField(read_only=True, default=0)
+    review_avg = serializers.FloatField(read_only=True, allow_null=True)
 
     class Meta:
         model = Project
@@ -288,6 +294,8 @@ class ProjectListSerializer(serializers.ModelSerializer):
             'access',
             'locked',
             'required_packs',
+            'review_count',
+            'review_avg',
             'featured_order',
             'created_at',
         ]
@@ -484,10 +492,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return value[:120]
 
     def validate_text(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError('Comment cannot be empty.')
-        return value
+        return (value or '').strip()
 
     def validate_rating(self, value):
         if value is None:
@@ -495,6 +500,11 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         if value < 1 or value > 5:
             raise serializers.ValidationError('Rating must be between 1 and 5.')
         return value
+
+    def validate(self, attrs):
+        if not attrs.get('text') and not attrs.get('rating'):
+            raise serializers.ValidationError('Provide a star rating, written review, or both.')
+        return attrs
 
 
 class CommentAdminUpdateSerializer(serializers.ModelSerializer):
@@ -503,10 +513,7 @@ class CommentAdminUpdateSerializer(serializers.ModelSerializer):
         fields = ['author_name', 'text', 'rating']
 
     def validate_text(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError('Comment cannot be empty.')
-        return value
+        return (value or '').strip()
 
     def validate_rating(self, value):
         if value is None:
@@ -514,6 +521,15 @@ class CommentAdminUpdateSerializer(serializers.ModelSerializer):
         if value < 1 or value > 5:
             raise serializers.ValidationError('Rating must be between 1 and 5.')
         return value
+
+    def validate(self, attrs):
+        text = attrs.get('text', getattr(self.instance, 'text', ''))
+        text = (text or '').strip()
+        rating = attrs.get('rating', getattr(self.instance, 'rating', None))
+        if not text and not rating:
+            raise serializers.ValidationError('Provide a star rating, written review, or both.')
+        attrs['text'] = text
+        return attrs
 
 
 class StoreProductCommentSerializer(serializers.ModelSerializer):
@@ -534,10 +550,7 @@ class StoreProductCommentCreateSerializer(serializers.ModelSerializer):
         return value[:120]
 
     def validate_text(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError('Review cannot be empty.')
-        return value
+        return (value or '').strip()
 
     def validate_rating(self, value):
         if value is None:
@@ -545,6 +558,11 @@ class StoreProductCommentCreateSerializer(serializers.ModelSerializer):
         if value < 1 or value > 5:
             raise serializers.ValidationError('Rating must be between 1 and 5.')
         return value
+
+    def validate(self, attrs):
+        if not attrs.get('text') and not attrs.get('rating'):
+            raise serializers.ValidationError('Provide a star rating, written review, or both.')
+        return attrs
 
 
 class StoreProductCommentAdminUpdateSerializer(serializers.ModelSerializer):
@@ -553,10 +571,7 @@ class StoreProductCommentAdminUpdateSerializer(serializers.ModelSerializer):
         fields = ['author_name', 'text', 'rating']
 
     def validate_text(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError('Review cannot be empty.')
-        return value
+        return (value or '').strip()
 
     def validate_rating(self, value):
         if value is None:
@@ -564,6 +579,15 @@ class StoreProductCommentAdminUpdateSerializer(serializers.ModelSerializer):
         if value < 1 or value > 5:
             raise serializers.ValidationError('Rating must be between 1 and 5.')
         return value
+
+    def validate(self, attrs):
+        text = attrs.get('text', getattr(self.instance, 'text', ''))
+        text = (text or '').strip()
+        rating = attrs.get('rating', getattr(self.instance, 'rating', None))
+        if not text and not rating:
+            raise serializers.ValidationError('Provide a star rating, written review, or both.')
+        attrs['text'] = text
+        return attrs
 
 
 class CategoryAdminSerializer(serializers.ModelSerializer):

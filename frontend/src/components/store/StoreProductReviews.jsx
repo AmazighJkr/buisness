@@ -32,6 +32,7 @@ export default function StoreProductReviews({ productId }) {
         namePlaceholder={t('reviews.namePlaceholder')}
         textPlaceholder={t('reviews.textPlaceholder')}
         submitLabel={t('reviews.submit')}
+        needRatingOrText={t('reviews.needRatingOrText')}
         reviews={initial}
         onSubmit={(body) => postStoreProductComment(productId, body)}
       />

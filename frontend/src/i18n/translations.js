@@ -470,8 +470,9 @@ export const translations = {
       title: 'Customer reviews',
       empty: 'No reviews yet. Be the first to share your experience.',
       namePlaceholder: 'Name (optional)',
-      textPlaceholder: 'Share your experience…',
+      textPlaceholder: 'Share your experience (optional)…',
       submit: 'Post review',
+      needRatingOrText: 'Add a star rating and/or written review.',
     },
     subscriptions: {
       title: 'Subscriptions',
@@ -1076,8 +1077,9 @@ export const translations = {
       title: 'Avis clients',
       empty: 'Pas encore d’avis. Soyez le premier à partager votre expérience.',
       namePlaceholder: 'Nom (optionnel)',
-      textPlaceholder: 'Partagez votre expérience…',
+      textPlaceholder: 'Partagez votre expérience (optionnel)…',
       submit: 'Publier l’avis',
+      needRatingOrText: 'Ajoutez une note et/ou un commentaire.',
     },
     subscriptions: {
       title: 'Abonnements',

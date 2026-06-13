@@ -12,6 +12,7 @@ export default function ProjectComments({ projectId, initial = [] }) {
       namePlaceholder={t('reviews.namePlaceholder')}
       textPlaceholder={t('reviews.textPlaceholder')}
       submitLabel={t('reviews.submit')}
+      needRatingOrText={t('reviews.needRatingOrText')}
       reviews={initial}
       onSubmit={(body) => postComment(projectId, body)}
     />

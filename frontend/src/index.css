@@ -2443,6 +2443,43 @@ html[data-theme="dark"] .google-continue-btn {
   cursor: default;
 }
 
+.review-stars {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.review-stars--readonly {
+  gap: 0.1rem;
+}
+
+.review-stars__star,
+.review-stars__icon {
+  color: var(--eg-muted);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.review-stars__star.is-filled,
+.review-stars__icon.is-filled {
+  color: var(--eg-warning);
+}
+
+.review-stars__star:disabled {
+  cursor: default;
+}
+
+.review-stars__count {
+  margin-left: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--eg-muted);
+  font-weight: 500;
+}
+
 .store-product-variants {
   display: flex;
   flex-wrap: wrap;

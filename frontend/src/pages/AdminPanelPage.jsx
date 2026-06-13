@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Cpu, LogOut, Plus, Search } from 'lucide-react'
 import AdminProjectComments from '../components/admin/AdminProjectComments.jsx'
+import ThemeToggle from '../components/ThemeToggle.jsx'
 import {
   adminCreateProject,
   adminDeleteComment,
