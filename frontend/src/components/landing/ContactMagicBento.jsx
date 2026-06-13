@@ -9,7 +9,6 @@ export default function ContactMagicBento() {
 
   const cards = [
     {
-      color: '#0c1017',
       label: t('landing.contactEmail'),
       title: CONTACT.email,
       description: t('landing.contactBentoEmailHint'),
@@ -17,7 +16,6 @@ export default function ContactMagicBento() {
       external: false,
     },
     {
-      color: '#111827',
       label: 'Discord',
       title: t('landing.contactDiscord'),
       description: t('landing.contactBentoDiscordHint'),
@@ -25,7 +23,6 @@ export default function ContactMagicBento() {
       external: true,
     },
     {
-      color: '#0f172a',
       label: 'WhatsApp',
       title: t('landing.contactWhatsapp'),
       description: t('landing.contactBentoWhatsappHint'),
@@ -33,7 +30,6 @@ export default function ContactMagicBento() {
       external: true,
     },
     {
-      color: '#0c1017',
       label: t('nav.submitCommand'),
       title: t('landing.contactCommandTitle'),
       description: t('landing.contactCommandHint'),

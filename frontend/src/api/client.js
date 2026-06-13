@@ -523,6 +523,20 @@ export async function postComment(projectId, body) {
   return handleResponse(res)
 }
 
+export async function fetchStoreProductComments(productId) {
+  const data = await publicFetch(`${API_BASE}/api/store/products/${productId}/comments/`)
+  return Array.isArray(data) ? data : data.results ?? data
+}
+
+export async function postStoreProductComment(productId, body) {
+  const res = await fetch(`${API_BASE}/api/store/products/${productId}/comments/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return handleResponse(res)
+}
+
 export async function fetchCommandLayers() {
   const data = await publicFetch(`${API_BASE}/api/commands/layers/`)
   return Array.isArray(data) ? data : data.results ?? data
@@ -1008,8 +1022,31 @@ export async function adminFetchComments() {
   return data.results ?? data
 }
 
+export async function adminUpdateComment(id, body) {
+  return adminRequest(`${API_BASE}/api/admin/comments/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
 export async function adminDeleteComment(id) {
   return adminRequest(`${API_BASE}/api/admin/comments/${id}/`, { method: 'DELETE' })
+}
+
+export async function adminFetchStoreComments() {
+  const data = await adminRequest(`${API_BASE}/api/admin/store/comments/`)
+  return data.results ?? data
+}
+
+export async function adminUpdateStoreComment(id, body) {
+  return adminRequest(`${API_BASE}/api/admin/store/comments/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function adminDeleteStoreComment(id) {
+  return adminRequest(`${API_BASE}/api/admin/store/comments/${id}/`, { method: 'DELETE' })
 }
 
 export async function adminFetchCategories() {

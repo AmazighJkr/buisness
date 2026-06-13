@@ -1,11 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import MagicBento from '../reactbits/MagicBento.jsx'
 
-const BENTO_COLORS = ['#0c1017', '#111827', '#0f172a', '#0c1017', '#111827', '#0f172a']
-
-export function pillarToBentoCard({ title, text, handle }, index) {
+export function pillarToBentoCard({ title, text, handle }) {
   return {
-    color: BENTO_COLORS[index % BENTO_COLORS.length],
     label: handle || 'Enterprise',
     title,
     description: text,
@@ -14,7 +11,6 @@ export function pillarToBentoCard({ title, text, handle }, index) {
 
 export function serviceToBentoCard({ title, text, label, to }, index) {
   return {
-    color: BENTO_COLORS[index % BENTO_COLORS.length],
     label: label || 'Services',
     title,
     description: text,

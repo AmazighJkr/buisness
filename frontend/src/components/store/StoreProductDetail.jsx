@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Check, Mail, MessageSquare, ShoppingBag, Truck } from 'lucide-react'
 import ProductImageGallery from './ProductImageGallery.jsx'
 import StoreProductCard from './StoreProductCard.jsx'
+import StoreProductReviews from './StoreProductReviews.jsx'
 import { fetchStoreProducts } from '../../api/client.js'
 import { useTranslation } from '../../context/LocaleContext.jsx'
 import { formatDzd } from '../../utils/formatMoney.js'
@@ -209,6 +210,8 @@ export default function StoreProductDetail({
           </a>
         </div>
       </section>
+
+      <StoreProductReviews productId={product.id} />
 
       <button
         type="button"

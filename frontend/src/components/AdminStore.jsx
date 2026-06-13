@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { adminFetchStoreCategories, adminFetchStoreProducts } from '../api/client.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
+import AdminStoreComments from './admin/AdminStoreComments.jsx'
 import AdminShippingPostal from './admin/AdminShippingPostal.jsx'
 import AdminStoreCategories from './admin/AdminStoreCategories.jsx'
 import AdminStoreManageProducts from './admin/AdminStoreManageProducts.jsx'
@@ -14,6 +15,7 @@ export default function AdminStore({ canPost = true, canEdit = true }) {
         canEdit && { id: 'categories', label: t('adminStore.categories') },
         canPost && { id: 'add', label: t('adminStore.addProduct') },
         canEdit && { id: 'manage', label: t('adminStore.manageProducts') },
+        canEdit && { id: 'comments', label: t('adminStoreComments.tab') },
         canEdit && { id: 'shipping', label: t('adminStore.shippingPostal') },
       ].filter(Boolean),
     [canEdit, canPost, t],
@@ -116,6 +118,7 @@ export default function AdminStore({ canPost = true, canEdit = true }) {
               onMessage={onMessage}
             />
           )}
+          {view === 'comments' && <AdminStoreComments onMessage={onMessage} />}
           {view === 'shipping' && <AdminShippingPostal onMessage={onMessage} />}
         </>
       )}

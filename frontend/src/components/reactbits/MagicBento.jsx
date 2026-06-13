@@ -507,9 +507,9 @@ const MagicBento = ({
             --glow-intensity: 0;
             --glow-radius: 200px;
             --glow-color: ${glowColor};
-            --border-color: #2F293A;
-            --background-dark: #120F17;
-            --white: hsl(0, 0%, 100%);
+            --border-color: var(--eg-border, #2F293A);
+            --background-dark: var(--eg-panel, #120F17);
+            --white: var(--eg-text, hsl(0, 0%, 100%));
             --purple-primary: rgba(132, 0, 255, 1);
             --purple-glow: rgba(132, 0, 255, 0.2);
             --purple-border: rgba(132, 0, 255, 0.8);
@@ -672,9 +672,9 @@ const MagicBento = ({
             } ${enableBorderGlow ? 'card--border-glow' : ''}`;
 
             const cardStyle = {
-              backgroundColor: card.color || 'var(--background-dark)',
-              borderColor: 'var(--border-color)',
-              color: 'var(--white)',
+              backgroundColor: card.color || 'var(--eg-panel)',
+              borderColor: 'var(--eg-border)',
+              color: 'var(--eg-text)',
               '--glow-x': '50%',
               '--glow-y': '50%',
               '--glow-intensity': '0',
@@ -695,10 +695,10 @@ const MagicBento = ({
                   enableMagnetism={enableMagnetism}
                   onCardActivate={() => onCardClick?.(card)}
                 >
-                  <div className="card__header flex justify-between gap-3 relative text-white">
+                  <div className="card__header flex justify-between gap-3 relative">
                     <span className="card__label text-base">{card.label}</span>
                   </div>
-                  <div className="card__content flex flex-col relative text-white">
+                  <div className="card__content flex flex-col relative">
                     <h3 className={`card__title font-normal text-base m-0 mb-1 ${textAutoHide ? 'text-clamp-1' : ''}`}>
                       {card.title}
                     </h3>
@@ -840,10 +840,10 @@ const MagicBento = ({
                   el.addEventListener('click', handleClick);
                 }}
               >
-                <div className="card__header flex justify-between gap-3 relative text-white">
+                <div className="card__header flex justify-between gap-3 relative">
                   <span className="card__label text-base">{card.label}</span>
                 </div>
-                <div className="card__content flex flex-col relative text-white">
+                <div className="card__content flex flex-col relative">
                   <h3 className={`card__title font-normal text-base m-0 mb-1 ${textAutoHide ? 'text-clamp-1' : ''}`}>
                     {card.title}
                   </h3>

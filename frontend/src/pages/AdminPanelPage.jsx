@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Cpu, LogOut, Plus, Search } from 'lucide-react'
-import ThemeToggle from '../components/ThemeToggle.jsx'
+import AdminProjectComments from '../components/admin/AdminProjectComments.jsx'
 import {
   adminCreateProject,
   adminDeleteComment,
@@ -472,7 +472,7 @@ export default function AdminPanelPage() {
   if (hasPerm(user, 'view_commands')) tabs.push(['commands', 'Commands'])
   if (staffCanViewContactMessages(user)) tabs.push(['messages', 'Messages'])
   if (staffCanManageLayers(user)) tabs.push(['command-layers', 'Layers'])
-  if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Comments'])
+  if (hasPerm(user, 'moderate_comment')) tabs.push(['comments', 'Project reviews'])
   if (hasPerm(user, 'manage_categories')) tabs.push(['categories', 'Categories'])
   if (hasPerm(user, 'edit_project') || user.is_superuser) tabs.push(['packs', 'Packs'])
   if (staffHasStoreAccess(user)) tabs.push(['store', 'Store'])
@@ -1024,20 +1024,10 @@ export default function AdminPanelPage() {
       )}
 
       {tab === 'comments' && hasPerm(user, 'moderate_comment') && (
-        <ul className="space-y-2 max-w-3xl">
-          {comments.map((c) => (
-            <li key={c.id} className="flex justify-between gap-2 border border-lab-border bg-lab-surface p-3 text-xs">
-              <div>
-                <span className="text-lab-cyan">{c.author_name}</span> on <span className="text-lab-copper">{c.project_title}</span>
-                <p className="text-dark-muted mt-1">{c.text}</p>
-              </div>
-              <button type="button" onClick={async () => {
-                await adminDeleteComment(c.id)
-                setComments(await adminFetchComments())
-              }} className="text-red-400 shrink-0">Delete</button>
-            </li>
-          ))}
-        </ul>
+        <AdminProjectComments
+          comments={comments}
+          onReload={async () => setComments(await adminFetchComments())}
+        />
       )}
 
       {tab === 'users' && user.is_superuser && (

@@ -21,6 +21,7 @@ from .models import (
     SubscriptionPack,
     StoreCategory,
     StoreProduct,
+    StoreProductComment,
     UserSubscription,
 )
 from .staff_audit import log_staff_action, snapshot_instance
@@ -58,6 +59,10 @@ from .serializers import (
     CategoryTreeSerializer,
     CommentCreateSerializer,
     CommentSerializer,
+    CommentAdminUpdateSerializer,
+    StoreProductCommentCreateSerializer,
+    StoreProductCommentSerializer,
+    StoreProductCommentAdminUpdateSerializer,
     CommandLayerPublicSerializer,
     CommandMessageAdminCreateSerializer,
     CommandMessageAdminSerializer,
@@ -162,6 +167,23 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             )
         return build_project_bundle_response(project)
 
+    @action(detail=True, methods=['get', 'post'], url_path='comments')
+    def comments(self, request, id=None):
+        project = self.get_object()
+        if request.method == 'GET':
+            return Response(CommentSerializer(project.comments.all(), many=True).data)
+        serializer = CommentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = request.user if request.user.is_authenticated and not request.user.is_staff else None
+        comment = Comment.objects.create(
+            project=project,
+            user=user,
+            author_name=serializer.validated_data['author_name'],
+            text=serializer.validated_data['text'],
+            rating=serializer.validated_data.get('rating'),
+        )
+        return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
+
 
 class StoreCategoryListView(generics.ListAPIView):
     permission_classes = [AllowAny]
@@ -240,17 +262,20 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=['get', 'post'], url_path='comments')
     def comments(self, request, id=None):
-        project = self.get_object()
+        product = self.get_object()
         if request.method == 'GET':
-            return Response(CommentSerializer(project.comments.all(), many=True).data)
-        serializer = CommentCreateSerializer(data=request.data)
+            return Response(StoreProductCommentSerializer(product.comments.all(), many=True).data)
+        serializer = StoreProductCommentCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        comment = Comment.objects.create(
-            project=project,
+        user = request.user if request.user.is_authenticated and not request.user.is_staff else None
+        comment = StoreProductComment.objects.create(
+            product=product,
+            user=user,
             author_name=serializer.validated_data['author_name'],
             text=serializer.validated_data['text'],
+            rating=serializer.validated_data.get('rating'),
         )
-        return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
+        return Response(StoreProductCommentSerializer(comment).data, status=status.HTTP_201_CREATED)
 
 
 class CommandLayerListView(generics.ListAPIView):
@@ -657,10 +682,25 @@ class AdminCommentListView(generics.ListAPIView):
     permission_classes = [CanDeleteComment]
 
 
-class AdminCommentDestroyView(generics.DestroyAPIView):
-    queryset = Comment.objects.all()
+class AdminCommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.select_related('project').all()
     permission_classes = [CanDeleteComment]
     lookup_field = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method in ('PATCH', 'PUT'):
+            return CommentAdminUpdateSerializer
+        return CommentSerializer
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        log_staff_action(
+            self.request,
+            action='update',
+            resource='comments',
+            object_label=instance.project.title if instance.project_id else str(instance.id),
+            object_id=str(instance.id),
+        )
 
     def perform_destroy(self, instance):
         log_staff_action(
@@ -668,6 +708,44 @@ class AdminCommentDestroyView(generics.DestroyAPIView):
             action='delete',
             resource='comments',
             object_label=instance.project.title if instance.project_id else str(instance.id),
+            object_id=str(instance.id),
+            before={'author': instance.author_name},
+        )
+        super().perform_destroy(instance)
+
+
+class AdminStoreCommentListView(generics.ListAPIView):
+    queryset = StoreProductComment.objects.select_related('product').order_by('-timestamp')[:200]
+    serializer_class = StoreProductCommentSerializer
+    permission_classes = [CanEditStore]
+
+
+class AdminStoreCommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = StoreProductComment.objects.select_related('product').all()
+    permission_classes = [CanEditStore]
+    lookup_field = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method in ('PATCH', 'PUT'):
+            return StoreProductCommentAdminUpdateSerializer
+        return StoreProductCommentSerializer
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        log_staff_action(
+            self.request,
+            action='update',
+            resource='store/comments',
+            object_label=instance.product.name if instance.product_id else str(instance.id),
+            object_id=str(instance.id),
+        )
+
+    def perform_destroy(self, instance):
+        log_staff_action(
+            self.request,
+            action='delete',
+            resource='store/comments',
+            object_label=instance.product.name if instance.product_id else str(instance.id),
             object_id=str(instance.id),
             before={'author': instance.author_name},
         )

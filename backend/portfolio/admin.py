@@ -19,6 +19,7 @@ from .models import (
     StoreOrder,
     StoreOrderItem,
     StoreProduct,
+    StoreProductComment,
     StoreProductImage,
     UserSocialAuth,
     UserSubscription,
@@ -243,10 +244,19 @@ class CommandMessageAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class ProjectCommentAdmin(admin.ModelAdmin):
-    list_display = ('timestamp', 'author_name', 'project', 'user')
+    list_display = ('timestamp', 'author_name', 'project', 'rating', 'user')
     list_filter = ('timestamp', 'project')
     search_fields = ('author_name', 'text', 'project__title', 'user__username', 'user__email')
     autocomplete_fields = ('project', 'user')
+    readonly_fields = ('id', 'timestamp')
+
+
+@admin.register(StoreProductComment)
+class StoreProductCommentAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'author_name', 'product', 'rating', 'user')
+    list_filter = ('timestamp', 'product')
+    search_fields = ('author_name', 'text', 'product__name', 'user__username', 'user__email')
+    autocomplete_fields = ('product', 'user')
     readonly_fields = ('id', 'timestamp')
 
 

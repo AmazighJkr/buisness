@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from '../../context/LocaleContext.jsx'
 import StoreProductCard from './StoreProductCard.jsx'
 import ContactSection from '../landing/ContactSection.jsx'
-import { fetchStoreProducts } from '../../api/client.js'
+import { fetchStoreCategories, fetchStoreProducts } from '../../api/client.js'
 
 const HERO_SLIDES = [
   {
@@ -35,6 +35,7 @@ export default function StoreHome({ onBrowseCategory }) {
   const { t } = useTranslation()
   const [slide, setSlide] = useState(0)
   const [featured, setFeatured] = useState([])
+  const [categories, setCategories] = useState([])
 
   const loadFeatured = () => {
     fetchStoreProducts({ featured: true })
@@ -44,6 +45,9 @@ export default function StoreHome({ onBrowseCategory }) {
 
   useEffect(() => {
     loadFeatured()
+    fetchStoreCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]))
     const id = window.setInterval(loadFeatured, 45000)
     return () => window.clearInterval(id)
   }, [])
@@ -112,6 +116,51 @@ export default function StoreHome({ onBrowseCategory }) {
       </section>
 
       <div className="store-home__inner">
+      {categories.length > 0 && (
+        <section className="store-home-section">
+          <div className="store-home-section__head">
+            <h2 className="store-home-section__title">{t('store.categoriesTitle')}</h2>
+            <Link to="/shop" className="text-sm text-lab-cyan hover:underline">
+              {t('store.viewAll')}
+            </Link>
+          </div>
+          <div className="store-home-categories">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                className="store-home-categories__card panel"
+                onClick={() => onBrowseCategory(cat.slug)}
+              >
+                {cat.image_url ? (
+                  <img src={cat.image_url} alt="" className="store-home-categories__img" />
+                ) : (
+                  <div className="store-home-categories__placeholder" aria-hidden />
+                )}
+                <div className="store-home-categories__body">
+                  <h3 className="store-home-categories__name">{cat.name}</h3>
+                  {cat.description && (
+                    <p className="store-home-categories__desc">{cat.description}</p>
+                  )}
+                  <p className="store-home-categories__count">
+                    {t('store.categoryProductCount', { count: cat.product_count || 0 })}
+                  </p>
+                  {cat.children?.length > 0 && (
+                    <div className="store-home-categories__subs">
+                      {cat.children.slice(0, 4).map((sub) => (
+                        <span key={sub.id} className="store-home-categories__sub">
+                          {sub.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="store-home-section">
         <div className="store-home-section__head">
           <h2 className="store-home-section__title">{t('store.trending')}</h2>

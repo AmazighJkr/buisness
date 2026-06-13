@@ -27,6 +27,7 @@ from .models import (
     StoreOrderItem,
     StorePostalCode,
     StoreProduct,
+    StoreProductComment,
     StoreProductImage,
     StoreProductVariant,
     StaffAuditLog,
@@ -470,13 +471,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'project', 'project_title', 'author_name', 'text', 'timestamp']
+        fields = ['id', 'project', 'project_title', 'author_name', 'text', 'rating', 'timestamp']
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['author_name', 'text']
+        fields = ['author_name', 'text', 'rating']
 
     def validate_author_name(self, value):
         value = (value or '').strip() or 'Guest'
@@ -486,6 +487,82 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError('Comment cannot be empty.')
+        return value
+
+    def validate_rating(self, value):
+        if value is None:
+            return value
+        if value < 1 or value > 5:
+            raise serializers.ValidationError('Rating must be between 1 and 5.')
+        return value
+
+
+class CommentAdminUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['author_name', 'text', 'rating']
+
+    def validate_text(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError('Comment cannot be empty.')
+        return value
+
+    def validate_rating(self, value):
+        if value is None:
+            return value
+        if value < 1 or value > 5:
+            raise serializers.ValidationError('Rating must be between 1 and 5.')
+        return value
+
+
+class StoreProductCommentSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = StoreProductComment
+        fields = ['id', 'product', 'product_name', 'author_name', 'text', 'rating', 'timestamp']
+
+
+class StoreProductCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreProductComment
+        fields = ['author_name', 'text', 'rating']
+
+    def validate_author_name(self, value):
+        value = (value or '').strip() or 'Guest'
+        return value[:120]
+
+    def validate_text(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError('Review cannot be empty.')
+        return value
+
+    def validate_rating(self, value):
+        if value is None:
+            return value
+        if value < 1 or value > 5:
+            raise serializers.ValidationError('Rating must be between 1 and 5.')
+        return value
+
+
+class StoreProductCommentAdminUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreProductComment
+        fields = ['author_name', 'text', 'rating']
+
+    def validate_text(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError('Review cannot be empty.')
+        return value
+
+    def validate_rating(self, value):
+        if value is None:
+            return value
+        if value < 1 or value > 5:
+            raise serializers.ValidationError('Rating must be between 1 and 5.')
         return value
 
 

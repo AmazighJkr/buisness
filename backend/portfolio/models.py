@@ -342,6 +342,11 @@ class Comment(models.Model):
     )
     author_name = models.CharField(max_length=120)
     text = models.TextField()
+    rating = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text='Optional 1–5 star rating',
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -352,6 +357,39 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.author_name} on {self.project.title}'
+
+
+class StoreProductComment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(
+        'StoreProduct',
+        on_delete=models.CASCADE,
+        related_name='comments',
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='store_product_comments',
+    )
+    author_name = models.CharField(max_length=120)
+    text = models.TextField()
+    rating = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text='Optional 1–5 star rating',
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+        permissions = [
+            ('moderate_store_comment', 'Can moderate store product comments'),
+        ]
+
+    def __str__(self):
+        return f'{self.author_name} on {self.product.name}'
 
 
 class SubscriptionPack(models.Model):
