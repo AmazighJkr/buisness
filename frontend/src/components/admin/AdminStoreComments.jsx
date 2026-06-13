@@ -3,8 +3,8 @@ import {
   adminDeleteStoreComment,
   adminFetchStoreComments,
   adminUpdateStoreComment,
-} from '../api/client.js'
-import { useTranslation } from '../context/LocaleContext.jsx'
+} from '../../api/client.js'
+import { useTranslation } from '../../context/LocaleContext.jsx'
 
 export default function AdminStoreComments({ onMessage }) {
   const { t } = useTranslation()

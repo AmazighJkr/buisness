@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { adminDeleteComment, adminUpdateComment } from '../api/client.js'
-import { useTranslation } from '../context/LocaleContext.jsx'
+import { adminDeleteComment, adminUpdateComment } from '../../api/client.js'
+import { useTranslation } from '../../context/LocaleContext.jsx'
 
 export default function AdminProjectComments({ comments, onReload }) {
   const { t } = useTranslation()
