@@ -8,7 +8,7 @@ export default function CommandStatusBar({ status }) {
   return (
     <div>
       <p className="mb-3 text-sm text-dark-muted">
-        {t('command.devStatus')}:{' '}
+        {t('command.workflowStatus')}:{' '}
         <span className="text-dark-text">{statusLabel(status, t)}</span>
       </p>
       <ol className="flex flex-wrap gap-2">

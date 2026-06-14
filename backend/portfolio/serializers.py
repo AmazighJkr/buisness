@@ -17,6 +17,7 @@ from .models import (
     CommandLayer,
     CommandLayerBundle,
     CommandMessage,
+    CommandInvoice,
     ContactMessage,
     Project,
     ProjectCategory,
@@ -397,6 +398,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'description',
+            'content_blocks',
             'subcategory_name',
             'category_name',
             'is_free',
@@ -1086,6 +1088,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
     schematic_url = serializers.SerializerMethodField(read_only=True)
     pack_ids = serializers.SerializerMethodField(read_only=True)
     pack_ids_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    content_blocks_json = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Project
@@ -1094,6 +1097,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             'subcategory',
             'title',
             'description',
+            'content_blocks',
+            'content_blocks_json',
             'materials',
             'wiring',
             'materials_json',
@@ -1278,6 +1283,36 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             return
         schedule_model_3d_conversion(instance.pk)
 
+    def _apply_block_image_uploads(self, instance):
+        request = self.context.get('request')
+        if not request or not hasattr(request, 'FILES'):
+            return
+        blocks = list(instance.content_blocks or [])
+        if not blocks:
+            return
+        from django.core.files.storage import default_storage
+
+        changed = False
+        prefix = 'block_image_'
+        for key, upload in request.FILES.items():
+            if not key.startswith(prefix):
+                continue
+            block_id = key[len(prefix):]
+            saved_name = default_storage.save(
+                f'project_blocks/{instance.pk}/{block_id}_{upload.name}',
+                upload,
+            )
+            url = default_storage.url(saved_name)
+            if url and not url.startswith('http'):
+                url = request.build_absolute_uri(url)
+            for block in blocks:
+                if str(block.get('id')) == block_id:
+                    block['image_url'] = url
+                    changed = True
+        if changed:
+            instance.content_blocks = blocks
+            instance.save(update_fields=['content_blocks', 'updated_at'])
+
     def create(self, validated_data):
         pack_ids = validated_data.pop('pack_ids', None)
         validated_data = self._merge_request_files(validated_data)
@@ -1287,6 +1322,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         self._verify_cover_saved(instance)
         self._verify_schematic_saved(instance)
         self._convert_model_3d(instance, bool(had_model))
+        self._apply_block_image_uploads(instance)
         return instance
 
     def update(self, instance, validated_data):
@@ -1303,6 +1339,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         self._verify_cover_saved(instance)
         self._verify_schematic_saved(instance)
         self._convert_model_3d(instance, uploaded_new)
+        self._apply_block_image_uploads(instance)
         return instance
 
     def validate(self, attrs):
@@ -1348,6 +1385,16 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'pack_ids_json': 'Must be a list.'})
             attrs['pack_ids'] = parsed
         attrs.pop('pack_ids_json', None)
+        if 'content_blocks_json' in self.initial_data:
+            raw = self.initial_data.get('content_blocks_json', '[]')
+            try:
+                parsed = json.loads(raw) if raw else []
+            except json.JSONDecodeError as exc:
+                raise serializers.ValidationError({'content_blocks_json': 'Invalid blocks.'}) from exc
+            if not isinstance(parsed, list):
+                raise serializers.ValidationError({'content_blocks_json': 'Must be a list.'})
+            attrs['content_blocks'] = parsed
+        attrs.pop('content_blocks_json', None)
         materials = attrs.get('materials')
         if materials is not None:
             self._validate_material_store_products(materials)
@@ -1584,7 +1631,53 @@ class ProjectCommandCreateSerializer(serializers.ModelSerializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError('Please describe your project idea.')
-        return value
+        return attrs
+
+
+class CommandInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommandInvoice
+        fields = [
+            'id',
+            'command',
+            'title',
+            'line_items',
+            'notes',
+            'total_usd',
+            'total_dzd',
+            'status',
+            'sent_at',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'command', 'total_usd', 'total_dzd', 'status', 'sent_at', 'created_at', 'updated_at']
+
+
+class CommandInvoiceWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommandInvoice
+        fields = ['title', 'line_items', 'notes']
+
+    def validate_line_items(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError('Line items must be a list.')
+        cleaned = []
+        for row in value:
+            if not isinstance(row, dict):
+                continue
+            label = (row.get('label') or '').strip()
+            if not label:
+                continue
+            cleaned.append({
+                'label': label[:200],
+                'description': (row.get('description') or '').strip()[:2000],
+                'qty': max(1, int(row.get('qty') or 1)),
+                'unit_usd': str(row.get('unit_usd') or '0'),
+                'unit_dzd': str(row.get('unit_dzd') or '0'),
+            })
+        if not cleaned:
+            raise serializers.ValidationError('Add at least one line item.')
+        return cleaned
 
 
 class CommandMessagePublicSerializer(serializers.ModelSerializer):
@@ -1648,6 +1741,7 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     messages = CommandMessagePublicSerializer(many=True, read_only=True)
+    invoices = CommandInvoiceSerializer(many=True, read_only=True)
     payment_due = serializers.SerializerMethodField()
 
     class Meta:
@@ -1670,9 +1764,11 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
             'payment_status',
             'payment_due',
             'accepted_at',
+            'paid_at',
             'created_at',
             'responded_at',
             'messages',
+            'invoices',
         ]
 
     def get_payment_due(self, obj):
@@ -1680,11 +1776,7 @@ class ProjectCommandTrackSerializer(serializers.ModelSerializer):
             (obj.quoted_price and obj.quoted_price > 0)
             or (obj.quoted_price_dzd and obj.quoted_price_dzd > 0)
         )
-        return (
-            obj.status == ProjectCommand.Status.ACCEPTED
-            and has_bill
-            and obj.payment_status == ProjectCommand.PaymentStatus.PENDING
-        )
+        return has_bill and obj.payment_status == ProjectCommand.PaymentStatus.PENDING
 
 
 class ProjectCommandTrackBriefSerializer(serializers.ModelSerializer):
@@ -1697,6 +1789,7 @@ class ProjectCommandTrackBriefSerializer(serializers.ModelSerializer):
             'tracking_code',
             'client_name',
             'status',
+            'payment_status',
             'created_at',
             'idea_preview',
         ]
@@ -1718,6 +1811,7 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     messages = CommandMessageAdminSerializer(many=True, read_only=True)
+    invoices = CommandInvoiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProjectCommand
@@ -1741,11 +1835,13 @@ class ProjectCommandAdminSerializer(serializers.ModelSerializer):
             'quoted_price',
             'quoted_price_dzd',
             'payment_status',
+            'paid_at',
             'accepted_at',
             'staff_response',
             'responded_at',
             'responded_by_name',
             'messages',
+            'invoices',
             'created_at',
         ]
 

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Cpu, LogOut, Plus, Search } from 'lucide-react'
 import AdminProjectComments from '../components/admin/AdminProjectComments.jsx'
+import AdminCommandInvoice from '../components/AdminCommandInvoice.jsx'
+import CommandPaymentStatusBar from '../components/CommandPaymentStatusBar.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import {
   adminCreateProject,
@@ -42,44 +44,36 @@ import AdminStore from '../components/AdminStore.jsx'
 import AdminLegal from '../components/admin/AdminLegal.jsx'
 import AdminStoreOrders from '../components/AdminStoreOrders.jsx'
 import PageHeader from '../components/PageHeader.jsx'
-import CodeFilesEditor from '../components/CodeFilesEditor.jsx'
 import CommandComposer from '../components/CommandComposer.jsx'
 import CommandLayersSummary from '../components/CommandLayersSummary.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
-import EditableRows from '../components/EditableRows.jsx'
-import ProjectMaterialsEditor, { EMPTY_MATERIAL_ROW } from '../components/admin/ProjectMaterialsEditor.jsx'
+import ProjectBlocksEditor from '../components/admin/ProjectBlocksEditor.jsx'
+import { blocksFromLegacy, newBlock } from '../utils/projectBlocks.js'
 import { COMMAND_STATUSES, PAYMENT_STATUSES } from '../constants/commandStatus.js'
 
-const EMPTY_MAT = { ...EMPTY_MATERIAL_ROW }
-const EMPTY_WIRE = { from_pin: '', to_pin: '', notes: '' }
-const EMPTY_CODE = { title: '', code: '' }
+const EMPTY_MAT = { component: '', quantity: '1', notes: '', store_product_id: '', amazon_url: '' }
 
-function normalizeUrl(raw) {
-  const v = (raw || '').trim()
-  if (!v) return ''
-  return /^https?:\/\//i.test(v) ? v : `https://${v}`
-}
-
-function buildProjectFormData(form, materials, wiring, codeFiles, cover, schematic, model3d, codeArchive, packIds) {
+function buildProjectFormData(form, contentBlocks, blockFiles, cover, model3d, codeArchive, packIds) {
   const fd = new FormData()
   fd.append('subcategory', form.subcategory)
   fd.append('is_featured', form.is_featured ? 'true' : 'false')
   fd.append('is_free', form.is_free ? 'true' : 'false')
   fd.append('featured_order', String(form.featured_order || 0))
   fd.append('title', form.title)
-  fd.append('description', form.description)
-  fd.append('libraries', form.libraries)
-  fd.append(
-    'code_files_json',
-    JSON.stringify(codeFiles.filter((f) => f.title?.trim() || f.code?.trim())),
-  )
-  fd.append('materials_json', JSON.stringify(materials.filter((r) => r.component?.trim())))
-  fd.append('wiring_json', JSON.stringify(wiring.filter((r) => r.from_pin?.trim() || r.to_pin?.trim())))
-  fd.append('simulation_url', normalizeUrl(form.simulation_url) || '')
-  fd.append('video_url', normalizeUrl(form.video_url) || '')
+  const firstRich = contentBlocks.find((b) => b.type === 'rich_text' && b.html?.trim())
+  fd.append('description', firstRich ? firstRich.html.replace(/<[^>]+>/g, ' ').trim() : form.description || '')
+  fd.append('libraries', form.libraries || '')
+  fd.append('content_blocks_json', JSON.stringify(contentBlocks))
+  Object.entries(blockFiles || {}).forEach(([blockId, file]) => {
+    if (file) fd.append(`block_image_${blockId}`, file)
+  })
+  fd.append('code_files_json', '[]')
+  fd.append('materials_json', '[]')
+  fd.append('wiring_json', '[]')
+  fd.append('simulation_url', '')
+  fd.append('video_url', '')
   fd.append('pack_ids_json', JSON.stringify(packIds || []))
   if (cover) fd.append('cover_image', cover)
-  if (schematic) fd.append('schematic_image', schematic)
   if (model3d) fd.append('model_3d_file', model3d)
   if (codeArchive) fd.append('code_archive', codeArchive)
   return fd
@@ -116,13 +110,10 @@ export default function AdminPanelPage() {
     is_free: false,
     featured_order: 0,
   })
-  const [materials, setMaterials] = useState([{ ...EMPTY_MAT }])
-  const [wiring, setWiring] = useState([])
-  const [codeFiles, setCodeFiles] = useState([{ ...EMPTY_CODE }])
+  const [contentBlocks, setContentBlocks] = useState([newBlock('rich_text')])
+  const [blockFiles, setBlockFiles] = useState({})
   const [cover, setCover] = useState(null)
   const [existingCoverUrl, setExistingCoverUrl] = useState('')
-  const [schematic, setSchematic] = useState(null)
-  const [existingSchematicUrl, setExistingSchematicUrl] = useState('')
   const [model3d, setModel3d] = useState(null)
   const [codeArchive, setCodeArchive] = useState(null)
   const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
@@ -235,13 +226,10 @@ export default function AdminPanelPage() {
       is_free: false,
       featured_order: 0,
     })
-    setMaterials([{ ...EMPTY_MAT }])
-    setWiring([])
-    setCodeFiles([{ ...EMPTY_CODE }])
+    setContentBlocks([newBlock('rich_text')])
+    setBlockFiles({})
     setCover(null)
     setExistingCoverUrl('')
-    setSchematic(null)
-    setExistingSchematicUrl('')
     setModel3d(null)
     setCodeArchive(null)
     setExistingModel3dUrl('')
@@ -261,11 +249,14 @@ export default function AdminPanelPage() {
       setSubmitting(false)
       return
     }
-    const fileErr = validateUploadFile(schematic, 'Schematic image')
-    if (fileErr) {
-      setMsg({ type: 'error', text: fileErr })
-      setSubmitting(false)
-      return
+    for (const file of Object.values(blockFiles)) {
+      if (!file) continue
+      const err = validateUploadFile(file, 'Block image')
+      if (err) {
+        setMsg({ type: 'error', text: err })
+        setSubmitting(false)
+        return
+      }
     }
     const modelErr = validateModel3dFile(model3d, '3D model')
     if (modelErr) {
@@ -275,7 +266,7 @@ export default function AdminPanelPage() {
     }
     try {
       const fd = buildProjectFormData(
-        form, materials, wiring, codeFiles, cover, schematic, model3d, codeArchive, selectedPackIds,
+        form, contentBlocks, blockFiles, cover, model3d, codeArchive, selectedPackIds,
       )
       const converting3d = Boolean(model3d)
       const isGlbUpload = converting3d && /\.(glb|gltf)$/i.test(model3d.name)
@@ -325,32 +316,37 @@ export default function AdminPanelPage() {
     })
     setCover(null)
     setExistingCoverUrl(p.cover_url || '')
-    setSchematic(null)
-    setExistingSchematicUrl(p.schematic_url || '')
     setModel3d(null)
     setExistingModel3dUrl(p.model_3d_url || '')
     setExistingModel3dPending(!!p.model_3d_pending)
     setExistingModel3dConversionError(p.model_3d_conversion_error || '')
     setSelectedPackIds(p.pack_ids || [])
-    setMaterials(
-      p.materials?.length
-        ? p.materials.map((r) => ({
-            component: r.component || r.part || '',
-            quantity: String(r.quantity ?? r.qty ?? '1'),
-            notes: r.notes || '',
-            store_product_id: r.store_product_id || '',
-            amazon_url: r.amazon_url || '',
-          }))
-        : [{ ...EMPTY_MAT }],
+    const legacyMaterials = p.materials?.length
+      ? p.materials.map((r) => ({
+          component: r.component || r.part || '',
+          quantity: String(r.quantity ?? r.qty ?? '1'),
+          notes: r.notes || '',
+          store_product_id: r.store_product_id || '',
+          amazon_url: r.amazon_url || '',
+        }))
+      : [{ ...EMPTY_MAT }]
+    const legacyWiring = p.wiring || []
+    const legacyCode = p.code_files?.length
+      ? p.code_files
+      : p.source_code?.trim()
+        ? [{ title: 'main', code: p.source_code }]
+        : [{ title: 'main', code: '' }]
+    setContentBlocks(
+      p.content_blocks?.length
+        ? p.content_blocks
+        : blocksFromLegacy(p, legacyMaterials, legacyWiring, legacyCode, {
+            description: p.description || '',
+            libraries: p.libraries || '',
+            simulation_url: p.simulation_url || '',
+            video_url: p.video_url || '',
+          }),
     )
-    setWiring(p.wiring || [])
-    setCodeFiles(
-      p.code_files?.length
-        ? p.code_files
-        : p.source_code?.trim()
-          ? [{ title: 'main', code: p.source_code }]
-          : [{ ...EMPTY_CODE }],
-    )
+    setBlockFiles({})
     setTab('post')
     window.scrollTo(0, 0)
   }
@@ -576,24 +572,19 @@ export default function AdminPanelPage() {
       <input required placeholder="Title *" value={form.title} onChange={update('title')}
         className="w-full border border-theme-border bg-theme-bg px-3 py-2 text-sm" />
 
-      <textarea required rows={4} placeholder="Description *" value={form.description} onChange={update('description')}
-        className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
-
-      <ProjectMaterialsEditor rows={materials} onChange={setMaterials} />
-
-      <div>
-        <p className="mb-2 text-xs text-dark-muted">Wiring (optional)</p>
-        <EditableRows
-          columns={[
-            { key: 'from_pin', label: 'From' },
-            { key: 'to_pin', label: 'To' },
-            { key: 'notes', label: 'Notes' },
-          ]}
-          rows={wiring}
-          onChange={setWiring}
-          emptyRow={EMPTY_WIRE}
-        />
-      </div>
+      <ProjectBlocksEditor
+        blocks={contentBlocks}
+        onChange={setContentBlocks}
+        blockFiles={blockFiles}
+        onBlockFileChange={(blockId, file) =>
+          setBlockFiles((prev) => {
+            const next = { ...prev }
+            if (file) next[blockId] = file
+            else delete next[blockId]
+            return next
+          })
+        }
+      />
 
       <label className="block text-xs text-dark-muted">
         Cover image — project card thumbnail (PNG/JPG/WebP, max 5 MB)
@@ -622,38 +613,6 @@ export default function AdminPanelPage() {
           <span className="mt-1 block text-[10px] text-lab-cyan">Cover on server — upload to replace</span>
         )}
       </label>
-
-      <label className="block text-xs text-dark-muted">
-        Schematic / wiring diagram — detail page only (PNG/JPG/WebP, max 5 MB)
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
-          className="mt-1 block w-full text-xs"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null
-            const err = validateUploadFile(file, 'Schematic image')
-            if (err) {
-              setMsg({ type: 'error', text: err })
-              e.target.value = ''
-              setSchematic(null)
-              return
-            }
-            setSchematic(file)
-          }}
-        />
-        {schematic && (
-          <span className="mt-1 block text-[10px] text-lab-cyan">
-            Selected: {schematic.name} ({(schematic.size / 1024).toFixed(0)} KB)
-          </span>
-        )}
-        {!schematic && existingSchematicUrl && (
-          <span className="mt-1 block text-[10px] text-lab-cyan">Schematic on server — upload to replace</span>
-        )}
-      </label>
-
-      <input type="text" placeholder="Simulation: Wokwi, Tinkercad embed iframe, or Cirkit Designer link" value={form.simulation_url}
-        onChange={update('simulation_url')}
-        className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
 
       <label className="block text-xs text-dark-muted">
         3D hardware model (optional — GLB/STL recommended on Render; STEP may timeout, max 25 MB)
@@ -718,25 +677,8 @@ export default function AdminPanelPage() {
         )}
       </label>
 
-      <input type="text" placeholder="Video URL (optional — YouTube, Vimeo, etc.)" value={form.video_url}
-        onChange={update('video_url')}
-        className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
-
-      <input placeholder="Libraries / dependencies (comma-separated)" value={form.libraries}
-        onChange={update('libraries')}
-        className="w-full border border-lab-border bg-lab-bg px-3 py-2 text-sm outline-none focus:border-lab-cyan" />
-
-      <div>
-        <p className="mb-2 text-xs text-dark-muted">Code files (optional — add multiple with titles)</p>
-        <CodeFilesEditor
-          files={codeFiles}
-          onChange={setCodeFiles}
-          emptyFile={EMPTY_CODE}
-        />
-      </div>
-
       <label className="block text-xs text-dark-muted">
-        Or bulk-upload as ZIP (optional — use Upload file above for instant preview)
+        Or bulk-upload code as ZIP (optional)
         <input
           type="file"
           accept=".zip,application/zip"
@@ -901,7 +843,9 @@ export default function AdminPanelPage() {
                 >
                   <div className="flex justify-between gap-2">
                     <span className="text-dark-text">{c.client_name || c.client_email || 'Anonymous'}</span>
-                    <span className="text-lab-copper shrink-0">{c.status}</span>
+                    <span className="text-lab-copper shrink-0">
+                      {c.status} · {c.payment_status || 'none'}
+                    </span>
                   </div>
                   <p className="mt-1 text-[10px] text-gray-500">
                     {c.created_at ? new Date(c.created_at).toLocaleString() : '—'}
@@ -949,6 +893,15 @@ export default function AdminPanelPage() {
               )}
 
               <CommandStatusBar status={selectedCommand.status} />
+              <CommandPaymentStatusBar paymentStatus={selectedCommand.payment_status} />
+
+              {hasPerm(user, 'respond_commands') && (
+                <AdminCommandInvoice
+                  commandId={selectedCommand.id}
+                  invoices={selectedCommand.invoices || []}
+                  onReload={() => openCommand(selectedCommand.id)}
+                />
+              )}
 
               {hasPerm(user, 'respond_commands') && (
                 <form onSubmit={handleUpdateStatus} className="space-y-2">

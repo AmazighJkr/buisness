@@ -17,7 +17,7 @@ import {
   adminUpdateStoreProduct,
   validateUploadFile,
 } from '../../api/client.js'
-
+import RichTextEditor from '../RichTextEditor.jsx'
 const EMPTY_VARIANT = { name: '', description: '', image: null }
 function rowFromProduct(p) {
   return {
@@ -364,11 +364,10 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
             />
           </AdminField>
           <AdminField label="Full description">
-            <textarea
-              rows={4}
+            <RichTextEditor
               value={fullForm.description}
-              onChange={(e) => setFullForm((f) => ({ ...f, description: e.target.value }))}
-              className={adminInputCls}
+              onChange={(description) => setFullForm((f) => ({ ...f, description }))}
+              minHeight="12rem"
             />
           </AdminField>
           <div className="grid gap-3 sm:grid-cols-3">

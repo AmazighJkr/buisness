@@ -14,6 +14,7 @@ from .models import (
     CommandLayer,
     CommandLayerBundle,
     CommandMessage,
+    CommandInvoice,
     Project,
     ProjectCategory,
     ProjectCommand,
@@ -65,6 +66,8 @@ from .serializers import (
     StoreProductCommentAdminUpdateSerializer,
     CommandLayerPublicSerializer,
     CommandMessageAdminCreateSerializer,
+    CommandInvoiceSerializer,
+    CommandInvoiceWriteSerializer,
     CommandMessageAdminSerializer,
     CommandMessageCreateSerializer,
     CommandMessagePublicSerializer,
@@ -337,6 +340,7 @@ class MyCommandDetailView(APIView):
 
     def get(self, request, command_id):
         command = get_command_for_user(request.user, command_id)
+        command = ProjectCommand.objects.prefetch_related('messages', 'invoices').get(pk=command.pk)
         return Response(
             ProjectCommandTrackSerializer(command, context={'request': request}).data,
         )
@@ -553,7 +557,7 @@ class AdminStoreProductGalleryImageView(APIView):
 class AdminCommandViewSet(viewsets.GenericViewSet):
     queryset = ProjectCommand.objects.select_related(
         'associated_project', 'responded_by',
-    ).prefetch_related('messages', 'messages__staff_user')
+    ).prefetch_related('messages', 'messages__staff_user', 'invoices')
     serializer_class = ProjectCommandAdminSerializer
     lookup_field = 'id'
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -571,7 +575,7 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
         return {**super().get_serializer_context(), 'request': self.request}
 
     def get_permissions(self):
-        if self.action in ('respond', 'send_message'):
+        if self.action in ('respond', 'send_message', 'create_invoice', 'update_invoice', 'send_invoice'):
             return [CanRespondCommands()]
         return [CanViewCommands()]
 
@@ -680,6 +684,133 @@ class AdminCommandViewSet(viewsets.GenericViewSet):
             status_code=201,
         )
         return Response(message_response(message, request, admin=True), status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get', 'post'], url_path='invoices')
+    def invoices(self, request, id=None):
+        from decimal import Decimal
+
+        from .command_invoice import compute_invoice_totals
+
+        command = self.get_object()
+        if request.method == 'GET':
+            rows = command.invoices.all()
+            return Response(CommandInvoiceSerializer(rows, many=True).data)
+        serializer = CommandInvoiceWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        line_items = serializer.validated_data['line_items']
+        total_usd, total_dzd = compute_invoice_totals(line_items)
+        invoice = CommandInvoice.objects.create(
+            command=command,
+            title=serializer.validated_data.get('title') or 'Facture / Invoice',
+            line_items=line_items,
+            notes=serializer.validated_data.get('notes') or '',
+            total_usd=total_usd,
+            total_dzd=total_dzd,
+            created_by=request.user,
+        )
+        return Response(CommandInvoiceSerializer(invoice).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['patch', 'delete'], url_path=r'invoices/(?P<invoice_id>[^/.]+)')
+    def update_invoice(self, request, id=None, invoice_id=None):
+        from .command_invoice import compute_invoice_totals
+
+        command = self.get_object()
+        invoice = command.invoices.filter(id=invoice_id).first()
+        if not invoice:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if request.method == 'DELETE':
+            if invoice.status != CommandInvoice.Status.DRAFT:
+                return Response({'detail': 'Only draft invoices can be deleted.'}, status=400)
+            invoice.delete()
+            return Response(status=204)
+        if invoice.status != CommandInvoice.Status.DRAFT:
+            return Response({'detail': 'Only draft invoices can be edited.'}, status=400)
+        serializer = CommandInvoiceWriteSerializer(invoice, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        for key, val in serializer.validated_data.items():
+            setattr(invoice, key, val)
+        invoice.total_usd, invoice.total_dzd = compute_invoice_totals(invoice.line_items)
+        invoice.save()
+        return Response(CommandInvoiceSerializer(invoice).data)
+
+    @action(detail=True, methods=['post'], url_path=r'invoices/(?P<invoice_id>[^/.]+)/send')
+    def send_invoice(self, request, id=None, invoice_id=None):
+        from .command_invoice import compute_invoice_totals
+        from .notifications import notify_command_invoice_sent
+
+        command = self.get_object()
+        invoice = command.invoices.filter(id=invoice_id).first()
+        if not invoice:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if invoice.status != CommandInvoice.Status.DRAFT:
+            return Response({'detail': 'Invoice already sent.'}, status=400)
+        invoice.total_usd, invoice.total_dzd = compute_invoice_totals(invoice.line_items)
+        invoice.status = CommandInvoice.Status.SENT
+        invoice.sent_at = timezone.now()
+        invoice.save()
+        command.quoted_price = invoice.total_usd or None
+        command.quoted_price_dzd = invoice.total_dzd or None
+        has_bill = (invoice.total_usd and invoice.total_usd > 0) or (invoice.total_dzd and invoice.total_dzd > 0)
+        if has_bill:
+            command.payment_status = ProjectCommand.PaymentStatus.PENDING
+        command.save(update_fields=['quoted_price', 'quoted_price_dzd', 'payment_status'])
+        summary = invoice.title
+        if invoice.total_dzd and invoice.total_dzd > 0:
+            summary += f' — {invoice.total_dzd} DZD'
+        if invoice.total_usd and invoice.total_usd > 0:
+            summary += f' — {invoice.total_usd} USD'
+        create_staff_message(
+            command,
+            request,
+            text=f'Invoice sent / Facture envoyée: {summary}. Open your command page to pay.',
+        )
+        try:
+            notify_command_invoice_sent(command, invoice)
+        except Exception:
+            pass
+        log_staff_action(
+            request,
+            action='send',
+            resource='commands',
+            object_label=command.tracking_code or str(command.id),
+            object_id=str(command.id),
+            subaction='invoice',
+        )
+        return Response(CommandInvoiceSerializer(invoice).data)
+
+
+class CommandInvoicePdfView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, invoice_id):
+        from .command_invoice import command_invoice_pdf_response
+        from .tracking import get_command_for_code, get_command_for_user
+
+        invoice = CommandInvoice.objects.select_related('command').filter(id=invoice_id).first()
+        if not invoice:
+            return Response({'detail': 'Not found.'}, status=404)
+        command = invoice.command
+        user = request.user
+        code = request.query_params.get('code')
+        command_id = request.query_params.get('command_id')
+        allowed = False
+        if user.is_authenticated and not user.is_staff:
+            try:
+                get_command_for_user(user, command.id)
+                allowed = True
+            except Exception:
+                allowed = False
+        if code:
+            try:
+                tracked = get_command_for_code(code)
+                allowed = tracked.id == command.id
+            except Exception:
+                pass
+        if user.is_staff:
+            allowed = True
+        if not allowed:
+            return Response({'detail': 'Forbidden.'}, status=403)
+        return command_invoice_pdf_response(invoice, command)
 
 
 class AdminCommentListView(generics.ListAPIView):

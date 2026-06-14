@@ -171,9 +171,10 @@ export default function StoreProductDetail({
         <h2 className="amazon-related-section__title mb-3">About this item</h2>
         <div className="amazon-tab-panel panel">
           {product.description ? (
-            <div className="amazon-product__description-body whitespace-pre-wrap">
-              {product.description}
-            </div>
+            <div
+              className="amazon-product__description-body prose-store"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
           ) : (
             <p className="text-sm text-dark-muted">No detailed description yet.</p>
           )}

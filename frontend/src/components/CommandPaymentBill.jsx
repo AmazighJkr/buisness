@@ -5,7 +5,10 @@ import { fetchPaymentConfig, payCommand, payMyCommand } from '../api/client.js'
 import { formatCommandBill, useDzdPricing } from '../utils/formatMoney.js'
 import { paymentStatusLabel } from '../constants/commandStatus.js'
 
+import { useTranslation } from '../context/LocaleContext.jsx'
+
 export default function CommandPaymentBill({ command, onUpdated, useAccountApi = false }) {
+  const { t } = useTranslation()
   const [payLabel, setPayLabel] = useState('Pay now')
   const [useDzd, setUseDzd] = useState(false)
   const [provider, setProvider] = useState('stripe')
@@ -20,12 +23,7 @@ export default function CommandPaymentBill({ command, onUpdated, useAccountApi =
     })
   }, [])
 
-  const paying = command.payment_due || (
-    command.status === 'Accepted' &&
-    ((useDzd && command.quoted_price_dzd > 0) ||
-      (!useDzd && command.quoted_price > 0)) &&
-    command.payment_status === 'pending'
-  )
+  const paying = command.payment_due
 
   const billAmount = useDzd ? command.quoted_price_dzd : command.quoted_price
   if (!billAmount || billAmount <= 0) return null
@@ -54,15 +52,15 @@ export default function CommandPaymentBill({ command, onUpdated, useAccountApi =
       <div className="flex items-start gap-3">
         <CreditCard className="mt-0.5 h-5 w-5 shrink-0 text-lab-cyan" />
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium">Payment bill</h3>
+          <h3 className="text-sm font-medium">{t('command.payment')}</h3>
           <p className="mt-1 text-xs text-dark-muted">
-            Your command was accepted. Complete payment to start development.
+            {t('command.paymentBillLead')}
           </p>
           <p className="mt-3 text-2xl font-semibold tabular-nums">
             {formatCommandBill(command, useDzd)}
           </p>
           <p className="mt-1 text-xs text-dark-muted">
-            Status: {paymentStatusLabel(command.payment_status)}
+            Status: {paymentStatusLabel(command.payment_status, t)}
           </p>
           {paying && (
             <button

@@ -3,6 +3,7 @@ import { useTranslation } from '../context/LocaleContext.jsx'
 import ProjectLockedPanel from './ProjectLockedPanel.jsx'
 import CodePanel from './CodePanel.jsx'
 import ProjectMaterialsSection from './ProjectMaterialsSection.jsx'
+import ProjectContentRenderer from './ProjectContentRenderer.jsx'
 import ProjectComments from './ProjectComments.jsx'
 import SectionBox from './SectionBox.jsx'
 import EmbeddableMedia from './EmbeddableMedia.jsx'
@@ -28,6 +29,8 @@ export default function ProjectDetailContent({ project, onBack }) {
   const videoConfig = project.video_url ? resolveVideoEmbed(project.video_url) : null
   const codeFiles = (project.code_files || []).filter((f) => f?.code?.trim())
   const hasDescription = Boolean(project.description?.trim())
+  const contentBlocks = Array.isArray(project.content_blocks) ? project.content_blocks : []
+  const useBlocks = contentBlocks.length > 0
 
   if (project.locked) {
     return (
@@ -69,6 +72,10 @@ export default function ProjectDetailContent({ project, onBack }) {
         )}
       </SectionBox>
 
+      {useBlocks ? (
+        <ProjectContentRenderer project={project} blocks={contentBlocks} />
+      ) : (
+        <>
       {hasDescription && (
         <SectionBox title={t('materials.description')}>
           <p className="text-sm leading-relaxed text-dark-muted whitespace-pre-wrap">
@@ -159,6 +166,8 @@ export default function ProjectDetailContent({ project, onBack }) {
             <WiringTable wiring={project.wiring} />
           </div>
         </SectionBox>
+      )}
+        </>
       )}
 
       <ProjectComments projectId={project.id} initial={project.comments || []} />

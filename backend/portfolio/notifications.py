@@ -288,3 +288,38 @@ def notify_contact_message_reply(message) -> None:
             f'{wa_fr}'
         ),
     )
+
+
+def notify_command_invoice_sent(command, invoice) -> None:
+    to = command.client_email
+    if not to:
+        return
+    code = command.tracking_code or ''
+    wa_en, wa_fr = _whatsapp_line_fr_en()
+    site = getattr(settings, 'FRONTEND_ORIGIN', '') or ''
+    track = f'{site.rstrip("/")}/track?code={code}' if site and code else ''
+    total_bits = []
+    if invoice.total_dzd and invoice.total_dzd > 0:
+        total_bits.append(f'{invoice.total_dzd} DZD')
+    if invoice.total_usd and invoice.total_usd > 0:
+        total_bits.append(f'{invoice.total_usd} USD')
+    total_str = ' · '.join(total_bits) or '—'
+    _send_client(
+        to,
+        'Invoice ready for your command',
+        'Facture prête pour votre commande',
+        (
+            f'Hello {command.client_name or ""},\n\n'
+            f'We sent you an invoice for your custom command ({code}).\n'
+            f'Amount: {total_str}\n'
+            f'{f"Pay here: {track}" if track else ""}\n\n'
+            f'— EmbeddedGrid team{wa_en}'
+        ),
+        (
+            f'Bonjour {command.client_name or ""},\n\n'
+            f'Nous vous avons envoyé une facture pour votre commande ({code}).\n'
+            f'Montant : {total_str}\n'
+            f'{f"Payer ici : {track}" if track else ""}\n\n'
+            f'— L\'équipe EmbeddedGrid{wa_fr}'
+        ),
+    )

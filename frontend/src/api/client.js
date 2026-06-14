@@ -987,6 +987,27 @@ export async function adminRespondCommand(id, body) {
   })
 }
 
+export async function adminCreateCommandInvoice(commandId, body) {
+  return adminRequest(`${API_BASE}/api/admin/commands/${commandId}/invoices/`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export async function adminSendCommandInvoice(commandId, invoiceId) {
+  return adminRequest(`${API_BASE}/api/admin/commands/${commandId}/invoices/${invoiceId}/send/`, {
+    method: 'POST',
+  })
+}
+
+export function commandInvoicePdfUrl(invoiceId, { code, commandId } = {}) {
+  const params = new URLSearchParams()
+  if (code) params.set('code', code)
+  if (commandId) params.set('command_id', commandId)
+  const qs = params.toString()
+  return `${API_BASE}/api/commands/invoices/${invoiceId}/pdf/${qs ? `?${qs}` : ''}`
+}
+
 export async function adminFetchContactMessages() {
   const data = await adminRequest(`${API_BASE}/api/admin/contact/messages/`)
   return data.results ?? data

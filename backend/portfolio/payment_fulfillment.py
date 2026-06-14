@@ -53,6 +53,11 @@ def mark_command_paid(command, *, currency: str = '', amount=None) -> None:
             'paid_at',
         ],
     )
+    from .models import CommandInvoice
+    CommandInvoice.objects.filter(
+        command=command,
+        status=CommandInvoice.Status.SENT,
+    ).update(status=CommandInvoice.Status.PAID)
 
 
 def mark_subscription_paid(subscription, *, currency: str = '', amount=None) -> None:

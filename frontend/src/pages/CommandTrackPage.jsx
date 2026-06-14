@@ -6,7 +6,9 @@ import CommandPaymentBill from '../components/CommandPaymentBill.jsx'
 import CommandChat from '../components/CommandChat.jsx'
 import CommandStatusBar from '../components/CommandStatusBar.jsx'
 import SectionBox from '../components/SectionBox.jsx'
-import { statusLabel } from '../constants/commandStatus.js'
+import CommandPaymentStatusBar from '../components/CommandPaymentStatusBar.jsx'
+import CommandInvoicesPanel from '../components/CommandInvoicesPanel.jsx'
+import { paymentStatusLabel, statusLabel } from '../constants/commandStatus.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
 import { useUserSession } from '../hooks/useUserSession.js'
 import {
@@ -57,15 +59,27 @@ function CommandDetail({ command, onBack, onSend, onCommandUpdated, sending, use
         <CommandStatusBar status={command.status} />
       </SectionBox>
 
-      {(command.quoted_price > 0 || command.status === 'Accepted') && (
-        <SectionBox title={t('command.payment')}>
-          <CommandPaymentBill
-            command={command}
-            useAccountApi={useAccountApi}
-            onUpdated={onCommandUpdated}
-          />
-        </SectionBox>
-      )}
+      <SectionBox title={t('command.paymentStatusLabel')}>
+        <CommandPaymentStatusBar paymentStatus={command.payment_status} />
+        {command.invoices?.length > 0 && (
+          <div className="mt-4">
+            <CommandInvoicesPanel
+              invoices={command.invoices}
+              trackingCode={command.tracking_code}
+              commandId={useAccountApi ? command.id : undefined}
+            />
+          </div>
+        )}
+        {(command.payment_due || command.payment_status === 'paid' || command.payment_status === 'waived') && (
+          <div className="mt-4">
+            <CommandPaymentBill
+              command={command}
+              useAccountApi={useAccountApi}
+              onUpdated={onCommandUpdated}
+            />
+          </div>
+        )}
+      </SectionBox>
 
       <SectionBox title={t('command.privateChat')}>
         <p className="mb-3 text-xs text-dark-muted">{t('command.chatLead')}</p>
@@ -269,7 +283,9 @@ export default function CommandTrackPage() {
                       className="w-full border border-dark-border px-3 py-2 text-left text-xs panel-hover"
                     >
                       <span className="font-mono text-dark-text">{c.tracking_code}</span>
-                      <span className="ml-2 text-dark-muted">{statusLabel(c.status, t)}</span>
+                      <span className="ml-2 text-dark-muted">
+                        {statusLabel(c.status, t)} · {paymentStatusLabel(c.payment_status, t)}
+                      </span>
                       <p className="mt-1 text-dark-muted">{c.idea_preview}</p>
                     </button>
                   </li>
@@ -405,7 +421,9 @@ export default function CommandTrackPage() {
                       className="w-full border border-dark-border px-3 py-2 text-left text-xs panel-hover"
                     >
                       <span className="font-mono text-dark-text">{c.tracking_code}</span>
-                      <span className="ml-2 text-dark-muted">{statusLabel(c.status, t)}</span>
+                      <span className="ml-2 text-dark-muted">
+                        {statusLabel(c.status, t)} · {paymentStatusLabel(c.payment_status, t)}
+                      </span>
                       <p className="mt-1 text-dark-muted">{c.idea_preview}</p>
                     </button>
                   </li>

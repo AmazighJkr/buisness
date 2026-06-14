@@ -9,6 +9,7 @@ import {
   toStoreFormData,
 } from './storeFormUtils.js'
 import { adminAddProductGallery, adminCreateStoreProduct, validateUploadFile } from '../../api/client.js'
+import RichTextEditor from '../RichTextEditor.jsx'
 import { slugFromName } from '../../utils/slugFromName.js'
 
 const EMPTY_VARIANT = { name: '', description: '', image: null }
@@ -202,11 +203,11 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
       </AdminField>
 
       <AdminField label="Full description">
-        <textarea
-          rows={4}
+        <RichTextEditor
           value={form.description}
-          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-          className={adminInputCls}
+          onChange={(description) => setForm((f) => ({ ...f, description }))}
+          placeholder="Titles, lists, emojis, details…"
+          minHeight="12rem"
         />
       </AdminField>
 

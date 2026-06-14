@@ -11,6 +11,8 @@ import {
   userLogout,
   userRegister,
 } from '../api/client.js'
+import AccountCommandHub from '../components/AccountCommandHub.jsx'
+import { paymentStatusLabel, statusLabel } from '../constants/commandStatus.js'
 import { formatDzd } from '../utils/formatMoney.js'
 import { useTranslation } from '../context/LocaleContext.jsx'
 
@@ -180,7 +182,7 @@ export default function AccountPage() {
     <div className="page-shell">
       <PageHeader highlight="/account" />
 
-      <main className="page-main mx-auto max-w-lg space-y-6">
+      <main className="page-main mx-auto max-w-3xl space-y-6">
         <h1 className="font-display text-xl font-semibold">
           {t('account.welcome', { name: user.username })}
         </h1>
@@ -256,7 +258,8 @@ export default function AccountPage() {
                         >
                           {c.tracking_code || `#${c.id}`}
                         </Link>
-                        <span className="text-dark-muted"> · {c.status}</span>
+                        <span className="text-dark-muted"> · {statusLabel(c.status, t)}</span>
+                        <span className="block text-dark-muted">{paymentStatusLabel(c.payment_status, t)}</span>
                         {c.idea_preview && (
                           <p className="mt-1 text-dark-muted line-clamp-2">{c.idea_preview}</p>
                         )}
@@ -274,6 +277,7 @@ export default function AccountPage() {
             {t('account.trackLink')}
           </Link>
         </div>
+        {orders.commands?.length > 0 && <AccountCommandHub commands={orders.commands} />}
         <div className="panel space-y-3 p-4">
           <h2 className="text-sm font-semibold">{t('account.securityTitle')}</h2>
           <p className="text-xs text-dark-muted">{t('account.securityLead')}</p>

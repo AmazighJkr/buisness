@@ -94,6 +94,11 @@ class Project(models.Model):
         help_text='Visible to everyone without a subscription pack',
     )
     featured_order = models.PositiveIntegerField(default=0)
+    content_blocks = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Ordered page sections: rich_text, heading, materials, wiring, image, etc.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -241,6 +246,47 @@ class ProjectCommand(models.Model):
             from .tracking import generate_tracking_code
             self.tracking_code = generate_tracking_code()
         super().save(*args, **kwargs)
+
+
+class CommandInvoice(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        SENT = 'sent', 'Sent'
+        PAID = 'paid', 'Paid'
+        CANCELLED = 'cancelled', 'Cancelled'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    command = models.ForeignKey(
+        ProjectCommand,
+        on_delete=models.CASCADE,
+        related_name='invoices',
+    )
+    title = models.CharField(max_length=200, default='Facture / Invoice')
+    line_items = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='[{label, description, qty, unit_usd, unit_dzd}]',
+    )
+    notes = models.TextField(blank=True)
+    total_usd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_dzd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.DRAFT)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='command_invoices_created',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.title} ({self.command.tracking_code})'
 
 
 class CommandLayer(models.Model):
