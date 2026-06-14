@@ -571,6 +571,20 @@ class StoreProductVariant(models.Model):
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='store/products/variants/', blank=True, null=True)
+    price_usd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Leave empty to use the product base price.',
+    )
+    price_dzd = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Leave empty to use the product base price.',
+    )
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:

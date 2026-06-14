@@ -201,7 +201,7 @@ class StoreProductVariantPublicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StoreProductVariant
-        fields = ['id', 'name', 'description', 'image_url', 'sort_order']
+        fields = ['id', 'name', 'description', 'image_url', 'price_usd', 'price_dzd', 'sort_order']
 
     def get_image_url(self, obj):
         return media_url(obj.image)
@@ -692,7 +692,7 @@ class AdminStoreProductVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StoreProductVariant
-        fields = ['id', 'name', 'description', 'image', 'image_url', 'sort_order']
+        fields = ['id', 'name', 'description', 'image', 'image_url', 'price_usd', 'price_dzd', 'sort_order']
         read_only_fields = ['id']
 
     def get_image_url(self, obj):
@@ -792,11 +792,15 @@ class AdminStoreProductSerializer(serializers.ModelSerializer):
             if not name:
                 continue
             image = files.get(f'variant_image_{index}')
+            price_usd = row.get('price_usd')
+            price_dzd = row.get('price_dzd')
             StoreProductVariant.objects.create(
                 product=instance,
                 name=name,
                 description=(row.get('description') or '').strip(),
                 image=image or None,
+                price_usd=price_usd if price_usd not in (None, '') else None,
+                price_dzd=price_dzd if price_dzd not in (None, '') else None,
                 sort_order=int(row.get('sort_order') or index),
             )
 
@@ -1259,11 +1263,33 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 ),
             })
 
+    def _uploaded_in_request(self, field_name: str) -> bool:
+        request = self.context.get('request')
+        return bool(
+            request
+            and hasattr(request, 'FILES')
+            and field_name in request.FILES
+        )
+
     def _verify_schematic_saved(self, instance):
+        if not self._uploaded_in_request('schematic_image'):
+            return
         self._verify_image_saved(instance, 'schematic_image', 'Schematic image')
 
     def _verify_cover_saved(self, instance):
+        if not self._uploaded_in_request('cover_image'):
+            return
         self._verify_image_saved(instance, 'cover_image', 'Cover image')
+
+    def _clear_stale_legacy_schematic(self, instance):
+        blocks = instance.content_blocks or []
+        if not any(b.get('type') == 'schematic' for b in blocks):
+            return
+        if not instance.schematic_image or not getattr(instance.schematic_image, 'name', None):
+            return
+        if media_url(instance.schematic_image) is None:
+            instance.schematic_image = None
+            instance.save(update_fields=['schematic_image'])
 
     def _convert_model_3d(self, instance, uploaded_new: bool):
         if not uploaded_new:
@@ -1292,16 +1318,33 @@ class AdminProjectSerializer(serializers.ModelSerializer):
             return
         from django.core.files.storage import default_storage
 
+        from .validators import validate_upload_extension
+
         changed = False
         prefix = 'block_image_'
+        errors = []
         for key, upload in request.FILES.items():
             if not key.startswith(prefix):
                 continue
             block_id = key[len(prefix):]
+            try:
+                validate_upload_extension(upload)
+            except Exception as exc:
+                errors.append(f'{block_id}: {exc}')
+                continue
+            if upload.size > 5 * 1024 * 1024:
+                errors.append(f'{block_id}: Image must be 5 MB or smaller.')
+                continue
             saved_name = default_storage.save(
                 f'project_blocks/{instance.pk}/{block_id}_{upload.name}',
                 upload,
             )
+            if not default_storage.exists(saved_name):
+                errors.append(
+                    f'{block_id}: Image was not saved on the server. '
+                    'On Render, set CLOUDINARY_URL or try a smaller file (max 5 MB).',
+                )
+                continue
             url = default_storage.url(saved_name)
             if url and not url.startswith('http'):
                 url = request.build_absolute_uri(url)
@@ -1309,6 +1352,8 @@ class AdminProjectSerializer(serializers.ModelSerializer):
                 if str(block.get('id')) == block_id:
                     block['image_url'] = url
                     changed = True
+        if errors:
+            raise serializers.ValidationError({'content_blocks_json': ' '.join(errors)})
         if changed:
             instance.content_blocks = blocks
             instance.save(update_fields=['content_blocks', 'updated_at'])
@@ -1321,6 +1366,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         self._apply_packs(instance, pack_ids)
         self._verify_cover_saved(instance)
         self._verify_schematic_saved(instance)
+        self._clear_stale_legacy_schematic(instance)
         self._convert_model_3d(instance, bool(had_model))
         self._apply_block_image_uploads(instance)
         return instance
@@ -1338,6 +1384,7 @@ class AdminProjectSerializer(serializers.ModelSerializer):
         self._apply_packs(instance, pack_ids)
         self._verify_cover_saved(instance)
         self._verify_schematic_saved(instance)
+        self._clear_stale_legacy_schematic(instance)
         self._convert_model_3d(instance, uploaded_new)
         self._apply_block_image_uploads(instance)
         return instance

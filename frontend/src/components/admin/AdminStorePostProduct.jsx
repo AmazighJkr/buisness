@@ -12,7 +12,7 @@ import { adminAddProductGallery, adminCreateStoreProduct, validateUploadFile } f
 import RichTextEditor from '../RichTextEditor.jsx'
 import { slugFromName } from '../../utils/slugFromName.js'
 
-const EMPTY_VARIANT = { name: '', description: '', image: null }
+const EMPTY_VARIANT = { name: '', description: '', price_usd: '', price_dzd: '', image: null }
 
 const EMPTY = {
   parentCategory: '',
@@ -105,6 +105,8 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
         .map((v, index) => ({
           name: (v.name || '').trim(),
           description: (v.description || '').trim(),
+          price_usd: v.price_usd === '' || v.price_usd == null ? null : String(v.price_usd),
+          price_dzd: v.price_dzd === '' || v.price_dzd == null ? null : String(v.price_dzd),
           sort_order: index,
         }))
         .filter((v) => v.name)
@@ -265,10 +267,10 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
         )}
       </AdminField>
 
-      <AdminField label="Product models / variants" hint="Optional — name and short note per model (e.g. Uno R3, Nano)">
+      <AdminField label="Product models / variants" hint="Optional — name, note, and optional price override per model">
         <div className="space-y-2">
           {variants.map((v, index) => (
-            <div key={index} className="flex flex-wrap gap-2">
+            <div key={index} className="grid gap-2 border border-dark-border p-2 sm:grid-cols-2">
               <input
                 placeholder="Model name"
                 value={v.name}
@@ -276,7 +278,7 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
                   const name = e.target.value
                   setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, name } : row)))
                 }}
-                className="min-w-[8rem] flex-1 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm sm:col-span-2"
               />
               <input
                 placeholder="Note (e.g. I2C, male/female)"
@@ -285,10 +287,34 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
                   const description = e.target.value
                   setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, description } : row)))
                 }}
-                className="min-w-[10rem] flex-[2] border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm sm:col-span-2"
               />
-              <label className="cursor-pointer border border-dark-border px-2 py-1 text-xs text-lab-cyan">
-                {v.image ? v.image.name : 'Image'}
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Price USD (optional)"
+                value={v.price_usd}
+                onChange={(e) => {
+                  const price_usd = e.target.value
+                  setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, price_usd } : row)))
+                }}
+                className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+              />
+              <input
+                type="number"
+                step="1"
+                min="0"
+                placeholder="Price DZD (optional)"
+                value={v.price_dzd}
+                onChange={(e) => {
+                  const price_dzd = e.target.value
+                  setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, price_dzd } : row)))
+                }}
+                className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+              />
+              <label className="cursor-pointer border border-dark-border px-2 py-1 text-xs text-lab-cyan sm:col-span-2">
+                {v.image ? v.image.name : 'Model image (optional)'}
                 <input
                   type="file"
                   accept="image/*"
@@ -302,10 +328,10 @@ export default function AdminStorePostProduct({ categories, onReload, onMessage,
               {variants.length > 1 && (
                 <button
                   type="button"
-                  className="text-xs text-red-400"
+                  className="text-xs text-red-400 sm:col-span-2 text-left"
                   onClick={() => setVariants((rows) => rows.filter((_, i) => i !== index))}
                 >
-                  Remove
+                  Remove model
                 </button>
               )}
             </div>

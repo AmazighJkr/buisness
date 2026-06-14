@@ -20,6 +20,15 @@ export default function StoreProductDetail({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [related, setRelated] = useState([])
+  const [selectedVariantId, setSelectedVariantId] = useState(null)
+
+  const selectedVariant = product.variants?.find((v) => v.id === selectedVariantId) || null
+  const displayDzd = Number(
+    selectedVariant?.price_dzd ?? product.price_dzd ?? 0,
+  )
+  const displayUsd = Number(
+    selectedVariant?.price_usd ?? product.price_usd ?? 0,
+  )
 
   const images = product.gallery_urls?.length
     ? product.gallery_urls
@@ -28,7 +37,19 @@ export default function StoreProductDetail({
       : []
 
   const inStock = product.stock_qty > 0
-  const priceMain = formatDzd(Number(product.price_dzd || 0))
+  const priceMain = formatDzd(displayDzd)
+  const priceUsdNote = displayUsd > 0 ? `$${displayUsd.toFixed(2)}` : null
+
+  const addProduct = () => {
+    onAdd({
+      ...product,
+      price_dzd: displayDzd,
+      price_usd: displayUsd,
+      selected_variant: selectedVariant
+        ? { id: selectedVariant.id, name: selectedVariant.name }
+        : null,
+    })
+  }
 
   const bullets = (product.short_description || '')
     .split(/\n|•|·/)
@@ -88,17 +109,28 @@ export default function StoreProductDetail({
                 {t('store.models')}
               </p>
               <div className="store-product-variants store-product-variants--detail">
-                {product.variants.map((v) => (
-                  <div key={v.id} className="store-product-variant store-product-variant--detail">
+                {product.variants.map((v) => {
+                  const variantDzd = v.price_dzd != null ? Number(v.price_dzd) : Number(product.price_dzd || 0)
+                  const active = selectedVariantId === v.id
+                  return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setSelectedVariantId(v.id)}
+                    className={`store-product-variant store-product-variant--detail store-product-variant--pickable ${active ? 'store-product-variant--active' : ''}`}
+                  >
                     {v.image_url && <img src={v.image_url} alt={v.name} />}
                     <div>
                       <p className="store-product-variant__name">{v.name}</p>
                       {v.description && (
                         <p className="store-product-variant__desc">{v.description}</p>
                       )}
+                      {v.price_dzd != null && (
+                        <p className="store-product-variant__price">{formatDzd(variantDzd)}</p>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  </button>
+                )})}
               </div>
             </div>
           )}
@@ -125,6 +157,12 @@ export default function StoreProductDetail({
               <span className="amazon-buybox__label">Price</span>
               <span className="amazon-buybox__price">{priceMain}</span>
             </div>
+            {priceUsdNote && (
+              <p className="text-xs text-dark-muted">{priceUsdNote}</p>
+            )}
+            {selectedVariant && (
+              <p className="text-xs text-lab-cyan">Model: {selectedVariant.name}</p>
+            )}
 
             <p className="amazon-buybox__stock">
               {inStock ? (
@@ -145,7 +183,7 @@ export default function StoreProductDetail({
             <button
               type="button"
               disabled={!inStock}
-              onClick={() => onAdd(product)}
+              onClick={addProduct}
               className={`amazon-buybox__cart-btn ${added ? 'amazon-buybox__cart-btn--added' : ''}`}
             >
               <ShoppingBag className="h-5 w-5" aria-hidden />
@@ -156,7 +194,7 @@ export default function StoreProductDetail({
               type="button"
               disabled={!inStock}
               onClick={() => {
-                onAdd(product)
+                addProduct()
                 navigate('/shop/checkout', { state: { freshCheckout: true } })
               }}
               className="amazon-buybox__checkout-btn"

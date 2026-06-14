@@ -18,7 +18,7 @@ import {
   validateUploadFile,
 } from '../../api/client.js'
 import RichTextEditor from '../RichTextEditor.jsx'
-const EMPTY_VARIANT = { name: '', description: '', image: null }
+const EMPTY_VARIANT = { name: '', description: '', price_usd: '', price_dzd: '', image: null, image_url: '' }
 function rowFromProduct(p) {
   return {
     name: p.name || '',
@@ -105,6 +105,8 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
       variants: (p.variants?.length ? p.variants : [{ ...EMPTY_VARIANT }]).map((v) => ({
         name: v.name || '',
         description: v.description || '',
+        price_usd: v.price_usd != null ? String(v.price_usd) : '',
+        price_dzd: v.price_dzd != null ? String(v.price_dzd) : '',
         image: null,
         image_url: v.image_url || '',
       })),
@@ -151,6 +153,8 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
         .map((v, index) => ({
           name: (v.name || '').trim(),
           description: (v.description || '').trim(),
+          price_usd: v.price_usd === '' || v.price_usd == null ? null : String(v.price_usd),
+          price_dzd: v.price_dzd === '' || v.price_dzd == null ? null : String(v.price_dzd),
           sort_order: index,
         }))
         .filter((v) => v.name)
@@ -384,7 +388,7 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
           <AdminField label="Product models / variants">
             <div className="space-y-2">
               {(fullForm.variants || []).map((v, index) => (
-                <div key={index} className="flex flex-wrap gap-2">
+                <div key={index} className="grid gap-2 border border-dark-border p-2 sm:grid-cols-2">
                   <input
                     placeholder="Model name"
                     value={v.name}
@@ -395,7 +399,7 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
                         variants: f.variants.map((row, i) => (i === index ? { ...row, name } : row)),
                       }))
                     }}
-                    className="min-w-[8rem] flex-1 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                    className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm sm:col-span-2"
                   />
                   <input
                     placeholder="Note (optional)"
@@ -407,10 +411,40 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
                         variants: f.variants.map((row, i) => (i === index ? { ...row, description } : row)),
                       }))
                     }}
-                    className="min-w-[10rem] flex-[2] border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                    className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm sm:col-span-2"
                   />
-                  <label className="cursor-pointer border border-dark-border px-2 py-1 text-xs text-lab-cyan">
-                    {v.image ? v.image.name : v.image_url ? 'Replace image' : 'Image'}
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Price USD (optional)"
+                    value={v.price_usd}
+                    onChange={(e) => {
+                      const price_usd = e.target.value
+                      setFullForm((f) => ({
+                        ...f,
+                        variants: f.variants.map((row, i) => (i === index ? { ...row, price_usd } : row)),
+                      }))
+                    }}
+                    className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                  />
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    placeholder="Price DZD (optional)"
+                    value={v.price_dzd}
+                    onChange={(e) => {
+                      const price_dzd = e.target.value
+                      setFullForm((f) => ({
+                        ...f,
+                        variants: f.variants.map((row, i) => (i === index ? { ...row, price_dzd } : row)),
+                      }))
+                    }}
+                    className="min-w-0 border border-dark-border bg-dark-bg px-2 py-1 text-sm"
+                  />
+                  <label className="cursor-pointer border border-dark-border px-2 py-1 text-xs text-lab-cyan sm:col-span-2">
+                    {v.image ? v.image.name : v.image_url ? 'Replace image' : 'Model image (optional)'}
                     <input
                       type="file"
                       accept="image/*"
@@ -426,18 +460,18 @@ export default function AdminStoreManageProducts({ categories, products, onReloa
                     />
                   </label>
                   {v.image_url && !v.image && (
-                    <img src={v.image_url} alt="" className="h-8 w-8 rounded object-cover" />
+                    <img src={v.image_url} alt="" className="h-8 w-8 rounded object-cover sm:col-span-2" />
                   )}
                   {fullForm.variants.length > 1 && (
                     <button
                       type="button"
-                      className="text-xs text-red-400"
+                      className="text-xs text-red-400 sm:col-span-2 text-left"
                       onClick={() => setFullForm((f) => ({
                         ...f,
                         variants: f.variants.filter((_, i) => i !== index),
                       }))}
                     >
-                      Remove
+                      Remove model
                     </button>
                   )}
                 </div>

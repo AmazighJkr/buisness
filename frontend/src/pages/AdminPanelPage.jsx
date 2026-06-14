@@ -53,7 +53,7 @@ import { COMMAND_STATUSES, PAYMENT_STATUSES } from '../constants/commandStatus.j
 
 const EMPTY_MAT = { component: '', quantity: '1', notes: '', store_product_id: '', amazon_url: '' }
 
-function buildProjectFormData(form, contentBlocks, blockFiles, cover, model3d, codeArchive, packIds) {
+function buildProjectFormData(form, contentBlocks, blockFiles, cover, model3d, packIds) {
   const fd = new FormData()
   fd.append('subcategory', form.subcategory)
   fd.append('is_featured', form.is_featured ? 'true' : 'false')
@@ -75,7 +75,6 @@ function buildProjectFormData(form, contentBlocks, blockFiles, cover, model3d, c
   fd.append('pack_ids_json', JSON.stringify(packIds || []))
   if (cover) fd.append('cover_image', cover)
   if (model3d) fd.append('model_3d_file', model3d)
-  if (codeArchive) fd.append('code_archive', codeArchive)
   return fd
 }
 
@@ -115,7 +114,6 @@ export default function AdminPanelPage() {
   const [cover, setCover] = useState(null)
   const [existingCoverUrl, setExistingCoverUrl] = useState('')
   const [model3d, setModel3d] = useState(null)
-  const [codeArchive, setCodeArchive] = useState(null)
   const [existingModel3dUrl, setExistingModel3dUrl] = useState('')
   const [existingModel3dPending, setExistingModel3dPending] = useState(false)
   const [existingModel3dConversionError, setExistingModel3dConversionError] = useState('')
@@ -231,7 +229,6 @@ export default function AdminPanelPage() {
     setCover(null)
     setExistingCoverUrl('')
     setModel3d(null)
-    setCodeArchive(null)
     setExistingModel3dUrl('')
     setExistingModel3dPending(false)
     setExistingModel3dConversionError('')
@@ -266,7 +263,7 @@ export default function AdminPanelPage() {
     }
     try {
       const fd = buildProjectFormData(
-        form, contentBlocks, blockFiles, cover, model3d, codeArchive, selectedPackIds,
+        form, contentBlocks, blockFiles, cover, model3d, selectedPackIds,
       )
       const converting3d = Boolean(model3d)
       const isGlbUpload = converting3d && /\.(glb|gltf)$/i.test(model3d.name)
@@ -673,21 +670,6 @@ export default function AdminPanelPage() {
         {!model3d && existingModel3dPending && !existingModel3dConversionError && (
           <span className="mt-1 block text-[10px] text-amber-400">
             Converting to GLB in the background — refresh the project page in 1–3 minutes.
-          </span>
-        )}
-      </label>
-
-      <label className="block text-xs text-dark-muted">
-        Or bulk-upload code as ZIP (optional)
-        <input
-          type="file"
-          accept=".zip,application/zip"
-          className="mt-1 block w-full text-xs"
-          onChange={(e) => setCodeArchive(e.target.files?.[0] || null)}
-        />
-        {codeArchive && (
-          <span className="mt-1 block text-[10px] text-lab-cyan">
-            Selected: {codeArchive.name} ({(codeArchive.size / 1024).toFixed(0)} KB)
           </span>
         )}
       </label>
